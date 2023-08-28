@@ -34,10 +34,10 @@ model User {
   moderatorForChannelId String?  @map("moderator_for_channel") // TODO: find a name 
   memberForChannel      Channel? @relation(name: "members", fields: [memberForChannelId], references: [id])
   memberForChannelId    String?  @map("member_for_channel_id")
-  gameOpposite          Game[]   @relation("oppositeUser")
-  gameOpponent          Game[]   @relation("opponentUser")
+  oppositeGames         Game[]   @relation("oppositeUser")
+  opponentGames         Game[]   @relation("opponentUser")
   log                   Log      @relation(fields: [logId], references: [id])
-  logId                 String
+  logId                 String   @unique
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -154,10 +154,10 @@ model Log {
   points    Int
   rank      Rank
 
+  user User?
+
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
-  user User[] // TODO: why this !
 
   @@map("logs")
 }
