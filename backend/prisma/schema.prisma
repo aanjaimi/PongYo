@@ -10,10 +10,198 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id String @unique @default(cuid())
+enum UserStatus {
+  ONLINE
+  OFFLINE
+  IN_GAME
+}
 
-  firstName String @map("first_name")
+model User {
+  id          String     @id @default(cuid())
+  displayname String
+  login       String     @unique
+  email       String     @unique
+  userStatus  UserStatus @default(OFFLINE) @map("user_status")
+
+  // towFactorAuth Boolean         @default(false)
+  friends              Friend[]
+  messages             Message[]
+  senderNotification   Notification[] @relation("sender")
+  receiverNotification Notification[] @relation("receiver")
+  achievement          Achievement[]
+
+  moderatorForChannel   Channel? @relation(name: "moderators", fields: [moderatorForChannelId], references: [id])
+  moderatorForChannelId String?  @map("moderator_for_channel") // TODO: find a name 
+  memberForChannel      Channel? @relation(name: "members", fields: [memberForChannelId], references: [id])
+  memberForChannelId    String?  @map("member_for_channel_id")
+  gameOpposite          Game[]   @relation("oppositeUser")
+  gameOpponent          Game[]   @relation("opponentUser")
+  log                   Log      @relation(fields: [logId], references: [id])
+  logId                 String
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("users")
+}
+
+enum State {
+  BLOCKED
+  PENDING
+  ACCEPTED
+  REFUSED
+}
+
+model Friend {
+  id     String @id @default(cuid())
+  state  State
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("friends")
+}
+
+model Achievement {
+  id          String @id @default(cuid())
+  name        String
+  description String
+  icon        String
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("achievements")
+}
+
+enum NotifType {
+  MESSAGE
+  GAME_REQUEST
+  FRIEND_REQUEST
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  content   Json?
+  notifType NotifType @map("notif_type")
+
+  sender     User   @relation(name: "sender", fields: [senderId], references: [id])
+  senderId   String @map("sender_id")
+  receiver   User   @relation(name: "receiver", fields: [receiverId], references: [id])
+  receiverId String @map("receiver_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("notifications")
+}
+
+enum Mode {
+  CLASSIC
+  RANKED
+}
+
+model Game {
+  id   String @id @default(cuid())
+  mode Mode
+
+  history   History @relation(fields: [historyId], references: [id])
+  historyId String  @unique
+
+  opponent   User   @relation(name: "opponentUser", fields: [opponentId], references: [id])
+  opponentId String @map("oppenent_id")
+  opposite   User   @relation(name: "oppositeUser", fields: [oppositeId], references: [id])
+  oppositeId String @map("opposite_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("games")
+}
+
+model History {
+  id            String @id @default(cuid())
+  oppositeScore Int    @map("opposite_score")
+  opponentScore Int    @map("opponent_score")
+  game          Game?
+
+  @@map("histories")
+}
+
+enum Rank {
+  UNRANKED
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  EMERALD
+  DIAMOND
+  MASTER
+  GRANDMASTER
+  LEGEND
+  CHAMPION
+}
+
+model Log {
+  id        String @id @unique @default(cuid())
+  vectories Int
+  defeats   Int
+  points    Int
+  rank      Rank
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User[] // TODO: why this !
+
+  @@map("logs")
+}
+
+enum MessageType {
+  TEXT
+  FILE
+}
+
+model Message {
+  id      String      @id @default(cuid())
+  type    MessageType @default(TEXT)
+  content Json
+
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String  @map("user_id")
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId String  @map("channel_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("messages")
+}
+
+enum RoomType {
+  PRIVATE
+  PUBLIC
+  PROTECTED
+}
+
+model Channel {
+  id       String   @id @default(cuid())
+  type     RoomType
+  name     String
+  password String?
+  isDM     Boolean  @map("is_dm")
+
+  messages   Message[]
+  moderators User[]    @relation("moderators")
+  members    User[]    @relation("members")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("channels")
 }
