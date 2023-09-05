@@ -30,14 +30,14 @@ model User {
   receiverNotification Notification[] @relation("receiver")
   achievement          Achievement[]
 
-  moderatorForChannel   Channel? @relation(name: "moderators", fields: [moderatorForChannelId], references: [id])
-  moderatorForChannelId String?  @map("moderator_for_channel") // TODO: find a name 
-  memberForChannel      Channel? @relation(name: "members", fields: [memberForChannelId], references: [id])
-  memberForChannelId    String?  @map("member_for_channel_id")
+  // moderatorForChannel   Channel? @relation(name: "moderators", fields: [moderatorForChannelId], references: [id])
+  // moderatorForChannelId String?  @map("moderator_for_channel") // TODO: find a name 
+  // memberForChannel      Channel? @relation(name: "members", fields: [memberForChannelId], references: [id])
+  // memberForChannelId    String?  @map("member_for_channel_id")
   oppositeGames         Game[]   @relation("oppositeUser")
   opponentGames         Game[]   @relation("opponentUser")
-  log                   Log      @relation(fields: [logId], references: [id])
-  logId                 String   @unique
+  // log                   Log      @relation(fields: [logId], references: [id])
+  // logId                 String   @unique
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -147,20 +147,20 @@ enum Rank {
   CHAMPION
 }
 
-model Log {
-  id        String @id @unique @default(cuid())
-  vectories Int
-  defeats   Int
-  points    Int
-  rank      Rank
+// model Log {
+//   id        String @id @unique @default(cuid())
+//   vectories Int
+//   defeats   Int
+//   points    Int
+//   rank      Rank
 
-  user User?
+//   user User?
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+//   createdAt DateTime @default(now()) @map("created_at")
+//   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("logs")
-}
+//   @@map("logs")
+// }
 
 enum MessageType {
   TEXT
@@ -197,8 +197,8 @@ model Channel {
   isDM     Boolean  @map("is_dm")
 
   messages   Message[]
-  moderators User[]    @relation("moderators")
-  members    User[]    @relation("members")
+  // moderators User[]    @relation("moderators")
+  // members    User[]    @relation("members")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
