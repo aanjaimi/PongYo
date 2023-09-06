@@ -36,8 +36,8 @@ model User {
   // memberForChannelId    String?  @map("member_for_channel_id")
   oppositeGames         Game[]   @relation("oppositeUser")
   opponentGames         Game[]   @relation("opponentUser")
-  // log                   Log      @relation(fields: [logId], references: [id])
-  // logId                 String   @unique
+  log                   Log      @relation(fields: [logId], references: [id])
+  logId                 String   @unique
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -147,20 +147,20 @@ enum Rank {
   CHAMPION
 }
 
-// model Log {
-//   id        String @id @unique @default(cuid())
-//   vectories Int
-//   defeats   Int
-//   points    Int
-//   rank      Rank
+model Log {
+  id        String @id @unique @default(cuid())
+  vectories Int
+  defeats   Int
+  points    Int
+  rank      Rank
 
-//   user User?
+  user User?
 
-//   createdAt DateTime @default(now()) @map("created_at")
-//   updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-//   @@map("logs")
-// }
+  @@map("logs")
+}
 
 enum MessageType {
   TEXT
