@@ -1,14 +1,16 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, Profile } from 'passport-42';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Strategy } from 'passport-42';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { FortyTwoProfile } from '../interfaces/42.interface';
 
 @Injectable()
 export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
   constructor(
     private prismaService: PrismaService,
-    private configService: ConfigService) {
+    private configService: ConfigService,
+  ) {
     super({
       clientID: configService.get('INTRA_CLIENT_ID'),
       clientSecret: configService.get('INTRA_CLIENT_SECRET'),
@@ -16,7 +18,11 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     });
   }
 
-  async validate(accessToken: string, refreshToken: string, profile: Profile) {
+  async validate(
+    accessToken: string,
+    refreshToken: string,
+    profile: FortyTwoProfile,
+  ) {
     const user = await this.prismaService.user.upsert({
       where: { login: profile.username },
       create: {
@@ -29,19 +35,12 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
             vectories: 0,
             defeats: 0,
             points: 0,
-            rank: "UNRANKED",
-            createdAt: new Date(),
-            updatedAt: new Date()
+            rank: 'UNRANKED',
           },
         },
-        createdAt: new Date(),
-        updatedAt: new Date()
       },
-      update: {
-        
-      }
+      update: {},
     });
-    if (!user) throw new UnauthorizedException();
     return user;
   }
 }

@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, PrismaClient, User } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { AUTH_COOKIE_MAX_AGE, AUTH_COOKIE_NAME } from './auth.constants';
+import { JwtAuthPayload } from './interfaces/jwt.interface';
 
 @Injectable()
 export class AuthService {
@@ -11,22 +12,26 @@ export class AuthService {
 
   constructor(
     private jwtService: JwtService,
-    private prismaService: PrismaService,
-    private configService: ConfigService) {}
+    private configService: ConfigService,
+  ) {}
 
-  async callback(user: User, res: Response) {
+  async fortyTwoCallback(user: User, res: Response) {
     const payload = {
       iss: 'Transcendence',
       login: user.login,
       sub: user.login,
-    };
+    } satisfies JwtAuthPayload;
 
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get('JWT_SECRET'),
-      expiresIn: '1d',
+      expiresIn: AUTH_COOKIE_MAX_AGE,
     });
 
-    res.cookie('jwt', token, { httpOnly: true });
-    res.redirect(this.configService.get('FRONTEND_ORIGIN') + `/profile`);
+    res.cookie(AUTH_COOKIE_NAME, token, {
+      httpOnly: true,
+      path: '/',
+      maxAge: AUTH_COOKIE_MAX_AGE,
+    });
+    res.redirect(this.configService.get('FRONTEND_ORIGIN'));
   }
 }
