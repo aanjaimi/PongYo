@@ -4,5 +4,6 @@ import { ConfigurableModuleClass } from './redis.module-definition';
 
 @Module({
   providers: [RedisService],
+  exports: [RedisService],
 })
 export class RedisModule extends ConfigurableModuleClass {}
