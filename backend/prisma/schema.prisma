@@ -31,7 +31,7 @@ model User {
 	achievement          Achievement[]
 
 	moderatorForChannel   Channel[]	@relation("moderators")
-	memberForChannel      Channel[]     @relation("members")
+	channels      Channel[]     @relation("members")
 	oppositeGames         Game[]        @relation("oppositeUser")
 	opponentGames         Game[]        @relation("opponentUser")
 	log                   Log?           @relation(fields: [logId], references: [id])
@@ -141,7 +141,6 @@ enum Rank {
 	DIAMOND
 	MASTER
 	GRANDMASTER
-	LEGEND
 	CHAMPION
 }
 

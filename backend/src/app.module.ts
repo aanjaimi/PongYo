@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { validationSchema, validationOptions } from '@/config/validation.joi';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -11,6 +12,7 @@ import { validationSchema, validationOptions } from '@/config/validation.joi';
       validationSchema,
       validationOptions,
     }),
+    ChatModule,
   ],
   controllers: [],
   providers: [],
