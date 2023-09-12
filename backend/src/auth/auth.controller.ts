@@ -10,6 +10,7 @@ export class AuthController {
   @Get('42')
   @UseGuards(FortyTwoGuard)
   fortyTwoLogin() {
+	  console.log('here in the 42 Login');
     // ? INFO: this function will redirect to intra login page !
   }
 

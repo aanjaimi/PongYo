@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AUTH_COOKIE_NAME } from '../auth.constants';
 import { JwtAuthPayload } from '../interfaces/jwt.interface';
+import { CookieExtractor } from './cookie-extractor';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -14,7 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private prismaService: PrismaService,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([JwtStrategy.extractJWT]),
+      jwtFromRequest: CookieExtractor.extractToken,
       ignoreExpiration: false,
       secretOrKey: configService.get('JWT_SECRET'),
     });
@@ -26,7 +27,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         login: payload.login,
       },
     });
-    if (!user) throw new UnauthorizedException();
+    if (!user)
+    {
+      throw new UnauthorizedException();
+    }
     return user;
   }
 

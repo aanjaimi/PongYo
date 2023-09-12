@@ -28,10 +28,10 @@ export class AuthService {
     });
 
     res.cookie(AUTH_COOKIE_NAME, token, {
-      httpOnly: true,
+      httpOnly: false,
       path: '/',
       maxAge: AUTH_COOKIE_MAX_AGE,
     });
-    res.redirect(this.configService.get('FRONTEND_ORIGIN'));
+    res.redirect(this.configService.get('FRONTEND_ORIGIN_PROFILE'));
   }
 }
