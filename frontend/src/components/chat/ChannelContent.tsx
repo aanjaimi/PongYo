@@ -17,7 +17,7 @@ export default function ChannelContent(
 				{channel?.messages.map((message) => (
 					<div className={`flex my-[5px] mx-[10px] rounded-md ${message.userId === user.id ? 'justify-end' : ''}`} key={message.id}>
 						<div className={`p-2 rounded-2xl ${message.userId === user.id? 'bg-[#8d8ddab3]':'bg-[#abd9d9b3]'}`}>
-							{message.content.content}
+							{message.content}
 						</div>
 					</div>
 				))}

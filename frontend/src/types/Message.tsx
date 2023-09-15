@@ -1,6 +1,6 @@
 export type Message = {
   id: string
-  content: JSON
+  content: string
   channelId: string
   userId: string
   createdAt?: Date
