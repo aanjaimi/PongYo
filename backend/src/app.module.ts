@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { validationSchema, validationOptions } from '@/config/validation.joi';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
-import { ProfileModule } from './profile/profile.module';
+import { UserModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { ProfileModule } from './profile/profile.module';
       validationOptions,
     }),
     AuthModule,
-    ProfileModule
+    UserModule
   ],
   controllers: [],
   providers: [],
