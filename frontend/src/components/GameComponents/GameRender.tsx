@@ -16,7 +16,38 @@ const GameRender = () => {
         background: "#33437D",
       },
     });
-    Matter.World.add(engine.world, []);
+    const ball = Matter.Bodies.circle(325, 375, 10, {
+      render: {
+        fillStyle: 'white', // Set the ball's fill color to red
+      },
+    });
+
+    const playerpadle = Matter.Bodies.rectangle(325,15, 150, 20,{
+      isStatic: true,
+      render: {
+        fillStyle: "#8D8DDA",
+       },
+       chamfer: {
+        radius: 10,
+      },
+    });
+
+    const opentpadle = Matter.Bodies.rectangle(325, 735, 150, 20, {
+      isStatic: true,
+      render: {
+        fillStyle: "#8D8DDA",
+      },
+      chamfer: {
+        radius: 10,
+      },
+    });
+    const horizontalLine = Matter.Bodies.rectangle(325, 375, 650, 1, {
+      isStatic: true,
+      render: {
+        fillStyle: 'white',
+      },
+    });
+    Matter.World.add(engine.world, [ball, playerpadle, opentpadle , horizontalLine]);
     const runner = Matter.Runner.create();
     Matter.Runner.run(runner, engine);
     Matter.Render.run(render);
