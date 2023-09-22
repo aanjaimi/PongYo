@@ -15,6 +15,7 @@ export class ChatController {
 
   @Get('me')
   async getUser(@Query('userName') userName: string, @Res() res: Response) {
+    console.log(userName);
     try {
       const user = await this.chatService.getUser(userName);
       console.log(user);
