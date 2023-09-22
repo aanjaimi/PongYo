@@ -1,9 +1,13 @@
 import {
   ConnectedSocket,
   MessageBody,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
@@ -11,7 +15,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaClient } from '@prisma/client';
 
 @WebSocketGateway({})
-export class ChatGateway {
+export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
@@ -21,7 +25,7 @@ export class ChatGateway {
     private readonly jwtService: JwtService,
   ) {}
 
-  /*
+  // /*
   async handleConnection(@ConnectedSocket() client: Socket) {
     try {
       const token = client.handshake.auth.token;
@@ -48,10 +52,10 @@ export class ChatGateway {
       });
     } catch (error) {
       console.log(error);
-      throw error;
+      throw new WsException(error.message);
     }
   }
-  */
+  // */
 
   @SubscribeMessage('onMessage')
   onNewMessage(@MessageBody() body: any) {
