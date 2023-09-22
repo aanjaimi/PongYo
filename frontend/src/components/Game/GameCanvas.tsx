@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Matter from "matter-js";
 
-const GameRender = () => {
+const GameCanvas = () => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -64,7 +64,6 @@ const GameRender = () => {
       Matter.Render.stop(render);
       Matter.Runner.stop(runner);
       Matter.Engine.clear(engine);
-      // Remove the mousemove event listener when unmounting
       canvas.removeEventListener("mousemove", () => {});
     };
   }, []);
@@ -72,4 +71,4 @@ const GameRender = () => {
   return <canvas ref={canvasRef} className="w-full h-full rounded-3xl" />;
 };
 
-export default GameRender;
+export default GameCanvas;
