@@ -21,9 +21,11 @@ export default function Chat( {user} : {user : User} ) {
 
 	return (
 		//Chat Box
-		<div className="flex w-[60rem] h-[60rem] rounded-[25px] bg-[#33437D] text-white">
-			<div className="flex flex-col w-[25%] h-[full] border-r">
-				<div className="flex pl-[2rem] items-center text-2xl w-[15rem] h-[7%] border-b">Chat room</div>
+		<div className="flex w-[55rem] h-[50rem] rounded-[6px] bg-[#33437D] text-white">
+			<div className="flex flex-col w-[25%] h-[full]">
+				<div className="flex pl-[2rem] items-center text-2xl h-[7%] ">Chat room</div>
+				{/* Seperator */}
+				<div className="border ml-1 rounded-l-full"></div>
 				<ScrollArea className="h-[93%]">
 						<ChannelsList
 							channels={channels}
@@ -32,6 +34,8 @@ export default function Chat( {user} : {user : User} ) {
 						/>
 				</ScrollArea>
 			</div>
+			{/* Seperator */}
+			<div className="border rounded-full my-1"></div>
 			<ChannelContent channel={selectedChannel} updateSelectedChannel={updateSelectedChannel} user={user}/>
 		</div>
 		

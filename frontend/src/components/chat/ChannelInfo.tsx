@@ -6,7 +6,7 @@ export default function ChannelInfo(
 	{channel : Channel | undefined, updateSelectedChannel : (arg : Channel | undefined) => void}) {
 
 	return (
-		<div className="flex items-center justify-center border-b h-[7%]">
+		<div className="flex items-center justify-center h-[7%]">
 			{channel && (<>
 				<div className="flex justify-center items-center ml-auto">
 					<h1 className="text-3xl">{channel.name}</h1>

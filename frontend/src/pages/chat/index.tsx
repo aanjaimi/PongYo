@@ -20,14 +20,19 @@ export default function Home() {
 	})
 
 	if (!user)
-		return <></>
+		return (
+			<>
+			</>
+		)
 
   return (
-    <div className="flex flex-col border w-screen h-screen">
-			<div className="w-full h-[5rem] bg-[#000000]"></div>
+    <div className="flex flex-col min-h-screen">
+			{/* Header component */}
+			<div className="w-full h-[3rem] bg-[#000000]"></div>
 			<div className="flex flex-row grow">
-				<div className="h-full w-[5rem] bg-[#252525]"></div>
-				<div className="grow flex justify-center mt-[5rem]">
+				{/* Sidebar component */}
+				<div className="w-[3rem] bg-[#252525]"></div>
+				<div className="grow flex justify-center mt-[3rem]">
 					<Chat user={user} />
 				</div>
 			</div>
