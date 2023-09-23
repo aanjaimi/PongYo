@@ -18,7 +18,7 @@ enum UserStatus {
 
 model User {
 	id          String     @id @default(cuid())
-	displayname String
+	displayName String
 	login       String     @unique
 	email       String     @unique
 	userStatus  UserStatus @default(OFFLINE) @map("user_status")

@@ -25,8 +25,8 @@ export class ChatGateway implements OnGatewayConnection {
     private readonly jwtService: JwtService,
   ) {}
 
-  // /*
   async handleConnection(@ConnectedSocket() client: Socket) {
+    /*
     try {
       const token = client.handshake.auth.token;
       if (!token) {
@@ -54,8 +54,8 @@ export class ChatGateway implements OnGatewayConnection {
       console.log(error);
       throw new WsException(error.message);
     }
+    */
   }
-  // */
 
   @SubscribeMessage('onMessage')
   onNewMessage(@MessageBody() body: any) {
