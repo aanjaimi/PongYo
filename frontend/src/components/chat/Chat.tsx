@@ -6,7 +6,6 @@ import ChannelContent from './ChannelContent'
 import { ScrollArea } from '../ui/scroll-area'
 
 export default function Chat( {user} : {user : User} ) {
-	console.log(user)
 	const [channels, setChannels] = useState<Channel[]>(user.channels)
 	const [selectedChannel, setSelectedChannel] = useState<Channel | undefined>(undefined)
 
@@ -21,9 +20,9 @@ export default function Chat( {user} : {user : User} ) {
 
 	return (
 		//Chat Box
-		<div className="flex w-[55rem] h-[50rem] rounded-[6px] bg-[#33437D] text-white">
+		<div className="flex w-[60rem] h-[60rem] rounded-[6px] bg-[#33437D] text-white">
 			<div className="flex flex-col w-[25%] h-[full]">
-				<div className="flex pl-[2rem] items-center text-2xl h-[7%] ">Chat room</div>
+				<div className="flex pl-[2rem] items-center text-2xl h-[7%] ">chat room</div>
 				{/* Seperator */}
 				<div className="border ml-1 rounded-l-full"></div>
 				<ScrollArea className="h-[93%]">
@@ -36,7 +35,13 @@ export default function Chat( {user} : {user : User} ) {
 			</div>
 			{/* Seperator */}
 			<div className="border rounded-full my-1"></div>
-			<ChannelContent channel={selectedChannel} updateSelectedChannel={updateSelectedChannel} user={user}/>
+			<ChannelContent
+				channel={selectedChannel}
+				updateSelectedChannel={updateSelectedChannel}
+				user={user}
+				channels={channels}
+				updateChannels={updateChannels}
+			/>
 		</div>
 		
 	)

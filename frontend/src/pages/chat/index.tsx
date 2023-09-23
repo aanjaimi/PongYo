@@ -13,9 +13,9 @@ export default function Home() {
 	useQuery({
 		// queryKey: ["userData"],
 		queryFn: async () => {
-			const { data } = await axios.get("http://localhost:5000/chat/me?userName=1")
-			setUser(data as User)
-			return data as User
+			const { data } : { data : User } = await axios.get("http://localhost:5000/chat/me?userName=1");
+			setUser(data);
+			return data;
 		}
 	})
 
@@ -28,10 +28,10 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
 			{/* Header component */}
-			<div className="w-full h-[3rem] bg-[#000000]"></div>
+			<div className="w-full h-[4rem] bg-[#000000]"></div>
 			<div className="flex flex-row grow">
 				{/* Sidebar component */}
-				<div className="w-[3rem] bg-[#252525]"></div>
+				<div className="w-[4rem] bg-[#252525]"></div>
 				<div className="grow flex justify-center mt-[3rem]">
 					<Chat user={user} />
 				</div>
