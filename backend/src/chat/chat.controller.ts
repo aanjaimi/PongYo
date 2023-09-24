@@ -34,9 +34,6 @@ export class ChatController {
     const user = await this.chatService.getUser(userName);
     if (!user) throw new Error('User not found');
     const dm = await this.chatService.getDirectMessage(user, username);
-    return {
-      status: 200,
-      data: dm,
-    };
+    return dm;
   }
 }

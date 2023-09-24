@@ -23,7 +23,7 @@ export class ChatService {
   }
 
   async getDirectMessage(user: any, username: string) {
-    const dm = this.prisma.channel.findFirst({
+    const dm = await this.prisma.channel.findFirst({
       where: {
         AND: [
           { isDM: true },
@@ -39,8 +39,13 @@ export class ChatService {
           },
         ],
       },
+      include: {
+        messages: true,
+        members: true,
+      },
     });
-    if (dm) return { status: 200, data: dm };
+    if (dm) console.log(dm);
+    if (dm) return { status: 200, dm };
 
     const orgUser = await this.prisma.user.findFirst({
       where: { displayName: username },
@@ -53,6 +58,7 @@ export class ChatService {
         isDM: true,
         members: true,
         type: true,
+        messages: true,
       },
       data: {
         name: `${user.displayName}-${username}`,
@@ -63,6 +69,8 @@ export class ChatService {
         },
       },
     });
+    console.log('newDM');
+    console.log(newDM);
     if (!newDM) throw new Error('DM not created');
     return { status: 200, data: newDM };
   }
