@@ -24,12 +24,12 @@ export class AuthService {
       sub: user.login,
     } satisfies JwtAuthPayload;
 
-    const token = await this.jwtService.signAsync(payload, {
+    const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get('JWT_SECRET'),
       expiresIn: Math.ceil(AUTH_COOKIE_MAX_AGE),
     });
 
-    res.cookie(AUTH_COOKIE_NAME, token, {
+    res.cookie(AUTH_COOKIE_NAME, `Bearer ${accessToken}`, {
       httpOnly: true,
       path: '/',
       maxAge: Math.ceil(AUTH_COOKIE_MAX_AGE * 1e3),
