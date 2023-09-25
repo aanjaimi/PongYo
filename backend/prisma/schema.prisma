@@ -24,7 +24,11 @@ model User {
   userStatus  UserStatus @default(OFFLINE) @map("user_status")
 
   // towFactorAuth Boolean         @default(false)
-  friends              Friend[]
+
+  // friends of the User
+  friends              Friend[]       @relation("userFriends")
+  // users who are Friends with this User
+  myFriends            Friend[]       @relation("friendsOfUser")
   messages             Message[]
   senderNotification   Notification[] @relation("sender")
   receiverNotification Notification[] @relation("receiver")
@@ -34,10 +38,10 @@ model User {
   // moderatorForChannelId String?  @map("moderator_for_channel") // TODO: find a name 
   // memberForChannel      Channel? @relation(name: "members", fields: [memberForChannelId], references: [id])
   // memberForChannelId    String?  @map("member_for_channel_id")
-  oppositeGames         Game[]   @relation("oppositeUser")
-  opponentGames         Game[]   @relation("opponentUser")
-  log                   Log      @relation(fields: [logId], references: [id])
-  logId                 String   @unique
+  oppositeGames Game[] @relation("oppositeUser")
+  opponentGames Game[] @relation("opponentUser")
+  log           Log    @relation(fields: [logId], references: [id])
+  logId         String @unique
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -53,10 +57,12 @@ enum State {
 }
 
 model Friend {
-  id     String @id @default(cuid())
-  state  State
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+  id       String @id @default(cuid())
+  state    State
+  user     User   @relation("userFriends", fields: [userId], references: [id])
+  userId   String @map("user_id")
+  friend   User   @relation("friendsOfUser", fields: [friendId], references: [id])
+  friendId String @map("friend_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -196,7 +202,7 @@ model Channel {
   password String?
   isDM     Boolean  @map("is_dm")
 
-  messages   Message[]
+  messages Message[]
   // moderators User[]    @relation("moderators")
   // members    User[]    @relation("members")
 
