@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Response, Request } from 'express';
+import { Response } from 'express';
 import { AUTH_COOKIE_MAX_AGE, AUTH_COOKIE_NAME } from './auth.constants';
 import { JwtAuthPayload } from './interfaces/jwt.interface';
 import { RedisService } from '@/redis/redis.service';
@@ -37,9 +37,7 @@ export class AuthService {
     res.redirect(this.configService.get('FRONTEND_ORIGIN'));
   }
 
-  async logout(req: Request, res: Response) {
-    const accessToken = req.cookies[AUTH_COOKIE_NAME];
-
+  async logout(accessToken: string, res: Response) {
     const payload = await this.jwtService.verifyAsync<JwtAuthPayload>(
       accessToken,
       {
@@ -53,6 +51,6 @@ export class AuthService {
       httpOnly: true,
       expires: new Date(1970), // magic trick !
     });
-    res.redirect(this.configService.get('FRONTEND_ORIGIN_PROFILE'));
+    res.redirect(this.configService.get('FRONTEND_ORIGIN'));
   }
 }

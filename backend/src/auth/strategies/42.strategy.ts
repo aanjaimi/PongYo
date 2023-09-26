@@ -7,7 +7,7 @@ import { FortyTwoProfile } from '../interfaces/42.interface';
 
 @Injectable()
 export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
-	constructor(
+  constructor(
     private prismaService: PrismaService,
     private configService: ConfigService,
   ) {
