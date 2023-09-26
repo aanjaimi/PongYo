@@ -7,6 +7,7 @@ import {
   HttpException,
   HttpStatus,
   Body,
+  Param,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { Response } from 'express';
@@ -26,13 +27,13 @@ export class ChatController {
   }
 
   @Get('directMessage')
-  async joinDirectMessage(
+  async getDirectMessage(
     @Query('userName') username: string,
     @Body() body: any,
   ) {
     const { userName } = body;
     const user = await this.chatService.getUser(userName);
-    if (!user) throw new Error('User not found');
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     const dm = await this.chatService.getDirectMessage(user, username);
     return dm;
   }

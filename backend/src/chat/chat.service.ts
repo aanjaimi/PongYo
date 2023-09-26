@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { RoomType } from '@prisma/client';
 
@@ -15,7 +15,7 @@ export class ChatService {
         where: { login: userName },
         include: { channels: { include: { messages: true } } },
       });
-      if (!user) throw new Error('User not found');
+      if (!user) throw new HttpException('User not found', 404);
       return user;
     } catch (err) {
       throw err;
@@ -23,7 +23,7 @@ export class ChatService {
   }
 
   async getDirectMessage(user: any, username: string) {
-    const dm = await this.prisma.channel.findFirst({
+    const dm = await this.prisma.channel.findFirstOrThrow({
       where: {
         AND: [
           { isDM: true },
@@ -47,7 +47,7 @@ export class ChatService {
     if (dm) console.log(dm);
     if (dm) return { status: 200, dm };
 
-    const orgUser = await this.prisma.user.findFirst({
+    const orgUser = await this.prisma.user.findFirstOrThrow({
       where: { displayName: username },
     });
 
@@ -71,7 +71,7 @@ export class ChatService {
     });
     console.log('newDM');
     console.log(newDM);
-    if (!newDM) throw new Error('DM not created');
+    if (!newDM) throw new HttpException('could not create DM', 500);
     return { status: 200, data: newDM };
   }
 }

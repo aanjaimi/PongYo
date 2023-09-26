@@ -2,203 +2,203 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-	provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-	provider = "postgresql"
-	url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum UserStatus {
-	ONLINE
-	OFFLINE
-	IN_GAME
+  ONLINE
+  OFFLINE
+  IN_GAME
 }
 
 model User {
-	id          String     @id @default(cuid())
-	displayName String
-	login       String     @unique
-	email       String     @unique
-	userStatus  UserStatus @default(OFFLINE) @map("user_status")
+  id          String     @id @default(cuid())
+  displayName String
+  login       String     @unique
+  email       String     @unique
+  userStatus  UserStatus @default(OFFLINE) @map("user_status")
 
-	// towFactorAuth Boolean         @default(false)
-	friends              Friend[]
-	messages             Message[]
-	senderNotification   Notification[] @relation("sender")
-	receiverNotification Notification[] @relation("receiver")
-	achievement          Achievement[]
+  // towFactorAuth Boolean         @default(false)
+  friends              Friend[]
+  messages             Message[]
+  senderNotification   Notification[] @relation("sender")
+  receiverNotification Notification[] @relation("receiver")
+  achievement          Achievement[]
 
-	moderatorFor   Channel[]	@relation("moderators")
-	channels      Channel[]     @relation("members")
-	oppositeGames         Game[]        @relation("oppositeUser")
-	opponentGames         Game[]        @relation("opponentUser")
-	log                   Log?           @relation(fields: [logId], references: [id])
-	logId                 String?        @unique
+  moderatorFor  Channel[] @relation("moderators")
+  channels      Channel[] @relation("members")
+  oppositeGames Game[]    @relation("oppositeUser")
+  opponentGames Game[]    @relation("opponentUser")
+  log           Log?      @relation(fields: [logId], references: [id])
+  logId         String?   @unique
 
-	createdAt DateTime @default(now()) @map("created_at")
-	updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-	@@map("users")
+  @@map("users")
 }
 
 enum State {
-	BLOCKED
-	PENDING
-	ACCEPTED
-	REFUSED
+  BLOCKED
+  PENDING
+  ACCEPTED
+  REFUSED
 }
 
 model Friend {
-	id     String @id @default(cuid())
-	state  State
-	userId String @map("user_id")
-	user   User   @relation(fields: [userId], references: [id])
+  id     String @id @default(cuid())
+  state  State
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
 
-	createdAt DateTime @default(now()) @map("created_at")
-	updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-	@@map("friends")
+  @@map("friends")
 }
 
 model Achievement {
-	id          String @id @default(cuid())
-	name        String
-	description String
-	icon        String
+  id          String @id @default(cuid())
+  name        String
+  description String
+  icon        String
 
-	userId String @map("user_id")
-	user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
 
-	createdAt DateTime @default(now()) @map("created_at")
-	updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-	@@map("achievements")
+  @@map("achievements")
 }
 
 enum NotifType {
-	MESSAGE
-	GAME_REQUEST
-	FRIEND_REQUEST
+  MESSAGE
+  GAME_REQUEST
+  FRIEND_REQUEST
 }
 
 model Notification {
-	id        String    @id @default(cuid())
-	content   Json?
-	notifType NotifType @map("notif_type")
+  id        String    @id @default(cuid())
+  content   Json?
+  notifType NotifType @map("notif_type")
 
-	sender     User   @relation(name: "sender", fields: [senderId], references: [id])
-	senderId   String @map("sender_id")
-	receiver   User   @relation(name: "receiver", fields: [receiverId], references: [id])
-	receiverId String @map("receiver_id")
+  sender     User   @relation(name: "sender", fields: [senderId], references: [id])
+  senderId   String @map("sender_id")
+  receiver   User   @relation(name: "receiver", fields: [receiverId], references: [id])
+  receiverId String @map("receiver_id")
 
-	createdAt DateTime @default(now()) @map("created_at")
-	updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-	@@map("notifications")
+  @@map("notifications")
 }
 
 enum Mode {
-	CLASSIC
-	RANKED
+  CLASSIC
+  RANKED
 }
 
 model Game {
-	id   String @id @default(cuid())
-	mode Mode
+  id   String @id @default(cuid())
+  mode Mode
 
-	history   History @relation(fields: [historyId], references: [id])
-	historyId String  @unique
+  history   History @relation(fields: [historyId], references: [id])
+  historyId String  @unique
 
-	opponent   User   @relation(name: "opponentUser", fields: [opponentId], references: [id])
-	opponentId String @map("oppenent_id")
-	opposite   User   @relation(name: "oppositeUser", fields: [oppositeId], references: [id])
-	oppositeId String @map("opposite_id")
+  opponent   User   @relation(name: "opponentUser", fields: [opponentId], references: [id])
+  opponentId String @map("oppenent_id")
+  opposite   User   @relation(name: "oppositeUser", fields: [oppositeId], references: [id])
+  oppositeId String @map("opposite_id")
 
-	createdAt DateTime @default(now()) @map("created_at")
-	updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-	@@map("games")
+  @@map("games")
 }
 
 model History {
-	id            String @id @default(cuid())
-	oppositeScore Int    @map("opposite_score")
-	opponentScore Int    @map("opponent_score")
-	game          Game?
+  id            String @id @default(cuid())
+  oppositeScore Int    @map("opposite_score")
+  opponentScore Int    @map("opponent_score")
+  game          Game?
 
-	@@map("histories")
+  @@map("histories")
 }
 
 enum Rank {
-	UNRANKED
-	BRONZE
-	SILVER
-	GOLD
-	PLATINUM
-	EMERALD
-	DIAMOND
-	MASTER
-	GRANDMASTER
-	CHAMPION
+  UNRANKED
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  EMERALD
+  DIAMOND
+  MASTER
+  GRANDMASTER
+  CHAMPION
 }
 
 model Log {
-	id        String @id @unique @default(cuid())
-	vectories Int
-	defeats   Int
-	points    Int
-	rank      Rank
+  id        String @id @unique @default(cuid())
+  vectories Int
+  defeats   Int
+  points    Int
+  rank      Rank
 
-	user User?
+  user User?
 
-	createdAt DateTime @default(now()) @map("created_at")
-	updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-	@@map("logs")
+  @@map("logs")
 }
 
 enum MessageType {
-	TEXT
-	FILE
+  TEXT
+  FILE
 }
 
 model Message {
-	id      String      @id @default(cuid())
-	// type    MessageType @default(TEXT)
-	content String
+  id      String @id @default(cuid())
+  // type    MessageType @default(TEXT)
+  content String
 
-	user      User    @relation(fields: [userId], references: [id])
-	userId    String  @map("user_id")
-	channel   Channel @relation(fields: [channelId], references: [id])
-	channelId String  @map("channel_id")
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String  @map("user_id")
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId String  @map("channel_id")
 
-	createdAt DateTime @default(now()) @map("created_at")
-	updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-	@@map("messages")
+  @@map("messages")
 }
 
 enum RoomType {
-	PRIVATE
-	PUBLIC
-	PROTECTED
+  PRIVATE
+  PUBLIC
+  PROTECTED
 }
 
 model Channel {
-	id       String   @id @default(cuid())
-	type     RoomType
-	name     String
-	password String?
-	isDM     Boolean  @map("is_dm")
+  id       String   @id @default(cuid())
+  type     RoomType
+  name     String
+  password String?
+  isDM     Boolean  @map("is_dm")
 
-	messages   Message[]
-	moderators User[]    @relation("moderators")
-	members    User[]    @relation("members")
+  messages   Message[]
+  moderators User[]    @relation("moderators")
+  members    User[]    @relation("members")
 
-	createdAt DateTime @default(now()) @map("created_at")
-	updatedAt DateTime @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-	@@map("channels")
+  @@map("channels")
 }
