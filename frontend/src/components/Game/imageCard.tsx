@@ -3,8 +3,9 @@ export interface ImageProps {
 	sideclass: string;
 	className: string;
 	size?: number;
+	score: number;
 }
-export  default function ImageCard({sideclass, className, size = 100}: ImageProps) {
+export  default function ImageCard({sideclass, className, size = 100 , score}: ImageProps) {
 	return (
 		<div className={`${sideclass}`}>
 
@@ -17,6 +18,9 @@ export  default function ImageCard({sideclass, className, size = 100}: ImageProp
 						 height={size}
              objectFit='cover'
             />
+						<div className="pt-2 w-full flex flex-col items-center justify-center ">
+							<p className="text-3xl text-white font-bold"> {score}</p>
+						</div>
           </div>
 		</div>
 	)

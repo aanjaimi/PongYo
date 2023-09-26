@@ -1,10 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import Matter from "matter-js";
 
-const GameCanvas = () => {
+const GameCanvas = ({setScore, setOppScore , myScore, oppScore}) => {
   const canvasRef = useRef(null);
-  const [score, setScore] = React.useState(0);
-  const [opponentScore, setOpponentScore] = React.useState(0);
   useEffect(() => {
     const engine = Matter.Engine.create({gravity: { x: 0, y: 0 }});
 
@@ -88,21 +86,29 @@ const GameCanvas = () => {
       const mouseX = event.clientX - canvas.getBoundingClientRect().left;
       Matter.Body.setPosition(playerPaddle, { x: mouseX, y: playerPaddle.position.y });
     });
-    Matter.Events.on(engine, "collisionStart", (event) => {
-      const pairs = event.pairs;
-      pairs.forEach((pair) => {
-        const { label: labelA } = pair.bodyA;
-        const { label: labelB } = pair.bodyB;
-        if (labelA === "ball" && labelB === "bottomWall") {
-          setScore((score) => score + 1);
-        }
-        if (labelA === "ball" && labelB === "topWall") {
-          setOpponentScore((opponentScore) => opponentScore + 1);
-        }
+    // Set up a collision event listener
+    Matter.Events.on(engine, 'collisionStart', (event) => {
+      event.pairs.forEach((pair) => {
+          const bodyA = pair.bodyA;
+          const bodyB = pair.bodyB;
+      
+          // Check if the ball collides with the element
+          if ((bodyA === ball && bodyB === wallbottom) || (bodyA === wallbottom && bodyB === ball)) {
+              // The ball has hit the element
+              myScore = myScore + 1
+              setScore(myScore)
+              // reset the ball
+              Matter.Body.setPosition(ball, { x: 325, y: 375 });
+          }
+          if((bodyA === ball && bodyB === walltop) || (bodyA === walltop && bodyB === ball)){
+              console.log('Ball hit the element top wall!');
+              oppScore = oppScore + 1
+              setOppScore(oppScore)
+              // reset the ball
+              Matter.Body.setPosition(ball, { x: 325, y: 375 });
+          }
       });
-    }
-    );
-
+    });
     return () => {
       Matter.Render.stop(render);
       Matter.Runner.stop(runner);
