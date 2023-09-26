@@ -1,19 +1,17 @@
-import { Controller, Get, Res, Req, UseGuards, Param } from '@nestjs/common';
+import { Controller, Get, UseGuards, Param } from '@nestjs/common';
 import { UserService } from './users.service';
-import { Response, Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
-import { CurrentUser } from './decorators/currentUser';
 import { User } from '@prisma/client';
+import { CurrentUser } from '@/auth/auth.decorator';
 
 @Controller('/users')
+@UseGuards(JwtAuthGuard)
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
-  async findOne(@Req() req: Request, @CurrentUser() currentUser: User, @Param('id') id: string){
-    if (id === '@me') return currentUser;
-    return this.userService.findOne(req, id);
+  async findOne(@Param('id') id: string, @CurrentUser() currentUser: User) {
+    if (id === '@me') return this.userService.findOne(currentUser.id);
+    return this.userService.findOne(id);
   }
-
 }

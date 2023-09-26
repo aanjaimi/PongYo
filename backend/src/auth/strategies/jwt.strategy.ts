@@ -6,7 +6,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { AUTH_COOKIE_NAME } from '../auth.constants';
 import { JwtAuthPayload } from '../interfaces/jwt.interface';
 
-
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(

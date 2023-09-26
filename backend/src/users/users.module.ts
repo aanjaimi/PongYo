@@ -5,10 +5,12 @@ import { JwtStrategy } from '../auth/strategies/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [JwtModule.register({
-    global: true,
-  }),],
+  imports: [
+    JwtModule.register({
+      global: true,
+    }),
+  ],
   controllers: [UserController],
-  providers: [UserService, JwtStrategy]
+  providers: [UserService, JwtStrategy],
 })
 export class UserModule {}

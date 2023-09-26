@@ -24,7 +24,7 @@ async function bootstrap() {
 
   app.enableCors({
     credentials: true,
-    origin: configService.getOrThrow('FRONTEND_ORIGIN'),
+    origin: ['http://localhost:3000'],
   });
 
   // TODO: add morgan !
