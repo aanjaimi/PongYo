@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Matter from "matter-js";
 
-const GameCanvas = ({setScore, setOppScore , myScore, oppScore}) => {
+const GameCanvas = ({setMyScore, setOppScore , myScore, oppScore}) => {
   const canvasRef = useRef(null);
   useEffect(() => {
     const engine = Matter.Engine.create({gravity: { x: 0, y: 0 }});
@@ -48,25 +48,25 @@ const GameCanvas = ({setScore, setOppScore , myScore, oppScore}) => {
     const wallLeft = Matter.Bodies.rectangle(0, 375, 1, 750, {
       isStatic: true,
       render: {
-        fillStyle: "white",
+        fillStyle: "#33437D",
       },
     });
     const wallRight = Matter.Bodies.rectangle(650, 375, 1, 750, {
       isStatic: true,
       render: {
-        fillStyle: "white",
+        fillStyle: "#33437D",
       },
     });
     const walltop = Matter.Bodies.rectangle(325, 0, 650, 1, {
       isStatic: true,
       render: {
-        fillStyle: "white",
+        fillStyle: "#33437D",
       },
     });
     const wallbottom = Matter.Bodies.rectangle(325, 750, 650, 1, {
       isStatic: true,
       render: {
-        fillStyle: "white",
+        fillStyle: "#33437D",
       },
     });
     Matter.World.add(engine.world, [ball, playerPaddle, opponentPaddle, wallLeft, wallRight , walltop, wallbottom]);
@@ -78,7 +78,7 @@ const GameCanvas = ({setScore, setOppScore , myScore, oppScore}) => {
       min: { x: 0, y: 0 },
       max: { x: 650, y: 750 },
     });
-    Matter.Body.applyForce(ball, { x: 375, y: 325 }, { x: 0.0008, y: 0.005 });
+    Matter.Body.applyForce(ball, { x: 375, y: 325 }, { x: 0.001, y: -0.005 });
     const canvas = canvasRef.current;
 
     // Add mousemove event listener to update the player paddle's position
@@ -96,7 +96,7 @@ const GameCanvas = ({setScore, setOppScore , myScore, oppScore}) => {
           if ((bodyA === ball && bodyB === wallbottom) || (bodyA === wallbottom && bodyB === ball)) {
               // The ball has hit the element
               myScore = myScore + 1
-              setScore(myScore)
+              setMyScore(myScore)
               // reset the ball
               Matter.Body.setPosition(ball, { x: 325, y: 375 });
           }
