@@ -1,10 +1,18 @@
 import React, { useState } from "react";
 import Game from "@/components/Game/Game";
 import GameCard from "@/components/GameCard/GameCard";
+import io from 'socket.io-client';
+import { useEffect } from 'react';
+import { useStateContext } from "@/contexts/state-context";
+
 
 const Home = () => {
+  const { state } = useStateContext();
+  useEffect(() => {
+    state.socket.connect();
+  }
+  , []);
   const [gameStarted, setGameStarted] = useState(false);
-
   return (
     <div>
       {gameStarted ? <Game /> : <GameCard setGameStarted={setGameStarted} />}

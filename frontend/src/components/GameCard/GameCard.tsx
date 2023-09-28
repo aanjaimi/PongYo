@@ -5,22 +5,19 @@ import RadioButton from "./RadioBox";
 import Divider from "./Divider";
 import { Button } from "@/components/ui/button";
 import PopUp from "./popUp";
-
+import io from 'socket.io-client';
 const GameCard = ({setGameStarted}) => {
   const [isPopupOpen, setIsPopupOpen] = React.useState(false);
 	const handleStartClick = () => {
-    // setGameStarted(true);
     setIsPopupOpen(true);
   };
 	const handleInviteClick = () => {
-    // Handle the invite logic here...
   };
 
   const handleChange = (e) => {
-    // Handle the radio button change here...
   };
 	return (
-    <div className="flex flex-col w-screen h-screen border  justify-center items-center  ">
+    <div className="flex flex-col w-screen h-screen   justify-center items-center  ">
       {isPopupOpen && <PopUp setIsPopupOpen={setIsPopupOpen}/>}
       {!isPopupOpen &&
       <div className="h-[450px] w-[500px] rounded-xl flex flex-col bg-[#33437D]">
@@ -34,8 +31,7 @@ const GameCard = ({setGameStarted}) => {
         <div className="w-full flex text-white  text-xl  items-center justify-center mt-8 ">
           <Button
             className="w-[140px] h-[40px] flex text-2xl  rounded-full bg-blue-500"
-            onClick={handleStartClick}
-          >
+            onClick={handleStartClick}>
             Start
           </Button>
         </div>

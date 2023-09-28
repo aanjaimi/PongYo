@@ -6,7 +6,7 @@ const GameCanvas = ({ setMyScore, setOppScore, myScore, oppScore }) => {
   const canvasRef = useRef(null);
 
   useEffect(() => {
-    const socket = io('http://localhost:5000');
+    // const socket = io('http://localhost:5000');
     const engine = Matter.Engine.create({ gravity: { x: 0, y: 0 } });
     const canvas = canvasRef.current;
     const renderOptions = {
