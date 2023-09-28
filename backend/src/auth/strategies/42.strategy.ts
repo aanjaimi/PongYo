@@ -27,7 +27,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
       where: { login: profile.username },
       create: {
         login: profile.username,
-        displayname: profile.displayName,
+        displayName: profile.displayName,
         email: profile.emails[0].value,
         userStatus: 'OFFLINE',
         log: {
