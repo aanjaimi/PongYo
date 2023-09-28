@@ -4,10 +4,13 @@ import InvitedButton from "./InvitedButton";
 import RadioButton from "./RadioBox";
 import Divider from "./Divider";
 import { Button } from "@/components/ui/button";
+import PopUp from "./popUp";
 
 const GameCard = ({setGameStarted}) => {
+  const [isPopupOpen, setIsPopupOpen] = React.useState(false);
 	const handleStartClick = () => {
-    setGameStarted(true);
+    // setGameStarted(true);
+    setIsPopupOpen(true);
   };
 	const handleInviteClick = () => {
     // Handle the invite logic here...
@@ -17,9 +20,10 @@ const GameCard = ({setGameStarted}) => {
     // Handle the radio button change here...
   };
 	return (
-
-    <div className="w-screen h-screen  flex justify-center items-center">
-      <div className="h-[450px] w-[500px] rounded-xl flex flex-col" style={{ backgroundColor: '#33437D' }}>
+    <div className="flex flex-col w-screen h-screen border  justify-center items-center  ">
+      {isPopupOpen && <PopUp setIsPopupOpen={setIsPopupOpen}/>}
+      {!isPopupOpen &&
+      <div className="h-[450px] w-[500px] rounded-xl flex flex-col bg-[#33437D]">
         <div className="pt-7">
           <h1 className="text-3xl text-white pl-5 "> Start A Game :</h1>
         </div>
@@ -42,8 +46,10 @@ const GameCard = ({setGameStarted}) => {
         <div className="mt-6 flex text-white text-xl items-center pt-2">
           <InvitedButton onInviteClick={handleInviteClick} />
         </div>
-      </div>
     </div>
-  );
+    }
+  </div>
+  
+);
 }
 export default GameCard;

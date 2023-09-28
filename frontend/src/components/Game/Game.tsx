@@ -5,7 +5,6 @@ import GameCanvas from './GameCanvas';
 const Game = () => {
   const [myScore, setMyScore] = useState(0);
   const [oppScore, setOppScore] = useState(0);
-
   return (
     <div className="flex flex-col sm:flex-row w-screen h-screen items-center justify-start sm:justify-center">
       <ImageCard
