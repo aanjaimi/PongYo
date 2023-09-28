@@ -9,8 +9,8 @@ const Game = () => {
   return (
     <div className="flex flex-col sm:flex-row w-screen h-screen items-center justify-start sm:justify-center">
       <ImageCard
-        sideclass="h-full flex-col justify-start sm:w-auto w-full border sm:flex"
-        className="border sm:h-[50%] h-full flex items-end sm:justify-center justify-end mx-8 flex-col"
+        sideclass="h-full flex-col justify-start sm:w-auto w-full  sm:flex"
+        className="sm:h-[50%] h-full flex items-end sm:justify-center justify-end mx-8 flex-col"
         score={myScore}
         size={75}
       />
@@ -23,7 +23,7 @@ const Game = () => {
         />
       </div>
       <ImageCard
-        sideclass="h-full flex-col justify-end sm:w-auto w-full border sm:flex"
+        sideclass="h-full flex-col justify-end sm:w-auto w-full sm:flex"
         className="sm:h-[50%] flex items-start justify-center mx-8 flex-col"
         score={oppScore}
         size={75}

@@ -1,13 +1,16 @@
 import React, { useEffect, useRef } from "react";
 import Matter from "matter-js";
+import io from "socket.io-client";
 
-const GameCanvas = ({setMyScore, setOppScore , myScore, oppScore}) => {
+const GameCanvas = ({ setMyScore, setOppScore, myScore, oppScore }) => {
   const canvasRef = useRef(null);
-  useEffect(() => {
-    const engine = Matter.Engine.create({gravity: { x: 0, y: 0 }});
 
-    const render = Matter.Render.create({
-      canvas: canvasRef.current,
+  useEffect(() => {
+    const socket = io('http://localhost:5000');
+    const engine = Matter.Engine.create({ gravity: { x: 0, y: 0 } });
+    const canvas = canvasRef.current;
+    const renderOptions = {
+      canvas: canvas,
       engine: engine,
       options: {
         width: 650,
@@ -15,19 +18,25 @@ const GameCanvas = ({setMyScore, setOppScore , myScore, oppScore}) => {
         wireframes: false,
         background: "#33437D",
       },
-    });
-    // adpay force to the ball
+    };
+    const render = Matter.Render.create(renderOptions);
+    const createWall = (x, y, width, height, isStatic) => {
+      return Matter.Bodies.rectangle(x, y, width, height, {
+        isStatic: isStatic,
+        render: {
+          fillStyle: "#33437D",
+        },
+      });
+    };
+
     const ball = Matter.Bodies.circle(325, 375, 10, {
-      restitution: 1,
-      friction: 0,
-      frictionAir: 0,
-      inertia: Infinity,
       render: {
         fillStyle: "white",
       },
     });
+
     const playerPaddle = Matter.Bodies.rectangle(325, 15, 150, 20, {
-      isStatic: true, // Make the player paddle non-static
+      isStatic: true,
       render: {
         fillStyle: "#8D8DDA",
       },
@@ -45,75 +54,36 @@ const GameCanvas = ({setMyScore, setOppScore , myScore, oppScore}) => {
         radius: 10,
       },
     });
-    const wallLeft = Matter.Bodies.rectangle(0, 375, 1, 750, {
-      isStatic: true,
-      render: {
-        fillStyle: "#33437D",
-      },
-    });
-    const wallRight = Matter.Bodies.rectangle(650, 375, 1, 750, {
-      isStatic: true,
-      render: {
-        fillStyle: "#33437D",
-      },
-    });
-    const walltop = Matter.Bodies.rectangle(325, 0, 650, 1, {
-      isStatic: true,
-      render: {
-        fillStyle: "#33437D",
-      },
-    });
-    const wallbottom = Matter.Bodies.rectangle(325, 750, 650, 1, {
-      isStatic: true,
-      render: {
-        fillStyle: "#33437D",
-      },
-    });
-    Matter.World.add(engine.world, [ball, playerPaddle, opponentPaddle, wallLeft, wallRight , walltop, wallbottom]);
-    const runner = Matter.Runner.create();
-    Matter.Runner.run(runner, engine);
-    Matter.Render.run(render);
-    // apply force to the ball
-    Matter.Render.lookAt(render, {
-      min: { x: 0, y: 0 },
-      max: { x: 650, y: 750 },
-    });
-    Matter.Body.applyForce(ball, { x: 375, y: 325 }, { x: 0.001, y: -0.005 });
-    const canvas = canvasRef.current;
 
-    // Add mousemove event listener to update the player paddle's position
-    canvas.addEventListener("mousemove", (event) => {
+    const walls = [
+      createWall(0, 375, 1, 750, true),
+      createWall(650, 375, 1, 750, true),
+      createWall(325, 0, 650, 1, true),
+      createWall(325, 750, 650, 1, true),
+    ];
+
+    Matter.World.add(engine.world, [ball, playerPaddle, opponentPaddle, ...walls]);
+    Matter.Render.run(render);
+    socket.on('ballPosition', (data) => {
+      Matter.Body.setPosition(ball, { x: data.x, y: data.y });
+    }
+    );
+    const handleMousemove = (event) => {
       const mouseX = event.clientX - canvas.getBoundingClientRect().left;
       Matter.Body.setPosition(playerPaddle, { x: mouseX, y: playerPaddle.position.y });
-    });
-    // Set up a collision event listener
-    Matter.Events.on(engine, 'collisionStart', (event) => {
-      event.pairs.forEach((pair) => {
-          const bodyA = pair.bodyA;
-          const bodyB = pair.bodyB;
-      
-          // Check if the ball collides with the element
-          if ((bodyA === ball && bodyB === wallbottom) || (bodyA === wallbottom && bodyB === ball)) {
-              // The ball has hit the element
-              myScore = myScore + 1
-              setMyScore(myScore)
-              // reset the ball
-              Matter.Body.setPosition(ball, { x: 325, y: 375 });
-          }
-          if((bodyA === ball && bodyB === walltop) || (bodyA === walltop && bodyB === ball)){
-              console.log('Ball hit the element top wall!');
-              oppScore = oppScore + 1
-              setOppScore(oppScore)
-              // reset the ball
-              Matter.Body.setPosition(ball, { x: 325, y: 375 });
-          }
-      });
-    });
+      socket.emit('updatePlayerPosition', { x: mouseX, y: playerPaddle.position.y });
+    };
+
+    if (canvas !== null) {
+      canvas.addEventListener("mousemove", handleMousemove);
+    }
+
     return () => {
       Matter.Render.stop(render);
-      Matter.Runner.stop(runner);
       Matter.Engine.clear(engine);
-      canvas.removeEventListener("mousemove", () => {});
+      if (canvas !== null) {
+        canvas.removeEventListener("mousemove", handleMousemove);
+      }
     };
   }, []);
 

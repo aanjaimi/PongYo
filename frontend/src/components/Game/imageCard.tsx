@@ -6,7 +6,6 @@ export interface ImageProps {
 	score: number;
 }
 export  default function ImageCard({sideclass, className, size , score}: ImageProps) {
-	console.log(` size if my image = ${size}`);
 	return (
 		<div className={`${sideclass}`}>
 
