@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import Matter from "matter-js";
 import io from "socket.io-client";
+import { useStateContext } from "@/contexts/state-context";
+import { stat } from "fs";
 
 const GameCanvas = ({ setMyScore, setOppScore, myScore, oppScore }) => {
   const canvasRef = useRef(null);
-
+  const { state } = useStateContext();
   useEffect(() => {
-    // const socket = io('http://localhost:5000');
     const engine = Matter.Engine.create({ gravity: { x: 0, y: 0 } });
     const canvas = canvasRef.current;
     const renderOptions = {
@@ -64,14 +65,28 @@ const GameCanvas = ({ setMyScore, setOppScore, myScore, oppScore }) => {
 
     Matter.World.add(engine.world, [ball, playerPaddle, opponentPaddle, ...walls]);
     Matter.Render.run(render);
-    socket.on('ballPosition', (data) => {
+    state.socket.on('updateBallPosition', (data) => {
       Matter.Body.setPosition(ball, { x: data.x, y: data.y });
+    }
+    );
+    state.socket.on('updatePlayerPosition', (data) => {
+      console.log("updatePlayerPosition")
+      console.log(data);
+      Matter.Body.setPosition(playerPaddle, { x: data.x, y: data.y });
+    }
+    );
+    state.socket.on('updateOpponentPosition', (data) => {
+      Matter.Body.setPosition(opponentPaddle, { x: data.x, y: data.y });
+    }
+    );
+    state.socket.on('updateScore', (data) => {
+      setMyScore(data.myScore);
+      setOppScore(data.oppScore);
     }
     );
     const handleMousemove = (event) => {
       const mouseX = event.clientX - canvas.getBoundingClientRect().left;
-      Matter.Body.setPosition(playerPaddle, { x: mouseX, y: playerPaddle.position.y });
-      socket.emit('updatePlayerPosition', { x: mouseX, y: playerPaddle.position.y });
+      state.socket.emit('updatePlayerPosition', { x: mouseX, y: playerPaddle.position.y });
     };
 
     if (canvas !== null) {

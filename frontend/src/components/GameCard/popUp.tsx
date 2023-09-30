@@ -2,13 +2,20 @@
 import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useStateContext } from "@/contexts/state-context";
 
 const user = {
 	name: "said alm9awad",
 	image:"/smazouz.jpeg",
 	rank: "Gold",
 };
-const popUp = ({setIsPopupOpen}) => {
+const popUp = ({setIsPopupOpen,setGameStarted}) => {
+  const { state } = useStateContext();
+  state.socket.on('gameStart', () => {
+    setGameStarted(true);
+    setIsPopupOpen(false);
+  }
+  );
   return (
       <div className=" fixed rounded-lg shadow-2xl flex text-white bg-[#ffffff33] flex-col z-10 w-[500px] h-[350px]">
         {/* First Part */}
@@ -36,7 +43,9 @@ const popUp = ({setIsPopupOpen}) => {
 				<div className="w-full h-full flex items-center justify-center" >
 				<Button
             className="w-[140px] h-[35px] flex text-2xl  rounded-full bg-blue-500"
-            onClick={()=> {setIsPopupOpen(false)}}>
+            onClick={()=> {
+              state.socket.emit('leaveQueue');
+              setIsPopupOpen(false)}}>
             cancel
           </Button>
 				</div>

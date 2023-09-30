@@ -6,10 +6,13 @@ import Divider from "./Divider";
 import { Button } from "@/components/ui/button";
 import PopUp from "./popUp";
 import io from 'socket.io-client';
+import { useStateContext } from "@/contexts/state-context";
 const GameCard = ({setGameStarted}) => {
+  const { state } = useStateContext();
   const [isPopupOpen, setIsPopupOpen] = React.useState(false);
 	const handleStartClick = () => {
     setIsPopupOpen(true);
+    state.socket.emit('joinQueue');
   };
 	const handleInviteClick = () => {
   };
@@ -18,7 +21,7 @@ const GameCard = ({setGameStarted}) => {
   };
 	return (
     <div className="flex flex-col w-screen h-screen   justify-center items-center  ">
-      {isPopupOpen && <PopUp setIsPopupOpen={setIsPopupOpen}/>}
+      {isPopupOpen && <PopUp setIsPopupOpen={setIsPopupOpen} setGameStarted={setGameStarted}/>}
       {!isPopupOpen &&
       <div className="h-[450px] w-[500px] rounded-xl flex flex-col bg-[#33437D]">
         <div className="pt-7">

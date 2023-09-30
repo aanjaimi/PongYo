@@ -5,6 +5,7 @@ import { validationSchema, validationOptions } from '@/config/validation.joi';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { RedisModule } from './redis/redis.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RedisModule } from './redis/redis.module';
         };
       },
     }),
+    GameModule
   ],
   controllers: [],
   providers: [],
