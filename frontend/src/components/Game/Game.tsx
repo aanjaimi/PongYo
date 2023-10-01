@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import ImageCard from './ImageCard';
 import GameCanvas from './GameCanvas';
+import GameResult from '../GameResult/GameResult';
 
 const Game = () => {
   const [myScore, setMyScore] = useState(0);
   const [oppScore, setOppScore] = useState(0);
+  const [isGameOver, setIsGameOver] = React.useState(false);
   return (
+    <div>
+    {!isGameOver &&
     <div className="flex flex-col sm:flex-row w-screen h-screen items-center justify-start sm:justify-center">
       <ImageCard
         sideclass="h-full flex-col justify-start sm:w-auto w-full  sm:flex"
@@ -19,6 +23,7 @@ const Game = () => {
           setOppScore={setOppScore}
           myScore={myScore}
           oppScore={oppScore}
+          setIsGameOver={setIsGameOver}
         />
       </div>
       <ImageCard
@@ -27,6 +32,9 @@ const Game = () => {
         score={oppScore}
         size={75}
       />
+    </div>
+    }
+    {isGameOver && <GameResult myScore={myScore} oppScore={oppScore}/>}
     </div>
   );
 };

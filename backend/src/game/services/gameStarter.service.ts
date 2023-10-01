@@ -11,6 +11,8 @@ export class GameStarterService {
     const width = 650;
     let playerScore = 0;
     let opponentScore = 0;
+    let isGameOver = false;
+    let intervalStatus;
     const engine = Engine.create({ gravity: { x: 0, y: 0 } });
     const createWall = (x: number, y: number, width: number, height: number, isStatic: boolean, restitution?: number) => {
       return Bodies.rectangle(x, y, width, height, {
@@ -21,7 +23,7 @@ export class GameStarterService {
 
     const ball = Bodies.circle(325, 375, 10, {
       restitution: 1,
-      friction: 0,
+      friction: 0, 
       frictionAir: 0,
       inertia: Infinity,
     });
@@ -53,7 +55,8 @@ export class GameStarterService {
       player2.emit('updateBallPosition', ballPosition);
       console.log(ballPosition);
     };
-    setInterval(sendBallPosition, 10);
+
+    intervalStatus =  setInterval(sendBallPosition, 10);
     player1.on('updatePlayerPosition', (position) => {
       player1.emit('updatePlayerPosition', position);
       Body.setPosition(playerPaddle, position);
@@ -67,6 +70,7 @@ export class GameStarterService {
     }
     );
     Body.applyForce(ball, { x: ball.position.x, y: ball.position.y }, { x: 0.005, y: -0.005 });
+    if(!isGameOver){
     Events.on(engine, 'collisionStart', (event) => {
       const pairs = event.pairs;
       for (let i = 0; i < pairs.length; i++) {
@@ -87,8 +91,20 @@ export class GameStarterService {
           player1.emit('updateBallPosition', { x: 325, y: 375 });
           player2.emit('updateBallPosition', { x: 325, y: 375 });
         }
+        if (playerScore >= 10 || opponentScore >= 10) {
+          // stop the game
+          clearInterval(intervalStatus);
+          Runner.stop(runner);
+          Engine.clear(engine);
+          World.clear(engine.world, false);
+          player1.emit('gameOver', { myScore:playerScore,oppScore: opponentScore });
+          player2.emit('gameOver', { myScore:opponentScore,oppScore: playerScore });
+          // i wanna stop startserver from running
+
+        }
       }
     }
     );
+    }
   }
 }

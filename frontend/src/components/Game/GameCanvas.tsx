@@ -3,8 +3,9 @@ import Matter from "matter-js";
 import io from "socket.io-client";
 import { useStateContext } from "@/contexts/state-context";
 import { stat } from "fs";
+import  GameResult  from "@/components/GameResult/GameResult";
 
-const GameCanvas = ({ setMyScore, setOppScore, myScore, oppScore }) => {
+const GameCanvas = ({ setMyScore, setOppScore, myScore, oppScore, setIsGameOver }) => {
   const canvasRef = useRef(null);
   const { state } = useStateContext();
   useEffect(() => {
@@ -84,6 +85,13 @@ const GameCanvas = ({ setMyScore, setOppScore, myScore, oppScore }) => {
       setOppScore(data.oppScore);
     }
     );
+    state.socket.on('gameOver', (data) => {
+      // stop the game
+      Matter.Engine.clear(engine);
+      Matter.Render.stop(render);
+      setIsGameOver(true);
+    }
+    );
     const handleMousemove = (event) => {
       const mouseX = event.clientX - canvas.getBoundingClientRect().left;
       state.socket.emit('updatePlayerPosition', { x: mouseX, y: playerPaddle.position.y });
@@ -102,7 +110,12 @@ const GameCanvas = ({ setMyScore, setOppScore, myScore, oppScore }) => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="w-full h-full rounded-3xl" />;
+  return(
+    <div>
+    <canvas ref={canvasRef} className="w-full h-full rounded-3xl" />
+    </div>
+  )
+  
 };
 
 export default GameCanvas;
