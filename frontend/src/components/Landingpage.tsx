@@ -1,10 +1,7 @@
 import React from 'react';
-import Image from 'next/image';
-import { useRouter } from 'next/router';
 import Card from './Card';
 
 const Landingpage = () => {
-	const router = useRouter();
   return (
     <div className="w-screen h-screen grid grid-cols-3">
       <div className="border rounded-br-full w-[250px] h-[250px] bg-[#8D8DDA] blur-[150px]"></div>

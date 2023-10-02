@@ -1,8 +1,8 @@
-import React, { use } from 'react'
+import React from 'react'
 import Image from 'next/image';
 import Link from 'next/link';
-import { Buttons } from '../types/types'
-import { ALLbuttons } from '../types/types'
+import { Buttons } from '../types/common'
+import { ALLbuttons } from '../types/common'
 import { useState, useEffect } from 'react';
 
 const Sidebar = (props: any) => {
