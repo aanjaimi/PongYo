@@ -29,7 +29,7 @@ export class AuthService {
       expiresIn: Math.ceil(AUTH_COOKIE_MAX_AGE),
     });
 
-    res.cookie(AUTH_COOKIE_NAME, `Bearer ${accessToken}`, {
+    res.cookie(AUTH_COOKIE_NAME, accessToken, {
       httpOnly: true,
       path: '/',
       maxAge: Math.ceil(AUTH_COOKIE_MAX_AGE * 1e3),
