@@ -1,7 +1,7 @@
 import { RoomType } from '@prisma/client';
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export class CreateChatDto {
+export class CreateChannelDto {
   @IsString()
   @IsNotEmpty()
   name: string;

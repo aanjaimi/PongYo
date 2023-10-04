@@ -14,7 +14,8 @@ import { ChatService } from './chat.service';
 import { Response } from 'express';
 import { CurrentUser } from '@/auth/auth.decorator';
 import { User } from '@prisma/client';
-import { CreateChatDto } from './dto/create-chat.dto';
+import { CreateChannelDto } from './dto/create-channel.dto';
+import { JoinChannelDto } from './dto/join-channel.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -43,12 +44,22 @@ export class ChatController {
   // }
 
   // @Post('createChannel')
-  // @UsePipes(CreateChatDto)
+  // @UsePipes(CreateChannelDto)
   // async createChannel(
   //   @CurrentUser() user: User,
-  //   @Body() createChatDto: CreateChatDto,
+  //   @Body() createChannelDto: CreateChannelDto,
   // ) {
-  //   const { name, type, password } = createChatDto;
+  //   const { name, type, password } = createChannelDto;
   //   return this.chatService.createChannel(name, type, password, user);
   // }
+
+  @Post('joinChannel')
+  @UsePipes(JoinChannelDto)
+  async joinChannel(
+    @CurrentUser() user: User,
+    @Body() joinChannelDto: JoinChannelDto,
+  ) {
+    const { channelId, password } = joinChannelDto;
+    return this.chatService.joinChannel(channelId, password, user);
+  }
 }

@@ -101,4 +101,52 @@ export class ChatService {
   //     throw err;
   //   }
   // }
+
+  async joinChannel(channelId: string, channelPassword: string, user: User) {
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelId },
+      select: {
+        type: true,
+        members: true,
+        password: true,
+        bans: {
+          where: { id: user.id },
+        },
+      },
+    });
+
+    // check if channel exists or if its a private channel
+    if (!channel || channel.type === RoomType.PRIVATE) {
+      throw new HttpException('Channel not found', 404);
+    }
+
+    // match password if channel is protected
+    if (channel.password && channel.password !== channelPassword) {
+      throw new HttpException('Invalid password', 401);
+    }
+
+    // check if user is banned
+    if (channel.bans.length > 0) {
+      throw new HttpException('You are banned', 403);
+    }
+
+    // check if user is already a member
+    const isMember = channel.members.some((member) => member.id === user.id);
+    if (isMember) {
+      throw new HttpException('You are already a member', 403);
+    }
+
+    // add user to channel
+    const updatedChannel = await this.prisma.channel.update({
+      where: { id: channelId },
+      data: {
+        members: {
+          connect: { id: user.id },
+        },
+      },
+    });
+
+    const { password, ...rest } = updatedChannel;
+    return rest;
+  }
 }

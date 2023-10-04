@@ -18,7 +18,7 @@ import { Client } from 'socket.io/dist/client';
 import { PrismaService } from '@/prisma/prisma.service';
 import { User } from '@prisma/client';
 
-@WebSocketGateway({})
+@WebSocketGateway(5003, {})
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
@@ -31,9 +31,6 @@ export class ChatGateway implements OnGatewayConnection {
 
   async handleConnection(@ConnectedSocket() client: Socket) {
     // here we check for user's token and set up socket connection
-    console.log(client.handshake.headers);
-    client.join('general');
-    console.log('connected');
   }
 
   @SubscribeMessage('joinChannel')
@@ -42,10 +39,10 @@ export class ChatGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: any,
   ) {
-    if (!user) {
-      client.disconnect();
-      throw new Error('User not found');
-    }
+    // if (!user) {
+    //   client.disconnect();
+    //   throw new Error('User not found');
+    // }
     client.join(`channel-${data.channelId}`);
   }
 
@@ -60,5 +57,18 @@ export class ChatGateway implements OnGatewayConnection {
       throw new Error('User not found');
     }
     client.leave(`channel-${data.channelId}`);
+  }
+
+  @SubscribeMessage('sendMessage')
+  handleSendMessage(
+    @CurrentUser() user: User,
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
+    // if (!user) {
+    //   client.disconnect();
+    //   throw new Error('User not found');
+    // }
+    this.server.to(`channel-${data.channelId}`).emit('message', data);
   }
 }
