@@ -50,6 +50,7 @@ model User {
 }
 
 enum State {
+  NONE
   BLOCKED
   PENDING
   ACCEPTED
