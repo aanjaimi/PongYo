@@ -39,6 +39,11 @@ export const channels = [
     type: RoomType.PUBLIC,
     name: 'general',
     isDM: false,
+    owner: {
+      connect: {
+        id: '1',
+      },
+    },
     members: {
       connect: [
         { id: '1' },
@@ -54,6 +59,11 @@ export const channels = [
     type: RoomType.PUBLIC,
     name: 'random',
     isDM: false,
+    owner: {
+      connect: {
+        id: '1',
+      },
+    },
     members: {
       connect: [
         { id: '1' },
@@ -69,6 +79,11 @@ export const channels = [
     type: RoomType.PUBLIC,
     name: 'forStudents',
     isDM: false,
+    owner: {
+      connect: {
+        id: '1',
+      },
+    },
     members: {
       connect: [
         { id: '1' },
@@ -84,6 +99,11 @@ export const channels = [
     type: RoomType.PUBLIC,
     name: 'forDevs',
     isDM: false,
+    owner: {
+      connect: {
+        id: '1',
+      },
+    },
     members: {
       connect: [
         { id: '1' },
@@ -99,6 +119,11 @@ export const channels = [
     type: RoomType.PUBLIC,
     name: 'forStaff',
     isDM: false,
+    owner: {
+      connect: {
+        id: '1',
+      },
+    },
     members: {
       connect: [
         { id: '1' },
@@ -114,6 +139,11 @@ export const channels = [
     type: RoomType.PUBLIC,
     name: 'food',
     isDM: false,
+    owner: {
+      connect: {
+        id: '1',
+      },
+    },
     members: {
       connect: [
         { id: '1' },
