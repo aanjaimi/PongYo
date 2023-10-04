@@ -9,15 +9,19 @@ const user = {
   image: "/smazouz.jpeg",
   rank: "Gold",
 };
-const popUp = ({ setIsPopupOpen, setGameStarted }) => {
+const popUp = ({ setIsPopupOpen, setGameStarted, selectedOption }) => {
   const { state } = useStateContext();
   state.socket.on('gameStart', () => {
     setGameStarted(true);
     setIsPopupOpen(false);
   }
   );
+  console.log("socket")
+  console.log(state.socket)
+  console.log("user")
+  console.log(state.user)
   return (
-    <div className=" fixed rounded-lg shadow-2xl flex text-white bg-[#ffffff33] flex-col z-10 w-[700px] h-[300px] px-4 ">
+    <div className=" fixed rounded-lg shadow-2xl flex text-white bg-[#ffffff33] flex-col z-10 w-[700px] h-[300px] px-6 ">
       {/* First Part */}
       <div className="flex h-full flex-row justify-between m-8 ">
         <div className=" flex justify-center flex-col">
@@ -44,7 +48,10 @@ const popUp = ({ setIsPopupOpen, setGameStarted }) => {
             <Button
               className="w-[140px] h-[40px] flex text-2xl  rounded-full bg-blue-500"
               onClick={() => {
-                state.socket.emit('leaveQueue');
+                if(selectedOption === "Normal game")
+                  state.socket.emit('leaveQueue');
+                else if(selectedOption === "Ranked game")
+                  state.socket.emit('leaveRankedQueue');
                 setIsPopupOpen(false)
               }}>
               cancel

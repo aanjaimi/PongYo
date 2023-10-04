@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
 import { FortyTwoGuard } from './guards/42.guard';
 import { JwtAuthGuard } from './guards/jwt.guard';
+import { AccessToken } from './auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -19,9 +20,15 @@ export class AuthController {
   async fortyTwoCallback(@Req() req: Request, @Res() res: Response) {
     this.authService.fortyTwoCallback(req.user, res);
   }
-  @Get('42/logout')
+  @Get('logout')
   @UseGuards(JwtAuthGuard)
-  async logout(@Req() req: Request, @Res() res: Response) {
-    this.authService.logout(req, res);
+  async logout(@AccessToken() accessToken: string, @Res() res: Response) {
+    this.authService.logout(accessToken, res);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  me(@Req() req: Request) {
+    return req.user;
   }
 }

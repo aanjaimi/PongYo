@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { useStateContext } from "@/contexts/state-context";
 
 
-const Home = () => {
+const home = () => {
   const { state } = useStateContext();
   useEffect(() => {
     state.socket.connect();
@@ -20,4 +20,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default home;

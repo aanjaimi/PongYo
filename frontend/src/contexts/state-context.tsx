@@ -1,25 +1,24 @@
 import React, { createContext, useReducer, useContext } from "react";
 
-// import type { User } from "@/types/user";
+
+import type { User } from "@/types/user";
 // import type { Achievements } from "@/types/achievement";
 import type { Socket } from "socket.io-client";
 import { type } from "os";
 import io from 'socket.io-client';
 
 type State = {
-  // user: User | null;
+  user: User | null;
   // achievement: Achievements[] | [];
   socket: Socket;
 };
-
-
 type Action = {
-//   type: "SET_USER";
-//   payload: User | null;
-// } | {
-//   type: "SET_ACHIEVEMENT";
-//   payload: Achievements[] | [];
-// } | {
+  type: "SET_USER";
+  payload: User | null;
+} | {
+  type: "SET_ACHIEVEMENT";
+  // payload: Achievements[] | [];
+} | {
   type: "SET_SOCKET";
   payload: Socket | null;
 };
@@ -27,7 +26,8 @@ type Action = {
 type Dispatch = (action: Action) => void;
 
 const initialState: State = {
-  // user: null,
+  // set user to its initial value
+  user: null,
   // achievement: [],
   socket: io('http://localhost:5000', {
     autoConnect: false,
@@ -40,10 +40,10 @@ const StateContext = createContext<
 
 const stateReducer = (state: State, action: Action) => {
   switch (action.type) {
-    // case "SET_USER":
-    //   return { ...state, user: action.payload };
-    // case "SET_ACHIEVEMENT":
-    //   return { ...state, achievement: action.payload };
+    case "SET_USER":
+      return { ...state, user: action.payload };
+    case "SET_ACHIEVEMENT":
+      return { ...state, achievement: action.payload };
     case "SET_SOCKET":
       return { ...state, socket: action.payload };
     default:
