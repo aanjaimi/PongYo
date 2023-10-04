@@ -196,7 +196,7 @@ enum RoomType {
 model Channel {
   id       String   @id @default(cuid())
   type     RoomType
-  name     String
+  name     String   @unique
   password String?
   isDM     Boolean  @map("is_dm")
 
