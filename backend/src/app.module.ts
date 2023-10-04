@@ -6,6 +6,7 @@ import { ChatModule } from './chat/chat.module';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { RedisModule } from './redis/redis.module';
+import { WsModule } from './ws/ws.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { RedisModule } from './redis/redis.module';
         };
       },
     }),
+    WsModule,
   ],
   controllers: [],
   providers: [],
