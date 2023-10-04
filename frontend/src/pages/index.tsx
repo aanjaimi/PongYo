@@ -9,10 +9,11 @@ export default function Home() {
         <title>Ping Pong</title>
         <link rel="icon" href="/favicon.ico" />
         <style>
-          @import url('https://fonts.googleapis.com/css2?family=Outfit&display=swap');
+          @import
+          url(`https://fonts.googleapis.com/css2?family=Outfit&display=swap`);
         </style>
       </Head>
-      <Landingpage />
+      <Landingpage/>
     </>
   );
 }

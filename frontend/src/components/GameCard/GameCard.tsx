@@ -8,7 +8,7 @@ import io from 'socket.io-client';
 import { useStateContext } from "@/contexts/state-context";
 import CustomModal from "./CustomModal"; // Import the custom modal component
 
-const GameCard = ({ setGameStarted }) => {
+const GameCard = ({ setGameStarted , setUser, setOpp}) => {
   const { state } = useStateContext();
   const [isPopupOpen, setIsPopupOpen] = React.useState(false);
   const [selectedOption, setSelectedOption] = useState(""); // Initial value as an empty string
@@ -17,11 +17,14 @@ const GameCard = ({ setGameStarted }) => {
   const handleStartClick = () => {
     if (selectedOption === "Normal game" || selectedOption === "Ranked game") {
       setIsPopupOpen(true);
-
       if (selectedOption === "Normal game") {
-        state.socket.emit('joinQueue');
+        console.log("Normal game");
+        console.log(state.user);
+        state.socket.emit('joinQueue', {user: state.user});
       } else if (selectedOption === "Ranked game") {
-        state.socket.emit('joinRankedQueue');
+        console.log("Ranked game");
+        console.log(state.user);
+        state.socket.emit('joinRankedQueue', {user: state.user});
       }
     } else {
       setShowValidation(true);
@@ -42,7 +45,7 @@ const GameCard = ({ setGameStarted }) => {
 
   return (
     <div className="flex flex-col w-screen h-screen justify-center items-center">
-      {isPopupOpen && <PopUp setIsPopupOpen={setIsPopupOpen} selectedOption={selectedOption} setGameStarted={setGameStarted} />}
+      {isPopupOpen && <PopUp setIsPopupOpen={setIsPopupOpen} selectedOption={selectedOption} setGameStarted={setGameStarted} setUser={setUser} setOpp={setOpp} />}
       {!isPopupOpen && (
         <div className="h-[450px] w-[500px] rounded-xl flex flex-col bg-[#33437D]">
           <div className="pt-7">

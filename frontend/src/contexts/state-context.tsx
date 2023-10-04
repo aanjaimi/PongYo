@@ -15,8 +15,8 @@ type State = {
 type Action = {
   type: "SET_USER";
   payload: User | null;
-} | {
-  type: "SET_ACHIEVEMENT";
+// } | {
+//   type: "SET_ACHIEVEMENT";
   // payload: Achievements[] | [];
 } | {
   type: "SET_SOCKET";
@@ -42,8 +42,8 @@ const stateReducer = (state: State, action: Action) => {
   switch (action.type) {
     case "SET_USER":
       return { ...state, user: action.payload };
-    case "SET_ACHIEVEMENT":
-      return { ...state, achievement: action.payload };
+    // case "SET_ACHIEVEMENT":
+    //   return { ...state, achievement: action.payload };
     case "SET_SOCKET":
       return { ...state, socket: action.payload };
     default:

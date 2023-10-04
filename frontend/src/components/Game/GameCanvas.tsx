@@ -5,7 +5,7 @@ import { useStateContext } from "@/contexts/state-context";
 import { stat } from "fs";
 import  GameResult  from "@/components/GameResult/GameResult";
 
-const GameCanvas = ({ setMyScore, setOppScore, myScore, oppScore, setIsGameOver }) => {
+const GameCanvas = ({ setUser, setOpp, user,opp, setIsGameOver }) => {
   const canvasRef = useRef(null);
   const { state } = useStateContext();
   useEffect(() => {
@@ -71,8 +71,6 @@ const GameCanvas = ({ setMyScore, setOppScore, myScore, oppScore, setIsGameOver 
     }
     );
     state.socket.on('updatePlayerPosition', (data) => {
-      console.log("updatePlayerPosition")
-      console.log(data);
       Matter.Body.setPosition(playerPaddle, { x: data.x, y: data.y });
     }
     );
@@ -81,14 +79,15 @@ const GameCanvas = ({ setMyScore, setOppScore, myScore, oppScore, setIsGameOver 
     }
     );
     state.socket.on('updateScore', (data) => {
-      setMyScore(data.myScore);
-      setOppScore(data.oppScore);
+      setUser(data.user);
+      setOpp(data.opp);
     }
     );
     state.socket.on('gameOver', (data) => {
-      // stop the game
       Matter.Engine.clear(engine);
       Matter.Render.stop(render);
+      setUser(data.user);
+      setOpp(data.opp);
       setIsGameOver(true);
     }
     );

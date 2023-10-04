@@ -3,39 +3,39 @@ import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useStateContext } from "@/contexts/state-context";
+import { stat } from "fs";
 
-const user = {
-  name: "said alm9awad",
-  image: "/smazouz.jpeg",
-  rank: "Gold",
-};
-const popUp = ({ setIsPopupOpen, setGameStarted, selectedOption }) => {
+
+const popUp = ({ setIsPopupOpen, setGameStarted, selectedOption, setUser, setOpp }) => {
   const { state } = useStateContext();
-  state.socket.on('gameStart', () => {
+  state.socket.on('gameStart', (data) => {
+    console.log("gameStart");
+    console.log(data.user);
+    console.log("-------------------------");
+    console.log(data.opp);
+    setUser(data.user);
+    setOpp(data.opp);
     setGameStarted(true);
     setIsPopupOpen(false);
   }
   );
-  console.log("socket")
-  console.log(state.socket)
-  console.log("user")
-  console.log(state.user)
+  
   return (
     <div className=" fixed rounded-lg shadow-2xl flex text-white bg-[#ffffff33] flex-col z-10 w-[700px] h-[300px] px-6 ">
       {/* First Part */}
       <div className="flex h-full flex-row justify-between m-8 ">
         <div className=" flex justify-center flex-col">
           <Image
-            src={user.image}
-            alt={user.name}
+            src={ "/smazouz.jpeg"}
+            alt={state.user?.login}
             className="rounded-full mx-auto "
             width={140}
             height={140}
           />
           <h2 className="text-xl font-semibold text-center mt-4">
-            {user.name}
+            {state.user?.login}
           </h2>
-          <p className="text-gray-500 text-center">{user.rank}</p>
+          <p className="text-gray-500 text-center">Gold</p>
         </div>
         <div className=" h-full flex flex-col ">
           <div className=" h-full flex justify-center items-end">
@@ -49,9 +49,9 @@ const popUp = ({ setIsPopupOpen, setGameStarted, selectedOption }) => {
               className="w-[140px] h-[40px] flex text-2xl  rounded-full bg-blue-500"
               onClick={() => {
                 if(selectedOption === "Normal game")
-                  state.socket.emit('leaveQueue');
+                  state.socket.emit('leaveQueue', {user: state.user});
                 else if(selectedOption === "Ranked game")
-                  state.socket.emit('leaveRankedQueue');
+                  state.socket.emit('leaveRankedQueue', {user: state.user} );
                 setIsPopupOpen(false)
               }}>
               cancel
