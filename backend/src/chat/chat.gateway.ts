@@ -12,7 +12,10 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
+import { subscribe } from 'diagnostics_channel';
+import { CurrentUser } from '@/auth/auth.decorator';
+import { Client } from 'socket.io/dist/client';
 
 @WebSocketGateway({})
 export class ChatGateway implements OnGatewayConnection {
@@ -26,44 +29,32 @@ export class ChatGateway implements OnGatewayConnection {
   ) {}
 
   async handleConnection(@ConnectedSocket() client: Socket) {
-    /*
-    try {
-      const token = client.handshake.auth.token;
-      if (!token) {
-        throw new Error('Token not found');
-      }
-
-      const decoded = this.jwtService.verify(token);
-      if (!decoded.sub) {
-        throw new Error('Invalid token');
-      }
-
-      const user = await this.prismaClient.user.findUnique({
-        where: { id: decoded.sub },
-      });
-      if (!user) {
-        throw new Error('User not found');
-      }
-      client.data.user = user;
-      client.join(`user-${user.id}`);
-      await this.prismaClient.user.update({
-        where: { id: user.id },
-        data: { userStatus: 'ONLINE' },
-      });
-    } catch (error) {
-      console.log(error);
-      throw new WsException(error.message);
-    }
-    */
+    // here we check for user's token and set up socket connection
   }
 
-  @SubscribeMessage('onMessage')
-  onNewMessage(@MessageBody() body: any) {
-    console.log(body);
-    this.server.emit('onMessage', {
-      msg: 'new message',
-      content: body,
-    });
-    return undefined;
+  @SubscribeMessage('joinChannel')
+  handleJoinChannel(
+    @CurrentUser() user: User,
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
+    if (!user) {
+      client.disconnect();
+      throw new Error('User not found');
+    }
+    client.join(`channel-${data.channelId}`);
+  }
+
+  @SubscribeMessage('leaveChannel')
+  handleLeaveChannel(
+    @CurrentUser() user: User,
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: any,
+  ) {
+    if (!user) {
+      client.disconnect();
+      throw new Error('User not found');
+    }
+    client.leave(`channel-${data.channelId}`);
   }
 }
