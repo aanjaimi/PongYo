@@ -1,5 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, User } from '@prisma/client';
 import { RoomType } from '@prisma/client';
 
 @Injectable()
@@ -22,56 +22,83 @@ export class ChatService {
     }
   }
 
-  async getDirectMessage(user: any, username: string) {
-    const dm = await this.prisma.channel.findFirstOrThrow({
-      where: {
-        AND: [
-          { isDM: true },
-          {
-            members: {
-              every: {
-                OR: [
-                  { displayName: user.displayName },
-                  { displayName: username },
-                ],
-              },
-            },
-          },
-        ],
-      },
-      include: {
-        messages: true,
-        members: true,
-      },
-    });
-    if (dm) console.log(dm);
-    if (dm) return { status: 200, dm };
+  // async getDirectMessage(user: any, username: string) {
+  //   const dm = await this.prisma.channel.findFirstOrThrow({
+  //     where: {
+  //       AND: [
+  //         { isDM: true },
+  //         {
+  //           members: {
+  //             every: {
+  //               OR: [
+  //                 { displayName: user.displayName },
+  //                 { displayName: username },
+  //               ],
+  //             },
+  //           },
+  //         },
+  //       ],
+  //     },
+  //     include: {
+  //       messages: true,
+  //       members: true,
+  //     },
+  //   });
+  //   if (dm) console.log(dm);
+  //   if (dm) return { status: 200, dm };
 
-    const orgUser = await this.prisma.user.findFirstOrThrow({
-      where: { displayName: username },
-    });
+  //   const orgUser = await this.prisma.user.findFirstOrThrow({
+  //     where: { displayName: username },
+  //   });
 
-    const newDM = await this.prisma.channel.create({
-      select: {
-        id: true,
-        name: true,
-        isDM: true,
-        members: true,
-        type: true,
-        messages: true,
-      },
-      data: {
-        name: `${user.displayName}-${username}`,
-        isDM: true,
-        type: RoomType.PRIVATE,
-        members: {
-          connect: [{ id: user.id }, { id: orgUser.id }],
-        },
-      },
-    });
-    console.log('newDM');
-    console.log(newDM);
-    if (!newDM) throw new HttpException('could not create DM', 500);
-    return { status: 200, data: newDM };
-  }
+  //   const newDM = await this.prisma.channel.create({
+  //     select: {
+  //       id: true,
+  //       name: true,
+  //       isDM: true,
+  //       members: true,
+  //       type: true,
+  //       messages: true,
+  //     },
+  //     data: {
+  //       name: `${user.displayName}-${username}`,
+  //       isDM: true,
+  //       type: RoomType.PRIVATE,
+  //       members: {
+  //         connect: [{ id: user.id }, { id: orgUser.id }],
+  //       },
+  //     },
+  //   });
+  //   console.log('newDM');
+  //   console.log(newDM);
+  //   if (!newDM) throw new HttpException('could not create DM', 500);
+  //   return newDM;
+  // }
+
+  // async createChannel(
+  //   name: string,
+  //   type: RoomType,
+  //   password: string,
+  //   user: User,
+  // ) {
+  //   try {
+  //     const channel = await this.prisma.channel.create({
+  //       data: {
+  //         name,
+  //         type,
+  //         isDM: false,
+  //         password,
+  //         owner: {
+  //           connect: { id: user.id },
+  //         },
+  //         members: {
+  //           connect: { id: user.id },
+  //         },
+  //       },
+  //     });
+  //     return channel;
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
 }

@@ -12,10 +12,11 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { JwtService } from '@nestjs/jwt';
-import { PrismaClient, User } from '@prisma/client';
 import { subscribe } from 'diagnostics_channel';
 import { CurrentUser } from '@/auth/auth.decorator';
 import { Client } from 'socket.io/dist/client';
+import { PrismaService } from '@/prisma/prisma.service';
+import { User } from '@prisma/client';
 
 @WebSocketGateway({})
 export class ChatGateway implements OnGatewayConnection {
@@ -23,13 +24,16 @@ export class ChatGateway implements OnGatewayConnection {
   server: Server;
 
   constructor(
-    private readonly prismaClient: PrismaClient,
+    private readonly prismaService: PrismaService,
     private readonly chatService: ChatService,
     private readonly jwtService: JwtService,
   ) {}
 
   async handleConnection(@ConnectedSocket() client: Socket) {
     // here we check for user's token and set up socket connection
+    console.log(client.handshake.headers);
+    client.join('general');
+    console.log('connected');
   }
 
   @SubscribeMessage('joinChannel')
