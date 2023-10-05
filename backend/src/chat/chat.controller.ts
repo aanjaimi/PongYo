@@ -9,6 +9,7 @@ import {
   Body,
   Param,
   UsePipes,
+  Delete,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { Response } from 'express';
@@ -16,6 +17,8 @@ import { CurrentUser } from '@/auth/auth.decorator';
 import { User } from '@prisma/client';
 import { CreateChannelDto } from './dto/create-channel.dto';
 import { JoinChannelDto } from './dto/join-channel.dto';
+import { LeaveChannelDto } from './dto/leave-channel.dto';
+import { use } from 'passport';
 
 @Controller('chat')
 export class ChatController {
@@ -31,27 +34,36 @@ export class ChatController {
     }
   }
 
-  // @Get('directMessage')
-  // async getDirectMessage(
-  //   @Query('userName') username: string,
-  //   @Body() body: any,
-  // ) {
-  //   const { userName } = body;
-  //   const user = await this.chatService.getUser(userName);
-  //   if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-  //   const dm = await this.chatService.getDirectMessage(user, username);
-  //   return dm;
-  // }
+  @Get('channel/:channelId')
+  async getChannel(
+    @CurrentUser() user: User,
+    @Param('channelId') channelId: string,
+  ) {
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    return await this.chatService.getChannel(channelId);
+  }
 
-  // @Post('createChannel')
-  // @UsePipes(CreateChannelDto)
-  // async createChannel(
-  //   @CurrentUser() user: User,
-  //   @Body() createChannelDto: CreateChannelDto,
-  // ) {
-  //   const { name, type, password } = createChannelDto;
-  //   return this.chatService.createChannel(name, type, password, user);
-  // }
+  @Get('directMessage')
+  async getDirectMessage(
+    @Query('userName') username: string,
+    @Body() body: any,
+  ) {
+    const { userName } = body;
+    const user = await this.chatService.getUser(userName);
+    if (!user) throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    const dm = await this.chatService.getDirectMessage(user, username);
+    return dm;
+  }
+
+  @Post('createChannel')
+  @UsePipes(CreateChannelDto)
+  async createChannel(
+    @CurrentUser() user: User,
+    @Body() createChannelDto: CreateChannelDto,
+  ) {
+    const { name, type, password } = createChannelDto;
+    return this.chatService.createChannel(name, type, password, user);
+  }
 
   @Post('joinChannel')
   @UsePipes(JoinChannelDto)
@@ -61,5 +73,15 @@ export class ChatController {
   ) {
     const { channelId, password } = joinChannelDto;
     return this.chatService.joinChannel(channelId, password, user);
+  }
+
+  @Delete('leaveChannel')
+  @UsePipes(LeaveChannelDto)
+  async leaveChannel(
+    @CurrentUser() user: User,
+    @Body() leaveChannelDto: LeaveChannelDto,
+  ) {
+    const { channelId } = leaveChannelDto;
+    return this.chatService.leaveChannel(channelId, user);
   }
 }

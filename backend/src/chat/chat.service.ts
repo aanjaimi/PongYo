@@ -22,85 +22,99 @@ export class ChatService {
     }
   }
 
-  // async getDirectMessage(user: any, username: string) {
-  //   const dm = await this.prisma.channel.findFirstOrThrow({
-  //     where: {
-  //       AND: [
-  //         { isDM: true },
-  //         {
-  //           members: {
-  //             every: {
-  //               OR: [
-  //                 { displayName: user.displayName },
-  //                 { displayName: username },
-  //               ],
-  //             },
-  //           },
-  //         },
-  //       ],
-  //     },
-  //     include: {
-  //       messages: true,
-  //       members: true,
-  //     },
-  //   });
-  //   if (dm) console.log(dm);
-  //   if (dm) return { status: 200, dm };
+  async getChannel(channelId: string) {
+    const channel = await this.prisma.channel.findUniqueOrThrow({
+      where: { id: channelId },
+      include: {
+        messages: true,
+        members: true,
+        moderators: true,
+        owner: true,
+      },
+    });
+    if (!channel) throw new HttpException('Channel not found', 404);
+    return channel;
+  }
 
-  //   const orgUser = await this.prisma.user.findFirstOrThrow({
-  //     where: { displayName: username },
-  //   });
+  async getDirectMessage(user: any, username: string) {
+    const dm = await this.prisma.channel.findFirstOrThrow({
+      where: {
+        AND: [
+          { isDM: true },
+          {
+            members: {
+              every: {
+                OR: [
+                  { displayName: user.displayName },
+                  { displayName: username },
+                ],
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        messages: true,
+        members: true,
+      },
+    });
+    if (dm) console.log(dm);
+    if (dm) return { status: 200, dm };
 
-  //   const newDM = await this.prisma.channel.create({
-  //     select: {
-  //       id: true,
-  //       name: true,
-  //       isDM: true,
-  //       members: true,
-  //       type: true,
-  //       messages: true,
-  //     },
-  //     data: {
-  //       name: `${user.displayName}-${username}`,
-  //       isDM: true,
-  //       type: RoomType.PRIVATE,
-  //       members: {
-  //         connect: [{ id: user.id }, { id: orgUser.id }],
-  //       },
-  //     },
-  //   });
-  //   console.log('newDM');
-  //   console.log(newDM);
-  //   if (!newDM) throw new HttpException('could not create DM', 500);
-  //   return newDM;
-  // }
+    const orgUser = await this.prisma.user.findFirstOrThrow({
+      where: { displayName: username },
+    });
 
-  // async createChannel(
-  //   name: string,
-  //   type: RoomType,
-  //   password: string,
-  //   user: User,
-  // ) {
-  //   try {
-  //     const channel = await this.prisma.channel.create({
-  //       data: {
-  //         name,
-  //         type,
-  //         isDM: false,
-  //         password,
-  //         owner: {
-  //           connect: { id: user.id },
-  //         },
-  //         members: {
-  //           connect: { id: user.id },
-  //         },
-  //       },
-  //     });
-  //     return channel;
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
+    const newDM = await this.prisma.channel.create({
+      select: {
+        id: true,
+        name: true,
+        isDM: true,
+        members: true,
+        type: true,
+        messages: true,
+      },
+      data: {
+        name: `${user.displayName}-${username}`,
+        isDM: true,
+        type: RoomType.PRIVATE,
+        members: {
+          connect: [{ id: user.id }, { id: orgUser.id }],
+        },
+      },
+    });
+    console.log('newDM');
+    console.log(newDM);
+    if (!newDM) throw new HttpException('could not create DM', 500);
+    return newDM;
+  }
+
+  async createChannel(
+    name: string,
+    type: RoomType,
+    password: string,
+    user: User,
+  ) {
+    try {
+      const channel = await this.prisma.channel.create({
+        data: {
+          name,
+          type,
+          isDM: false,
+          password,
+          owner: {
+            connect: { id: user.id },
+          },
+          members: {
+            connect: { id: user.id },
+          },
+        },
+      });
+      return channel;
+    } catch (err) {
+      throw err;
+    }
+  }
 
   async joinChannel(channelId: string, channelPassword: string, user: User) {
     const channel = await this.prisma.channel.findUnique({
@@ -138,6 +152,12 @@ export class ChatService {
 
     // add user to channel
     const updatedChannel = await this.prisma.channel.update({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        moderators: true,
+      },
       where: { id: channelId },
       data: {
         members: {
@@ -146,7 +166,51 @@ export class ChatService {
       },
     });
 
-    const { password, ...rest } = updatedChannel;
-    return rest;
+    return updatedChannel;
+  }
+
+  async leaveChannel(channelId: string, user: User) {
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelId },
+      select: {
+        type: true,
+        members: true,
+        owner: true,
+      },
+    });
+
+    // check if channel exists
+    if (!channel) {
+      throw new HttpException('Channel not found', 404);
+    }
+
+    // check if user is owner
+    if (channel.owner.id === user.id) {
+      throw new HttpException('You are the owner', 403);
+    }
+
+    // check if user is a member
+    const isMember = channel.members.some((member) => member.id === user.id);
+    if (!isMember) {
+      throw new HttpException('You are not a member', 403);
+    }
+
+    // remove user from channel
+    const updatedChannel = await this.prisma.channel.update({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        moderators: true,
+      },
+      where: { id: channelId },
+      data: {
+        members: {
+          disconnect: { id: user.id },
+        },
+      },
+    });
+
+    return updatedChannel;
   }
 }
