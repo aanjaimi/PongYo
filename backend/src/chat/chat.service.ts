@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
 import { RoomType } from '@prisma/client';
 import { CreateChannelDto } from './dto/create-channel.dto';
@@ -10,47 +10,85 @@ export class ChatService {
     this.prisma = new PrismaClient();
   }
 
-  async getUser(userName: string) {
-    try {
-      const user = await this.prisma.user.findUniqueOrThrow({
-        where: { login: userName },
-        include: { channels: { include: { messages: true } } },
-      });
-      if (!user) throw new HttpException('User not found', 404);
-      return user;
-    } catch (err) {
-      throw err;
-    }
-  }
+  // async getUser(userName: string) {
+  //   try {
+  //     const user = await this.prisma.user.findUniqueOrThrow({
+  //       where: { login: userName },
+  //       include: { channels: { include: { messages: true } } },
+  //     });
+  //     if (!user) throw new HttpException('User not found', 404);
+  //     return user;
+  //   } catch (err) {
+  //     throw err;
+  //   }
+  // }
 
-  async getChannel(channelId: string) {
-    const channel = await this.prisma.channel.findUniqueOrThrow({
-      where: { id: channelId },
-      include: {
-        messages: true,
+  async getChannel(channelId: string, user: User) {
+    const channel = await this.prisma.channel.findUnique({
+      select: {
+        id: true,
+        name: true,
+        type: true,
         members: true,
         moderators: true,
         owner: true,
+        bans: true,
+        mutes: true,
+        messages: true,
+        createdAt: true,
+        updatedAt: true,
       },
+      where: { id: channelId },
     });
+
+    // check if channel exists
     if (!channel) throw new HttpException('Channel not found', 404);
+
+    // check if user is a member
+    const isMember = channel.members.some((member) => member.id === user.id);
+    if (!isMember) throw new HttpException('You are not a member', 403);
+
+    // check if user is owner or moderator
+    let isMod = true;
+    if (
+      channel.owner.id !== user.id &&
+      !channel.moderators.some((moderator) => moderator.id === user.id)
+    ) {
+      isMod = false;
+    }
+
+    if (!isMod) {
+      const { owner, moderators, bans, mutes, ...rest } = channel;
+      return rest;
+    }
+
     return channel;
   }
 
-  async getDirectMessage(currentUser: User, username: string) {
+  async getDirectMessage(currentUser: User, displayName: string) {
     // check the current user and other user
-    if (currentUser.displayName === username)
-      throw new HttpException('Cannot DM yourself', 400);
+    if (currentUser.displayName === displayName)
+      throw new HttpException('Cannot DM yourself', HttpStatus.BAD_REQUEST);
 
     const otherUser = await this.prisma.user.findUnique({
-      where: { login: username },
+      where: { displayName },
     });
 
     // check if other user exists
-    if (!otherUser) throw new HttpException('User not found', 404);
+    if (!otherUser)
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
     // check if dm exists
     const dm = await this.prisma.channel.findFirst({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        members: true,
+        messages: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       where: {
         isDM: true,
         AND: [
@@ -58,31 +96,31 @@ export class ChatService {
           { members: { some: { id: otherUser.id } } },
         ],
       },
-      include: {
-        members: true,
-        moderators: true,
-        owner: true,
-        messages: true,
-      },
     });
 
     if (dm) return dm;
 
     // create new dm
     const newDM = await this.prisma.channel.create({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        members: true,
+        messages: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       data: {
-        name: `${currentUser.displayName} - ${otherUser.displayName}`,
+        name: `${currentUser.displayName}-${otherUser.displayName}`,
         type: RoomType.PRIVATE,
         isDM: true,
         members: {
           connect: [{ id: currentUser.id }, { id: otherUser.id }],
         },
-      },
-      include: {
-        members: true,
-        moderators: true,
-        owner: true,
-        messages: true,
+        owner: {
+          connect: { id: currentUser.id },
+        },
       },
     });
 
@@ -95,25 +133,37 @@ export class ChatService {
     password: string,
     user: User,
   ) {
-    try {
-      const channel = await this.prisma.channel.create({
-        data: {
-          name,
-          type,
-          isDM: false,
-          password,
-          owner: {
-            connect: { id: user.id },
-          },
-          members: {
-            connect: { id: user.id },
-          },
-        },
-      });
-      return channel;
-    } catch (err) {
-      throw err;
+    // check if channel name is already taken
+    const oldChannel = await this.prisma.channel.findUnique({
+      where: { name },
+    });
+    if (oldChannel)
+      throw new HttpException(
+        'Channel name already taken',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    // check if there is a password if channel is protected
+    if (type === RoomType.PROTECTED && !password) {
+      throw new HttpException('Password required', HttpStatus.BAD_REQUEST);
     }
+
+    const channel = await this.prisma.channel.create({
+      data: {
+        name,
+        type,
+        isDM: false,
+        password,
+        owner: {
+          connect: { id: user.id },
+        },
+        members: {
+          connect: { id: user.id },
+        },
+      },
+    });
+
+    return channel;
   }
 
   async deleteChannel(channelId: string, user: User) {
@@ -138,8 +188,6 @@ export class ChatService {
     const deletedChannel = await this.prisma.channel.delete({
       where: { id: channelId },
     });
-
-    return deletedChannel;
   }
 
   async joinChannel(channelId: string, channelPassword: string, user: User) {
@@ -182,7 +230,10 @@ export class ChatService {
         id: true,
         name: true,
         type: true,
-        moderators: true,
+        members: true,
+        messages: true,
+        createdAt: true,
+        updatedAt: true,
       },
       where: { id: channelId },
       data: {
@@ -227,6 +278,7 @@ export class ChatService {
         id: true,
         name: true,
         type: true,
+        members: true,
       },
       where: { id: channelId },
       data: {
@@ -234,9 +286,7 @@ export class ChatService {
           disconnect: { id: user.id },
         },
       },
-    });
-
-    return updatedChannel;
+    }); 
   }
 
   async updateChannel(

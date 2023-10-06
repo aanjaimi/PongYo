@@ -18,7 +18,7 @@ import { Client } from 'socket.io/dist/client';
 import { PrismaService } from '@/prisma/prisma.service';
 import { User } from '@prisma/client';
 
-@WebSocketGateway(5003, {})
+@WebSocketGateway(5004, {})
 export class ChatGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
