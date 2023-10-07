@@ -1,13 +1,14 @@
 import React, { useEffect, useRef } from "react";
 import Matter from "matter-js";
 import io from "socket.io-client";
-import { useStateContext } from "@/contexts/state-context";
 import { stat } from "fs";
 import  GameResult  from "@/components/GameResult/GameResult";
+import { useStateContext } from "@/contexts/game-context";
 
-const GameCanvas = ({ setUser, setOpp, user,opp, setIsGameOver }) => {
+
+const GameCanvas = ({ setIsGameOver }) => {
   const canvasRef = useRef(null);
-  const { state } = useStateContext();
+  const { state, dispatch} = useStateContext();
   useEffect(() => {
     const engine = Matter.Engine.create({ gravity: { x: 0, y: 0 } });
     const canvas = canvasRef.current;
@@ -79,15 +80,16 @@ const GameCanvas = ({ setUser, setOpp, user,opp, setIsGameOver }) => {
     }
     );
     state.socket.on('updateScore', (data) => {
-      setUser(data.user);
-      setOpp(data.opp);
+      console.log(data);
+      dispatch({ type: "SET_USER", payload: data.user});
+      dispatch({ type: "SET_OPP", payload: data.opp});
     }
     );
     state.socket.on('gameOver', (data) => {
       Matter.Engine.clear(engine);
       Matter.Render.stop(render);
-      setUser(data.user);
-      setOpp(data.opp);
+      dispatch({ type: "SET_USER", payload: data.user });
+      dispatch({ type: "SET_OPP", payload: data.opp });
       setIsGameOver(true);
     }
     );
@@ -114,7 +116,6 @@ const GameCanvas = ({ setUser, setOpp, user,opp, setIsGameOver }) => {
     <canvas ref={canvasRef} className="w-full h-full rounded-3xl" />
     </div>
   )
-  
 };
 
 export default GameCanvas;

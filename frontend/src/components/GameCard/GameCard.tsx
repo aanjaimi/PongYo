@@ -1,29 +1,37 @@
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import Image from "next/image";
 import InvitedButton from "./InvitedButton";
 import Divider from "./Divider";
 import { Button } from "@/components/ui/button";
 import PopUp from "./popUp";
 import io from 'socket.io-client';
-import { useStateContext } from "@/contexts/state-context";
+import { useStateContext } from "@/contexts/game-context";
 import CustomModal from "./CustomModal"; // Import the custom modal component
+import { stat } from "fs";
+import { useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { StateProvider } from "@/contexts/game-context";
 
-const GameCard = ({ setGameStarted , setUser, setOpp}) => {
-  const { state } = useStateContext();
+
+const GameCard = ({ setGameStarted }) => {
+  const { state, dispatch } = useStateContext();
   const [isPopupOpen, setIsPopupOpen] = React.useState(false);
   const [selectedOption, setSelectedOption] = useState(""); // Initial value as an empty string
   const [showValidation, setShowValidation] = useState(false); // State for showing the validation modal
-
+  useEffect(() => {
+    const userData = { login: "smazouz", avatar: "/smazouz.jpeg", rank: "Gold", score: 0 , resoult: "winner"};
+    dispatch({ type: "SET_USER", payload: userData });
+    state.socket.connect();
+  }
+  , []);
   const handleStartClick = () => {
     if (selectedOption === "Normal game" || selectedOption === "Ranked game") {
       setIsPopupOpen(true);
       if (selectedOption === "Normal game") {
-        console.log("Normal game");
         console.log(state.user);
         state.socket.emit('joinQueue', {user: state.user});
       } else if (selectedOption === "Ranked game") {
         console.log("Ranked game");
-        console.log(state.user);
         state.socket.emit('joinRankedQueue', {user: state.user});
       }
     } else {
@@ -45,7 +53,7 @@ const GameCard = ({ setGameStarted , setUser, setOpp}) => {
 
   return (
     <div className="flex flex-col w-screen h-screen justify-center items-center">
-      {isPopupOpen && <PopUp setIsPopupOpen={setIsPopupOpen} selectedOption={selectedOption} setGameStarted={setGameStarted} setUser={setUser} setOpp={setOpp} />}
+      {isPopupOpen && <PopUp setIsPopupOpen={setIsPopupOpen} selectedOption={selectedOption} setGameStarted={setGameStarted}/>}
       {!isPopupOpen && (
         <div className="h-[450px] w-[500px] rounded-xl flex flex-col bg-[#33437D]">
           <div className="pt-7">

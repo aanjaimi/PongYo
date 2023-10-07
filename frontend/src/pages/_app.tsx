@@ -19,12 +19,10 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     queryClient.prefetchQuery(["users"], getCurrentUser).catch(console.error);
   }, []);
   return (
-    <StateProvider>
       <QueryClientProvider client={queryClient}>
         <Component {...pageProps} />
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
-    </StateProvider>
   );
 };
 

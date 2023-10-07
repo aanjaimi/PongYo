@@ -1,26 +1,31 @@
 import React, { createContext, useReducer, useContext } from "react";
 
 
-import type { User } from "@/types/user";
+// import type { User } from "@/types/user";
 // import type { Achievements } from "@/types/achievement";
 import type { Socket } from "socket.io-client";
 import { type } from "os";
 import io from 'socket.io-client';
+import type { Player } from "@/types/player";
 
 type State = {
-  user: User | null;
+  user: Player | null;
   // achievement: Achievements[] | [];
   socket: Socket;
+  opp : Player | null;
 };
 type Action = {
   type: "SET_USER";
-  payload: User | null;
+  payload: Player | null;
 // } | {
 //   type: "SET_ACHIEVEMENT";
   // payload: Achievements[] | [];
 } | {
   type: "SET_SOCKET";
   payload: Socket | null;
+}| {
+    type: "SET_OPP";
+    payload: Player | null;
 };
 
 type Dispatch = (action: Action) => void;
@@ -32,6 +37,7 @@ const initialState: State = {
   socket: io('http://localhost:5000', {
     autoConnect: false,
   }),
+  opp: null,
 };
 
 const StateContext = createContext<
@@ -46,6 +52,8 @@ const stateReducer = (state: State, action: Action) => {
     //   return { ...state, achievement: action.payload };
     case "SET_SOCKET":
       return { ...state, socket: action.payload };
+    case "SET_OPP":
+      return { ...state, opp: action.payload };
     default:
       return state;
   }
