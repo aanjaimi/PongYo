@@ -9,15 +9,15 @@ export default function ChannelsList(
 		<div>
 			<ul>
 				{channels.map((channel : Channel) => (
-					<li
-						className={`flex justify-center items-center h-[3rem] text-xl m-[5px] rounded-md ${selectedChannel === undefined ? 'bg-[#6466F1]' : (selectedChannel.id === channel.id ? 'bg-[#382FA3]' : 'bg-[#6466F1]')}`}
+					<div
+						className={`flex justify-center items-center h-[2.5rem] text-xl m-[5px] hover:cursor-pointer hover:bg-[#382FA3] rounded-md ${selectedChannel === undefined ? 'bg-[#6466F1]' : (selectedChannel.id === channel.id ? 'bg-[#382FA3]' : 'bg-[#6466F1]')}`}
 						onClick={() => {
 							updateSelectedChannel(channel)
 						}}
 						key={channel.id}
 					>
 						{channel.name}
-					</li>
+					</div>
 				))}
 			</ul>
 		</div>

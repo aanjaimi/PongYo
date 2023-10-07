@@ -5,6 +5,9 @@ import axios from 'axios';
 import Chat from '@/components/chat/Chat';
 import { redirect } from 'next/dist/server/api-utils';
 import { useRouter } from 'next/router';
+import { ReactDOM } from 'react';
+import Cookie from 'js-cookie';
+import { fetcher } from '@/utils/fetcher';
 
 
 export default function Home() {
@@ -13,7 +16,7 @@ export default function Home() {
 	useQuery({
 		// queryKey: ["userData"],
 		queryFn: async () => {
-			const { data } : { data : User } = await axios.get("http://localhost:5000/chat/me?userName=1");
+			const { data } : { data : User } = await axios.get("http://localhost:5000/chat/me", { withCredentials: true });
 			setUser(data);
 			return data;
 		}
