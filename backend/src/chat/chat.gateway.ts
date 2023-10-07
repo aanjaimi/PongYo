@@ -17,6 +17,8 @@ import { CurrentUser } from '@/auth/auth.decorator';
 import { Client } from 'socket.io/dist/client';
 import { PrismaService } from '@/prisma/prisma.service';
 import { User } from '@prisma/client';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '@/auth/guards/jwt.guard';
 
 @WebSocketGateway(5004, {})
 export class ChatGateway implements OnGatewayConnection {
@@ -47,6 +49,7 @@ export class ChatGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('leaveChannel')
+  @UseGuards(JwtAuthGuard)
   handleLeaveChannel(
     @CurrentUser() user: User,
     @ConnectedSocket() client: Socket,
@@ -60,6 +63,7 @@ export class ChatGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('sendMessage')
+  @UseGuards(JwtAuthGuard)
   handleSendMessage(
     @CurrentUser() user: User,
     @ConnectedSocket() client: Socket,

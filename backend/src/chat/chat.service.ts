@@ -10,18 +10,24 @@ export class ChatService {
     this.prisma = new PrismaClient();
   }
 
-  // async getUser(userName: string) {
-  //   try {
-  //     const user = await this.prisma.user.findUniqueOrThrow({
-  //       where: { login: userName },
-  //       include: { channels: { include: { messages: true } } },
-  //     });
-  //     if (!user) throw new HttpException('User not found', 404);
-  //     return user;
-  //   } catch (err) {
-  //     throw err;
-  //   }
-  // }
+  async getUser(user: User) {
+    return await this.prisma.user.findUnique({
+      where: { id: user.id },
+      include: {
+        channels: {
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            members: true,
+            messages: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+  }
 
   async getChannel(channelId: string, user: User) {
     const channel = await this.prisma.channel.findUnique({
@@ -185,7 +191,7 @@ export class ChatService {
     }
 
     // delete channel
-    const deletedChannel = await this.prisma.channel.delete({
+    await this.prisma.channel.delete({
       where: { id: channelId },
     });
   }
@@ -273,7 +279,7 @@ export class ChatService {
     }
 
     // remove user from channel
-    const updatedChannel = await this.prisma.channel.update({
+    await this.prisma.channel.update({
       select: {
         id: true,
         name: true,
@@ -286,7 +292,7 @@ export class ChatService {
           disconnect: { id: user.id },
         },
       },
-    }); 
+    });
   }
 
   async updateChannel(
