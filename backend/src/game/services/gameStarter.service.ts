@@ -85,7 +85,7 @@ export class GameStarterService {
           player1.client.emit('updateBallPosition', { x: 325, y: 375 });
           player2.client.emit('updateBallPosition', { x: 325, y: 375 });
         }
-        if (player1.user.score >= 10 || player2.user.score >= 10) {
+        if (player1.user.score >= 5 || player2.user.score >= 5) {
           Runner.stop(runner);
           Engine.clear(engine);
           World.clear(engine.world, false);
@@ -93,11 +93,13 @@ export class GameStarterService {
             player1.user.resoult = 'Winner';
             player2.user.resoult = 'Loser';
           }
-          else
-          {
+          else{
             player1.user.resoult = 'Loser';
             player2.user.resoult = 'Winner';
           }
+          console.log('Game over');
+          console.log(player1.user);
+          console.log(player2.user);
           player1.client.emit('gameOver', {user:player1.user, opp:player2.user});
           player2.client.emit('gameOver', {user:player2.user, opp:player1.user});
         }

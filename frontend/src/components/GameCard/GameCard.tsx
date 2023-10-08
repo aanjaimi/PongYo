@@ -28,10 +28,8 @@ const GameCard = ({ setGameStarted }) => {
     if (selectedOption === "Normal game" || selectedOption === "Ranked game") {
       setIsPopupOpen(true);
       if (selectedOption === "Normal game") {
-        console.log(state.user);
         state.socket.emit('joinQueue', {user: state.user});
       } else if (selectedOption === "Ranked game") {
-        console.log("Ranked game");
         state.socket.emit('joinRankedQueue', {user: state.user});
       }
     } else {
@@ -43,9 +41,6 @@ const GameCard = ({ setGameStarted }) => {
     setShowValidation(false);
   };
 
-  const handleInviteClick = () => {
-    // Handle invite click here
-  };
 
   const handleChange = (e) => {
     setSelectedOption(e.target.value);
@@ -96,7 +91,7 @@ const GameCard = ({ setGameStarted }) => {
             <h1 className="text-3xl text-white pl-5 "> INVITE YOUR FRIEND :</h1>
           </div>
           <div className="mt-6 flex text-white text-xl items-center pt-2">
-            <InvitedButton onInviteClick={handleInviteClick} />
+            <InvitedButton />
           </div>
         </div>
       )}
