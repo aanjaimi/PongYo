@@ -16,7 +16,6 @@ export class GameController {
     if (!username) {
       throw new BadRequestException('Username parameter is required');
     }
-    console.log(username);
     return await this.friendsService.searchFriendsByUsername(username);
   }
 }

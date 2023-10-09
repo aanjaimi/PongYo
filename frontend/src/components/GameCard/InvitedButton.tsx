@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useStateContext } from "@/contexts/game-context";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Socket } from "socket.io-client";
+import { stat } from "fs";
 
 const InvitedButton = () => {
   // State
@@ -10,6 +12,7 @@ const InvitedButton = () => {
   const [username, setUsername] = useState("");
   const [filteredUsers, setFilteredUsers] = useState([]);
   const { state, dispatch } = useStateContext();
+
 
   // Sample user data (replace with your actual data)
   const user = [
@@ -22,7 +25,7 @@ const InvitedButton = () => {
     {
       id: 2,
       name: "said",
-      login: "szobi",
+      login: "ssaid",
       email: "szobi.gmail.com",
     },
     {
@@ -37,6 +40,12 @@ const InvitedButton = () => {
       login: "moha",
       gmail: "moha.gmail.com",
     },
+    {
+      id: 5,
+      name : "adam",
+      login: "akharraz",
+      gmail: "akharraz.gmail.com",
+    }
   ];
 
   // Handle Invite Click
@@ -44,6 +53,8 @@ const InvitedButton = () => {
     const isUserFound = user.find((user) => user.login === username);
 
     if (isUserFound) {
+      console.log("user found");
+      state.socket.emit('invireToGame', {user: state.user, friend: username});
       notifySuccess('User invited successfully');
     } else {
       notifyError(`"${username}" not found`);
@@ -100,11 +111,10 @@ const InvitedButton = () => {
       theme: "dark",
     });
   };
-
   // useEffect for fetching user data (replace with your actual fetch)
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/game/search?username=${"smazouz"}`, {
+      .get(`http://localhost:5000/game/search?username=${state.user?.login}`, {
         withCredentials: true,
       })
       .then((res) => {
