@@ -23,7 +23,7 @@ export class AuthController {
   @Get('logout')
   @UseGuards(JwtAuthGuard)
   async logout(@AccessToken() accessToken: string, @Res() res: Response) {
-    this.authService.logout(accessToken, res);
+    // this.authService.logout(accessToken, res);
   }
 
   @UseGuards(JwtAuthGuard)

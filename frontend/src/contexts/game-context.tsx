@@ -6,17 +6,17 @@ import React, { createContext, useReducer, useContext } from "react";
 import type { Socket } from "socket.io-client";
 import { type } from "os";
 import io from 'socket.io-client';
-import type { Player } from "@/types/player";
+import { User } from "@/types/user";
 
 type State = {
-  user: Player | null;
+  user: User | null;
   // achievement: Achievements[] | [];
   socket: Socket;
-  opp : Player | null;
+  opp : User | null;
 };
 type Action = {
   type: "SET_USER";
-  payload: Player | null;
+  payload: User | null;
 // } | {
 //   type: "SET_ACHIEVEMENT";
   // payload: Achievements[] | [];
@@ -25,17 +25,22 @@ type Action = {
   payload: Socket | null;
 }| {
     type: "SET_OPP";
-    payload: Player | null;
+    payload: User | null;
 };
 
 type Dispatch = (action: Action) => void;
-
+const Cookies = require('js-cookie');
+const token = Cookies.get('auth-token');
 const initialState: State = {
   // set user to its initial value
   user: null,
   // achievement: [],
-  socket: io('http://localhost:5000', {
+  socket: io('http://localhost:5000/game', {
     autoConnect: false,
+    extraHeaders: {
+      Auth: `${token}`,
+    },
+    
   }),
   opp: null,
 };

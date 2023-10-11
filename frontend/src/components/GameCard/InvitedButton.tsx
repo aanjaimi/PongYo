@@ -1,89 +1,69 @@
-import axios from "axios";
 import React, { useState, useEffect } from "react";
 import { useStateContext } from "@/contexts/game-context";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Socket } from "socket.io-client";
 import { stat } from "fs";
+import { date } from "zod";
 
-const InvitedButton = () => {
+const InvitedButton = ({setGameStarted}) => {
   // State
-  const [userData, setUserData] = useState({ user: null, friends: [] });
+  const { state } = useStateContext();
   const [username, setUsername] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState([]);
-  const { state, dispatch } = useStateContext();
-
-
-  // Sample user data (replace with your actual data)
-  const user = [
-    {
-      id: 1,
-      name: "soufiane",
-      login: "smazouz",
-      email: "smazouz.gmail.com",
-    },
-    {
-      id: 2,
-      name: "said",
-      login: "ssaid",
-      email: "szobi.gmail.com",
-    },
-    {
-      id: 3,
-      name: "maikel",
-      login: "mike",
-      email: "mike.gmail.com",
-    },
-    {
-      id: 4,
-      name: "mohemd",
-      login: "moha",
-      gmail: "moha.gmail.com",
-    },
-    {
-      id: 5,
-      name : "adam",
-      login: "akharraz",
-      gmail: "akharraz.gmail.com",
-    }
-  ];
 
   // Handle Invite Click
   const handleInviteClick = () => {
-    const isUserFound = user.find((user) => user.login === username);
-
-    if (isUserFound) {
-      console.log("user found");
-      state.socket.emit('invireToGame', {user: state.user, friend: username});
-      notifySuccess('User invited successfully');
-    } else {
-      notifyError(`"${username}" not found`);
-    }
-  };
-
-  // Handle User Click
-  const handleUserClick = (clickedUserLogin) => {
-    setUsername(clickedUserLogin);
-    setFilteredUsers([]); // Clear the filtered users when a user is clicked
+    console.log("event 1");
+    state.socket.emit('invite', { username: username });
   };
 
   // Handle Input Change
   const handleInputChange = (event) => {
-    const enteredUsername = event.target.value;
-    setUsername(enteredUsername);
-
-    // Filter users based on the entered username
-    const filteredUsers = user.filter((user) =>
-      user.login.toLowerCase().includes(enteredUsername.toLowerCase())
-    );
-
-    if (enteredUsername === "") {
-      setFilteredUsers([]); // Clear the filtered users when the input is empty
-    } else {
-      setFilteredUsers(filteredUsers);
-    }
+    setUsername(event.target.value);
   };
+ 
 
+  useEffect(() => {
+    const invitedSuccessHandler = (data) => {
+      console.log(data);
+      notifySuccess(data.msg);
+    };
+    const invitedHandler = (data) => {
+       console.log(data);
+        inviteNitify(data);
+     }
+    const invitedFailHandler = (data) => {
+      console.log(data);
+      notifyError(data.msg);
+    };
+
+    state.socket.on('invitedSuccess', invitedSuccessHandler);
+    state.socket.on('invitedFail', invitedFailHandler);
+    state.socket.on('invited', invitedHandler);
+    return () => {
+      state.socket.off('invitedSuccess', invitedSuccessHandler);
+      state.socket.off('invitedFail', invitedFailHandler);
+      state.socket.off('invited', invitedHandler);
+      state.socket.off('gameStarted');
+    };
+  }, []);
+  const inviteNitify = (data) => {
+    toast(data.msg, {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+      onClick: () => {
+        console.log('Toast clicked!'); // Replace this with your desired 
+        state.socket.emit('acceptInvite', { friend: data.friend });
+        // setGameStarted(true);
+      },
+    });
+  }
   // Notify Success
   const notifySuccess = (message) => {
     toast.success(message, {
@@ -111,26 +91,13 @@ const InvitedButton = () => {
       theme: "dark",
     });
   };
-  // useEffect for fetching user data (replace with your actual fetch)
-  useEffect(() => {
-    axios
-      .get(`http://localhost:5000/game/search?username=${state.user?.login}`, {
-        withCredentials: true,
-      })
-      .then((res) => {
-        console.log(res.data.friends);
-        setUserData(res.data);
-      })
-      .catch((err) => console.log(err));
-  }, []);
 
-  // Render
   return (
     <div className="relative w-[70%] flex mx-auto">
       <input
         type="text"
         placeholder="Enter username"
-        className="w-[100%] h-10 rounded-full bg-gray-500 pl-4" // Add padding to the left using pl-2
+        className="w-[100%] h-10 rounded-full bg-gray-500 pl-4 focus:outline-none" // Add padding to the left using pl-2
         value={username}
         onChange={handleInputChange}
         maxLength={22}
@@ -141,19 +108,6 @@ const InvitedButton = () => {
       >
         Invite
       </button>
-      {filteredUsers.length > 0 && (
-        <ul className="absolute left-0 mt-10">
-          {filteredUsers.map((filteredUser) => (
-            <li
-              key={filteredUser.id}
-              onClick={() => handleUserClick(filteredUser.login)}
-              className="cursor-pointer p-2 hover:bg-blue-100"
-            >
-              {filteredUser.login}
-            </li>
-          ))}
-        </ul>
-      )}
       <ToastContainer />
     </div>
   );

@@ -31,7 +31,6 @@ const GameCanvas = ({ setIsGameOver }) => {
         },
       });
     };
-
     const ball = Matter.Bodies.circle(325, 375, 10, {
       render: {
         fillStyle: "white",
@@ -64,8 +63,15 @@ const GameCanvas = ({ setIsGameOver }) => {
       createWall(325, 0, 650, 1, true),
       createWall(325, 750, 650, 1, true),
     ];
+    const net = Matter.Bodies.rectangle(325, 375, 650, 0.5, {
+      isStatic: true,
+      render: {
+        fillStyle: "white",
+      },
+    });
 
-    Matter.World.add(engine.world, [ball, playerPaddle, opponentPaddle, ...walls]);
+
+    Matter.World.add(engine.world, [ball, playerPaddle, opponentPaddle, ...walls, net]);
     Matter.Render.run(render);
     state.socket.on('updateBallPosition', (data) => {
       Matter.Body.setPosition(ball, { x: data.x, y: data.y });

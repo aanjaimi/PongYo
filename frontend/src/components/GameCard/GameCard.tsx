@@ -30,30 +30,25 @@ const GameCard = ({ setGameStarted }) => {
     queryKey: ["users"],
     queryFn: getCurrentUser,
     onSuccess: (data) => {
-    const userData = { login: data.login, avatar: "/smazouz.jpeg", rank: "Gold", score: 0 , resoult: "winner"};
-    dispatch({ type: "SET_USER", payload: userData });
+      dispatch({ type: "SET_USER", payload: data });
+      if(!state.socket.connected){
+        state.socket.connect();
+      }
     },
     onError: (err) => {
       console.error(err);
       dispatch({ type: "SET_USER", payload: null });
     },
   });
-
-  useEffect(() => {
-    console.log("useEffect");
-    if (!state.socket.connected) {
-      state.socket.connect();
-    }
-  }, []);
-
   const handleStartClick = () => {
     if (selectedOption === "Normal game" || selectedOption === "Ranked game") {
       setIsPopupOpen(true);
       if (selectedOption === "Normal game") {
         console.log("Normal game clicked");
-        state.socket.emit('joinQueue', {user: state.user});
+        console.log(state.socket);
+        state.socket.emit('joinQueue');
       } else if (selectedOption === "Ranked game") {
-        state.socket.emit('joinRankedQueue', {user: state.user});
+        state.socket.emit('joinRankedQueue');
       }
     } else {
       setShowValidation(true);
@@ -64,18 +59,26 @@ const GameCard = ({ setGameStarted }) => {
     setShowValidation(false);
   };
 
-
   const handleChange = (e) => {
     setSelectedOption(e.target.value);
   };
+  useEffect(() => {
+    state.socket.on('gameStart', (data) => {
+      console.log("gameStart event");
+      setGameStarted(true);
+    }
+    );
   state.socket.on('inviting', (data) => {
     console.log("inviteToGame");
     state.socket.emit('acceptInvite', { user: state.user, friend: data.login });
+  
   });
+  }
+  , []);
 
   return (
     <div className="flex flex-col w-screen h-screen justify-center items-center">
-      {isPopupOpen && <PopUp setIsPopupOpen={setIsPopupOpen} selectedOption={selectedOption} setGameStarted={setGameStarted}/>}
+      {isPopupOpen && <PopUp setIsPopupOpen={setIsPopupOpen} selectedOption={selectedOption} setGameStarted={setGameStarted} />}
       {!isPopupOpen && (
         <div className="h-[450px] w-[500px] rounded-xl flex flex-col bg-[#33437D]">
           <div className="pt-7">
@@ -118,7 +121,7 @@ const GameCard = ({ setGameStarted }) => {
             <h1 className="text-3xl text-white pl-5 "> INVITE YOUR FRIEND :</h1>
           </div>
           <div className="mt-6 flex text-white text-xl items-center pt-2">
-            <InvitedButton />
+            <InvitedButton setGameStarted={setGameStarted} />
           </div>
         </div>
       )}

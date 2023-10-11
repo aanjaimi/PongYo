@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { UserModule } from './users/users.module';
 import { RedisModule } from './redis/redis.module';
 import { GameModule } from './game/game.module';
+import { WsModule } from './ws/ws.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { GameModule } from './game/game.module';
         };
       },
     }),
-    GameModule
+    GameModule,
+    WsModule,
   ],
   controllers: [],
   providers: [],
