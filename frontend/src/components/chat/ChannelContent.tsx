@@ -6,6 +6,7 @@ import ChannelInfo from './ChannelInfo'
 import CreateOrJoin from './CreateOrJoin'
 import Image from 'next/image'
 import { ScrollArea } from '../ui/scroll-area'
+import ScrollableFeed from 'react-scrollable-feed'
 
 export default function ChannelContent(
 	{
@@ -45,6 +46,7 @@ export default function ChannelContent(
 	if (channel === undefined) 
 		return (
 			<CreateOrJoin
+				user={user}
 				channels={channels}
 				updateChannels={updateChannels}
 				updateSelectedChannel={updateSelectedChannel}
@@ -57,16 +59,16 @@ export default function ChannelContent(
 			{/* seperator */}
 			<div className="border rounded-r-full mr-1"></div>
 			{/* channel messages container*/}
-			<div className="flex flex-col justify-end h-[86%] pb-10px border">
-				<div className="overflow-y-auto">
+			<div className="flex flex-col justify-end h-[86%] pb-10px">
+				<ScrollableFeed className="grow">
 					{channel?.messages.map((message) => (
-						<div className={`chat my-[5px] mx-[10px] justify-self-end rounded-md ${message.userId === user.id ? 'chat-end' : 'chat-start'}`} key={message.id}>
+						<div className={`chat ml-[0.75rem] justify-self-end rounded-md ${message.userId === user.id ? 'chat-end' : 'chat-start'}`} key={message.id}>
 							<div className={`py-[6px] px-[1rem] rounded-2xl max-w-[36rem] ${message.userId === user.id? 'bg-[#8d8ddab3]':'bg-[#abd9d9b3]'}`}>
 								{message.content}
 							</div>
 						</div>
 					))}
-				</div>
+				</ScrollableFeed>
 			</div>
 			<form
 				className="flex h-[2rem] border mt-[1rem] mx-[1rem] rounded-full bg-[#d9d9d933]"

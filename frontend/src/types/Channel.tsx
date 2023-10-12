@@ -10,7 +10,7 @@ export enum ChatType {
 export type Channel = {
   id: string
   name: string
-  directMessage: boolean
+  isDM: boolean
   type: ChatType
   moderatorId: string
   createdAt: Date

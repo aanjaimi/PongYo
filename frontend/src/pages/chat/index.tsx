@@ -8,15 +8,23 @@ import { useRouter } from 'next/router';
 import { ReactDOM } from 'react';
 import Cookie from 'js-cookie';
 import { fetcher } from '@/utils/fetcher';
+import { io } from 'socket.io-client';
 
 
 export default function Home() {
 	const [user, setUser] = useState<User | null>(null);
+	// const ws = io("http://localhost:5010/chat", { autoConnect: false });
 
 	useQuery({
-		// queryKey: ["userData"],
+		queryKey: ["userData"],
 		queryFn: async () => {
-			const { data } : { data : User } = await axios.get("http://localhost:5000/chat/me", { withCredentials: true });
+			const { data } : { data : User } = await axios.get("http://localhost:5010/chat/me", { withCredentials: true });
+			// ws.connect();;
+			// console.log(data);
+			data.channels.forEach(channel => {
+				const name: string[] = channel.name.split('-');
+				channel.name = (name[0] === data.displayName ? name[1] : name[0]) as unknown as string;
+			});
 			setUser(data);
 			return data;
 		}

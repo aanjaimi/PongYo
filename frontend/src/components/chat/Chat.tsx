@@ -22,7 +22,7 @@ export default function Chat( {user} : {user : User} ) {
 
 	return (
 		//Chat Box
-		<div className="flex w-[60rem] h-[60rem] rounded-[6px] bg-[#33437D] text-white">
+		<div className="flex w-[60rem] h-[50rem] rounded-[6px] bg-[#33437D] text-white">
 			<div className="flex flex-col w-[25%] h-[full]">
 				<div className="flex pl-[2rem] items-center text-2xl h-[7%] ">chat room</div>
 				{/* Seperator */}
