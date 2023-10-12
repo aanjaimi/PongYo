@@ -1,78 +1,49 @@
 import {
   ConnectedSocket,
-  MessageBody,
   OnGatewayConnection,
-  OnGatewayDisconnect,
-  OnGatewayInit,
   SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
-  WsException,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { JwtService } from '@nestjs/jwt';
-import { subscribe } from 'diagnostics_channel';
-import { CurrentUser } from '@/auth/auth.decorator';
-import { Client } from 'socket.io/dist/client';
 import { PrismaService } from '@/prisma/prisma.service';
-import { User } from '@prisma/client';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '@/auth/guards/jwt.guard';
+import { WsGateway } from '@/ws/ws.gateway';
+import { RedisService } from '@/redis/redis.service';
+import { ConfigService } from '@nestjs/config';
 
-@WebSocketGateway(5004, {})
-export class ChatGateway implements OnGatewayConnection {
-  @WebSocketServer()
-  server: Server;
-
+@WebSocketGateway({ namespace: 'chat' })
+export class ChatGateway extends WsGateway implements OnGatewayConnection {
   constructor(
-    private readonly prismaService: PrismaService,
-    private readonly chatService: ChatService,
-    private readonly jwtService: JwtService,
-  ) {}
+    protected readonly prismaService: PrismaService,
+    protected readonly chatService: ChatService,
+    protected readonly jwtService: JwtService,
+    protected readonly configService: ConfigService,
+    protected readonly redisService: RedisService,
+  ) {
+    super(prismaService, jwtService, configService, redisService);
+  }
 
   async handleConnection(@ConnectedSocket() client: Socket) {
     // here we check for user's token and set up socket connection
   }
 
   @SubscribeMessage('joinChannel')
-  handleJoinChannel(
-    @CurrentUser() user: User,
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
-  ) {
-    // if (!user) {
-    //   client.disconnect();
-    //   throw new Error('User not found');
-    // }
+  handleJoinChannel(client: Socket, data: any) {
     client.join(`channel-${data.channelId}`);
   }
 
   @SubscribeMessage('leaveChannel')
   @UseGuards(JwtAuthGuard)
-  handleLeaveChannel(
-    @CurrentUser() user: User,
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
-  ) {
-    if (!user) {
-      client.disconnect();
-      throw new Error('User not found');
-    }
+  handleLeaveChannel(client: Socket, data: any) {
     client.leave(`channel-${data.channelId}`);
   }
 
   @SubscribeMessage('sendMessage')
   @UseGuards(JwtAuthGuard)
-  handleSendMessage(
-    @CurrentUser() user: User,
-    @ConnectedSocket() client: Socket,
-    @MessageBody() data: any,
-  ) {
-    // if (!user) {
-    //   client.disconnect();
-    //   throw new Error('User not found');
-    // }
-    this.server.to(`channel-${data.channelId}`).emit('message', data);
+  handleSendMessage(client: Socket, data: any) {
+    client.to(`channel-${data.channelId}`).emit('message', data);
   }
 }

@@ -19,12 +19,12 @@ import { JwtAuthPayload } from '@/auth/interfaces/jwt.interface';
 @WebSocketGateway()
 export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  private readonly _io: Server;
+  protected readonly _io: Server;
   constructor(
-    private prismaService: PrismaService,
-    private jwtService: JwtService,
-    private configService: ConfigService,
-    private redisService: RedisService,
+    protected prismaService: PrismaService,
+    protected jwtService: JwtService,
+    protected configService: ConfigService,
+    protected redisService: RedisService,
   ) {}
 
   async handleConnection(client: Socket) {

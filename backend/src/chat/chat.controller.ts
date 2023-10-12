@@ -2,13 +2,12 @@ import {
   Controller,
   Get,
   Post,
-  HttpException,
-  HttpStatus,
   Body,
   Param,
   UsePipes,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CurrentUser } from '@/auth/auth.decorator';
@@ -17,7 +16,6 @@ import { CreateChannelDto } from './dto/create-channel.dto';
 import { JoinChannelDto } from './dto/join-channel.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { MuteUserDto } from './dto/mute-user.dto';
-import { FortyTwoGuard } from '@/auth/guards/42.guard';
 import { JwtAuthGuard } from '@/auth/guards/jwt.guard';
 
 @Controller('chat')
@@ -30,7 +28,7 @@ export class ChatController {
     return this.chatService.getUser(user);
   }
 
-  @Get('channel/:channelId')
+  @Get('channels/:channelId')
   async getChannel(
     @CurrentUser() user: User,
     @Param('channelId') channelId: string,
@@ -41,13 +39,14 @@ export class ChatController {
   @Get('directMessage')
   async getDirectMessage(
     @CurrentUser() user: User,
-    @Body('displayName') displayName: any,
+    @Query('displayName') displayName: string,
   ) {
+    console.log(displayName);
     const dm = await this.chatService.getDirectMessage(user, displayName);
     return dm;
   }
 
-  @Post('createChannel')
+  @Post('Channels')
   @UsePipes(CreateChannelDto)
   async createChannel(
     @CurrentUser() user: User,
@@ -57,7 +56,7 @@ export class ChatController {
     return this.chatService.createChannel(name, type, password, user);
   }
 
-  @Delete('deleteChannel/:channelId')
+  @Delete('Channels/:channelId')
   async deleteChannel(
     @CurrentUser() user: User,
     @Param('channelId') channelId: string,

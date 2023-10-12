@@ -18,6 +18,7 @@ export class ChatService {
           select: {
             id: true,
             name: true,
+            isDM: true,
             type: true,
             members: true,
             messages: true,
