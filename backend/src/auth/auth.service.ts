@@ -32,7 +32,7 @@ export class AuthService {
     });
 
     res.cookie(AUTH_COOKIE_NAME, accessToken, {
-      // httpOnly: true,
+      httpOnly: true,
       path: '/',
       maxAge: Math.ceil(AUTH_COOKIE_MAX_AGE * 1e3),
     });
