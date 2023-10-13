@@ -26,7 +26,7 @@ const SocketContext = createContext<NullableObject<SocketContextProps>>({
 const useSocket = () => {
   const context = useContext(SocketContext);
 
-  if (context) return context as unknown as SocketContextProps;
+  if (context) return context;
 
   throw new Error(`useSocket must be used within a SocketContextProvider`);
 };
@@ -47,7 +47,7 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
     const [socket, chatSocket, gameSocket] = [
       io(uri, opts),
       io(uri + "/chat", opts), // ! TODO:  avoid double slash in path!
-      io(uri + "/game", opts),
+      io(uri + "/game", { ...opts, autoConnect: false }),
     ];
     setSocket(socket);
     setChatSocket(chatSocket);

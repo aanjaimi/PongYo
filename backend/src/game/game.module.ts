@@ -8,6 +8,6 @@ import { InviteService } from './services/getFriend.service';
 
 @Module({
   controllers: [],
-  providers: [GameGateway, GameStarterService, GameMaker , InviteService],
+  providers: [GameGateway, GameStarterService, GameMaker, InviteService],
 })
 export class GameModule {}

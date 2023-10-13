@@ -36,15 +36,8 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleConnection(client: Socket) {
     console.log('From Normal HandelConnection');
     try {
-      // console.log(client.handshake.headers);
-      // const cookies = parseCookie(client.handshake.headers.cookie || '');
-      // const accessToken = cookies[AUTH_COOKIE_NAME];
-      // console.log(accessToken);
-      // const accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJUcmFuc2NlbmRlbmNlIiwibG9naW4iOiJzbWF6b3V6Iiwic3ViIjoic21hem91eiIsImlhdCI6MTY5Njk5NDQ0NywiZXhwIjoxNjk3MDgwODQ3fQ.p5BpiWHZw35_J9jqCMG8eZBUcMglGpFLYnqjSZh_6AA"
-      // console.log(client.handshake.headers.auth);
-      const accessToken = client.handshake.headers.auth as unknown as string;
-      // console.log(accessToken);
-
+      const cookies = parseCookie(client.handshake.headers.cookie || '');
+      const accessToken = cookies[AUTH_COOKIE_NAME];
       if (!accessToken)
         throw new WsException(`missing ${AUTH_COOKIE_NAME} cookie.`);
       const isAccessTokenMarkedAsExpired =
@@ -62,12 +55,14 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
       if (!user) throw new WsException('user not exists.'); // ?INFO: for security reasons, perhaps it's unnecessary to inform the user about what has occurred.
       client.user = user; // ?INFO: inject the current user into each successfully connected socket client.
+      console.log(user);
       await this.redisService.hset(
         user.id,
         client.id,
         JSON.stringify({ timestamp: Date.now() }),
       );
     } catch (err) {
+      console.log(err);
       if (err instanceof JsonWebTokenError) err = new WsException(err.message);
       else if (!(err instanceof WsException))
         err = new WsException('something went wrong');
