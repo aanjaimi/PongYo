@@ -77,22 +77,22 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
       net,
     ]);
     Matter.Render.run(render);
-    gameSocket?.on("updateBallPosition", (data) => {
+    gameSocket.on("updateBallPosition", (data) => {
       Matter.Body.setPosition(ball, { x: data.x, y: data.y });
     });
-    gameSocket?.on("updatePlayerPosition", (data) => {
+    gameSocket.on("updatePlayerPosition", (data) => {
       Matter.Body.setPosition(playerPaddle, { x: data.x, y: data.y });
     });
-    gameSocket?.on("updateOpponentPosition", (data) => {
+    gameSocket.on("updateOpponentPosition", (data) => {
       Matter.Body.setPosition(opponentPaddle, { x: data.x, y: data.y });
     });
-    gameSocket?.on("updateScore", (data) => {
+    gameSocket.on("updateScore", (data) => {
       console.log("here where score is updated");
       console.log(data);
       setMyScore(data.myScore);
       setOppScore(data.oppScore);
     });
-    gameSocket?.on("gameOver", (data) => {
+    gameSocket.on("gameOver", (data) => {
       Matter.Engine.clear(engine);
       Matter.Render.stop(render);
       dispatch({ type: "SET_OPP", payload: data.opp });
@@ -101,7 +101,7 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
     });
     const handleMousemove = (event) => {
       const mouseX = event.clientX - canvas.getBoundingClientRect().left;
-      gameSocket?.emit("updatePlayerPosition", {
+      gameSocket.emit("updatePlayerPosition", {
         x: mouseX,
         y: playerPaddle.position.y,
       });

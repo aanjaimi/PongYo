@@ -11,7 +11,7 @@ const InvitedButton = ({ setGameStarted }) => {
   // Handle Invite Click
   const handleInviteClick = () => {
     console.log("event 1");
-    gameSocket?.emit("invite", { username: username });
+    gameSocket.emit("invite", { username: username });
   };
 
   // Handle Input Change
@@ -32,14 +32,14 @@ const InvitedButton = ({ setGameStarted }) => {
       console.log(data);
       notifyError(data.msg);
     };
-    gameSocket?.on("invitedSuccess", invitedSuccessHandler);
-    gameSocket?.on("invitedFail", invitedFailHandler);
-    gameSocket?.on("invited", invitedHandler);
+    gameSocket.on("invitedSuccess", invitedSuccessHandler);
+    gameSocket.on("invitedFail", invitedFailHandler);
+    gameSocket.on("invited", invitedHandler);
     return () => {
-      gameSocket?.off("invitedSuccess", invitedSuccessHandler);
-      gameSocket?.off("invitedFail", invitedFailHandler);
-      gameSocket?.off("invited", invitedHandler);
-      gameSocket?.off("gameStarted");
+      gameSocket.off("invitedSuccess", invitedSuccessHandler);
+      gameSocket.off("invitedFail", invitedFailHandler);
+      gameSocket.off("invited", invitedHandler);
+      gameSocket.off("gameStarted");
     };
   }, []);
   const inviteNitify = (data) => {
@@ -54,7 +54,7 @@ const InvitedButton = ({ setGameStarted }) => {
       theme: "dark",
       onClick: () => {
         console.log("Toast clicked!"); // Replace this with your desired
-        gameSocket?.emit("acceptInvite", { friend: data.friend });
+        gameSocket.emit("acceptInvite", { friend: data.friend });
         // setGameStarted(true);
       },
     });

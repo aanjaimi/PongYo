@@ -45,9 +45,9 @@ const GameCard = ({ setGameStarted }) => {
       setIsPopupOpen(true);
       if (selectedOption === "Normal game") {
         console.log("Normal game clicked");
-        gameSocket?.emit("joinQueue");
+        gameSocket.emit("joinQueue");
       } else if (selectedOption === "Ranked game") {
-        gameSocket?.emit("joinRankedQueue");
+        gameSocket.emit("joinRankedQueue");
       }
     } else {
       setShowValidation(true);
@@ -62,12 +62,12 @@ const GameCard = ({ setGameStarted }) => {
     setSelectedOption(e.target.value);
   };
   useEffect(() => {
-    gameSocket?.on("gameStart", (data) => {
+    gameSocket.on("gameStart", (data) => {
       setGameStarted(true);
     });
-    gameSocket?.on("inviting", (data) => {
+    gameSocket.on("inviting", (data) => {
       console.log("inviteToGame");
-      gameSocket?.emit("acceptInvite", {
+      gameSocket.emit("acceptInvite", {
         user: state.user,
         friend: data.login,
       });

@@ -9,10 +9,10 @@ import { useStateContext } from "@/contexts/game-context";
 
 const PopUp = ({ setIsPopupOpen, setGameStarted, selectedOption }) => {
   const { gameSocket } = useSocket();
-  const { state } = useStateContext();
+  const { state, dispatch } = useStateContext();
 
   useEffect(() => {
-    gameSocket?.on("gameStart", (data) => {
+    gameSocket.on("gameStart", (data) => {
       // set user and opponent on state
       dispatch({ type: "SET_USER", payload: data.user });
       dispatch({ type: "SET_USER", payload: data.opp });
@@ -51,9 +51,9 @@ const PopUp = ({ setIsPopupOpen, setGameStarted, selectedOption }) => {
               className="flex h-[40px] w-[140px] rounded-full  bg-blue-500 text-2xl"
               onClick={() => {
                 if (selectedOption === "Normal game")
-                  gameSocket?.emit("leaveQueue", { user: state.user });
+                  gameSocket.emit("leaveQueue", { user: state.user });
                 else if (selectedOption === "Ranked game")
-                  gameSocket?.emit("leaveRankedQueue", { user: state.user });
+                  gameSocket.emit("leaveRankedQueue", { user: state.user });
                 setIsPopupOpen(false);
               }}
             >

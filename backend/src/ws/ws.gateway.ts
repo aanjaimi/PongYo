@@ -34,8 +34,8 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleConnection(client: Socket) {
-    console.log('From Normal HandelConnection');
     try {
+      console.log('New SocketIo Connection at', new Date());
       const cookies = parseCookie(client.handshake.headers.cookie || '');
       const accessToken = cookies[AUTH_COOKIE_NAME];
       if (!accessToken)
@@ -62,7 +62,6 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         JSON.stringify({ timestamp: Date.now() }),
       );
     } catch (err) {
-      console.log(err);
       if (err instanceof JsonWebTokenError) err = new WsException(err.message);
       else if (!(err instanceof WsException))
         err = new WsException('something went wrong');

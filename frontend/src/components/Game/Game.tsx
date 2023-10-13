@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
-import ImageCard from './ImageCard';
-import GameCanvas from './GameCanvas';
-import GameResult from '../GameResult/GameResult';
-import { useStateContext } from '@/contexts/game-context';
-import { useEffect } from 'react';
+import React, { useState } from "react";
+import GameCanvas from "./GameCanvas";
+import GameResult from "../GameResult/GameResult";
+import { useEffect } from "react";
+import ImageCard from "./imageCard";
 
 const Game = () => {
   const [isGameOver, setIsGameOver] = React.useState(false);
- const {socketGame} = useSocket();
   const [myScore, setMyScore] = useState(0);
   const [oppScore, setOppScore] = useState(0);
   const [countdown, setCountdown] = useState(5);
@@ -16,8 +14,7 @@ const Game = () => {
     const timer = setInterval(() => {
       if (countdown > 0) {
         setCountdown(countdown - 1);
-      }
-      else {
+      } else {
         clearInterval(timer); // Stop the countdown when it reaches 0
       }
     }, 1000);
@@ -28,21 +25,23 @@ const Game = () => {
 
   return (
     <div>
-      {countdown > 0 && <div className="flex justify-center items-center h-screen">
-        <div className="flex flex-col items-center justify-center">
-          <h1 className="text-9xl text-white">{countdown}</h1>
-          <h1 className="text-3xl text-white">Game starts in</h1>
+      {countdown > 0 && (
+        <div className="flex h-screen items-center justify-center">
+          <div className="flex flex-col items-center justify-center">
+            <h1 className="text-9xl text-white">{countdown}</h1>
+            <h1 className="text-3xl text-white">Game starts in</h1>
+          </div>
         </div>
-      </div>}
-      {!isGameOver &&
-        <div className="flex flex-col sm:flex-row w-screen h-screen items-center justify-start sm:justify-center">
+      )}
+      {!isGameOver && (
+        <div className="flex h-screen w-screen flex-col items-center justify-start sm:flex-row sm:justify-center">
           <ImageCard
             sideclass="h-full flex-col justify-start sm:w-auto w-full  sm:flex"
-            className="sm:h-[50%] h-full flex items-end sm:justify-center justify-end mx-8 flex-col"
+            className="mx-8 flex h-full flex-col items-end justify-end sm:h-[50%] sm:justify-center"
             score={myScore}
             size={75}
           />
-          <div className="flex justify-center items-center py-3 px-2 sm:py-20">
+          <div className="flex items-center justify-center px-2 py-3 sm:py-20">
             <GameCanvas
               setIsGameOver={setIsGameOver}
               setMyScore={setMyScore}
@@ -51,12 +50,12 @@ const Game = () => {
           </div>
           <ImageCard
             sideclass="h-full flex-col justify-end sm:w-auto w-full sm:flex"
-            className="sm:h-[50%] flex items-start justify-center mx-8 flex-col"
+            className="mx-8 flex flex-col items-start justify-center sm:h-[50%]"
             score={oppScore}
             size={75}
           />
         </div>
-      }
+      )}
       {isGameOver && <GameResult myScore={myScore} oppScore={oppScore} />}
     </div>
   );
