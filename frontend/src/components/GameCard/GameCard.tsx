@@ -10,7 +10,7 @@ import CustomModal from "./CustomModal"; // Import the custom modal component
 import { stat } from "fs";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { StateProvider, useStateContext } from "@/contexts/game-context";
+import { StateProvider, useStateContext } from "@/contexts/state-context";
 import { fetcher } from "@/utils/fetcher";
 import type { User } from "@/types/user";
 import { Socket } from "dgram";

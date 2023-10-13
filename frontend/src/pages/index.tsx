@@ -1,6 +1,5 @@
 import Head from "next/head";
 import Landingpage from "../components/Landingpage";
-import Game from "./game";
 
 export default function Home() {
   return (
@@ -13,7 +12,7 @@ export default function Home() {
           url(`https://fonts.googleapis.com/css2?family=Outfit&display=swap`);
         </style>
       </Head>
-      <Landingpage/>
+      <Landingpage />
     </>
   );
 }

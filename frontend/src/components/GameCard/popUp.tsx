@@ -3,9 +3,7 @@ import React, { useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useSocket } from "@/contexts/socket-context";
-import { stat } from "fs";
-import io from "socket.io-client";
-import { useStateContext } from "@/contexts/game-context";
+import { useStateContext } from "@/contexts/state-context";
 
 const PopUp = ({ setIsPopupOpen, setGameStarted, selectedOption }) => {
   const { gameSocket } = useSocket();

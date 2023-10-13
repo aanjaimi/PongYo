@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import Matter from "matter-js";
 import { useSocket } from "@/contexts/socket-context";
-import { useStateContext } from "@/contexts/game-context";
+import { useStateContext } from "@/contexts/state-context";
 
 const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
   const canvasRef = useRef(null);

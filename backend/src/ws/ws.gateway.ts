@@ -55,6 +55,7 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.id,
         JSON.stringify({ timestamp: Date.now() }),
       );
+      return true;
     } catch (err) {
       if (err instanceof JsonWebTokenError) err = new WsException(err.message);
       else if (!(err instanceof WsException))
@@ -62,6 +63,7 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       client.emit('error', { message: err.getError() });
       client.disconnect(true);
+      return false;
     }
   }
 

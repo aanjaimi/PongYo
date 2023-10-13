@@ -1,8 +1,4 @@
-import {
-  SubscribeMessage,
-  WebSocketGateway,
-  WebSocketServer,
-} from '@nestjs/websockets';
+import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Injectable } from '@nestjs/common';
 import { GameMaker } from './gameMaker.service';
 import QueueItem from '../interfaces/Queue.interface';
@@ -35,8 +31,9 @@ export class GameGateway extends WsGateway {
   private users: Map<string, Socket> = new Map();
 
   async handleConnection(client: Socket) {
-    await super.handleConnection(client);
+    if (!(await super.handleConnection(client))) return false;
     this.users.set(client.user.id, client);
+    return true;
   }
 
   @SubscribeMessage('joinQueue')
