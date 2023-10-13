@@ -6,6 +6,7 @@ import {
   OnGatewayDisconnect,
   WsException,
   WebSocketServer,
+  SubscribeMessage,
 } from '@nestjs/websockets';
 
 import { JsonWebTokenError } from 'jsonwebtoken';
@@ -27,16 +28,21 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     protected redisService: RedisService,
   ) {}
 
+  @SubscribeMessage('data')
+  message() {
+    console.log('Data Triggered!');
+  }
+
   async handleConnection(client: Socket) {
+    console.log('From Normal HandelConnection');
     try {
       const cookies = parseCookie(client.handshake.headers.cookie || '');
       const accessToken = cookies[AUTH_COOKIE_NAME];
 
       if (!accessToken)
         throw new WsException(`missing ${AUTH_COOKIE_NAME} cookie.`);
-      const isAccessTokenMarkedAsExpired = await this.redisService.get(
-        accessToken,
-      );
+      const isAccessTokenMarkedAsExpired =
+        await this.redisService.get(accessToken);
       if (isAccessTokenMarkedAsExpired)
         throw new WsException('acccess token expired.');
       const { login } = await this.jwtService.verifyAsync<JwtAuthPayload>(
