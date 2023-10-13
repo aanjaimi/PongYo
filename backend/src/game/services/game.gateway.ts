@@ -24,12 +24,9 @@ import { GuardsConsumer } from "@nestjs/core/guards";
 
 @Injectable()
 @WebSocketGateway({
-    cors: {
-        origin: '*',
-     },
   namespace: 'game'
 })
-export class GameGateway extends WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class GameGateway extends WsGateway  {
   @WebSocketServer()
   server: Server;
   constructor(
@@ -48,13 +45,10 @@ export class GameGateway extends WsGateway implements OnGatewayConnection, OnGat
   private rankedQueue: QueueItem[] = [];
   private users: Map<string, Socket> = new Map();
 
-  handleConnection(client: Socket){
+  async handleConnection(client: Socket){
     console.log('connected to ws gateway');
-    return super.handleConnection(client).then(() => {
-      this.users.set(client.user.id, client);
-      console.log(client.user);
-    }
-    );
+    await super.handleConnection(client);
+    this.users.set(client.user.id, client);
   }
 
   @SubscribeMessage('joinQueue')

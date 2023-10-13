@@ -1,27 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { useStateContext } from "@/contexts/game-context";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Socket } from "socket.io-client";
 import { stat } from "fs";
 import { date } from "zod";
+import { useSocket } from "@/contexts/socket-context";
+import { useStateContext } from "@/contexts/game-context";
 
-const InvitedButton = ({setGameStarted}) => {
+const InvitedButton = ({ setGameStarted }) => {
   // State
   const { state } = useStateContext();
+  const { gameSocket } = useSocket();
   const [username, setUsername] = useState("");
 
   // Handle Invite Click
   const handleInviteClick = () => {
     console.log("event 1");
-    state.socket.emit('invite', { username: username });
+    gameSocket.emit('invite', { username: username });
   };
 
   // Handle Input Change
   const handleInputChange = (event) => {
     setUsername(event.target.value);
   };
- 
+
 
   useEffect(() => {
     const invitedSuccessHandler = (data) => {
@@ -29,22 +31,22 @@ const InvitedButton = ({setGameStarted}) => {
       notifySuccess(data.msg);
     };
     const invitedHandler = (data) => {
-       console.log(data);
-        inviteNitify(data);
-     }
+      console.log(data);
+      inviteNitify(data);
+    }
     const invitedFailHandler = (data) => {
       console.log(data);
       notifyError(data.msg);
     };
 
-    state.socket.on('invitedSuccess', invitedSuccessHandler);
-    state.socket.on('invitedFail', invitedFailHandler);
-    state.socket.on('invited', invitedHandler);
+    gameSocket.on('invitedSuccess', invitedSuccessHandler);
+    gameSocket.on('invitedFail', invitedFailHandler);
+    gameSocket.on('invited', invitedHandler);
     return () => {
-      state.socket.off('invitedSuccess', invitedSuccessHandler);
-      state.socket.off('invitedFail', invitedFailHandler);
-      state.socket.off('invited', invitedHandler);
-      state.socket.off('gameStarted');
+      gameSocket.off('invitedSuccess', invitedSuccessHandler);
+      gameSocket.off('invitedFail', invitedFailHandler);
+      gameSocket.off('invited', invitedHandler);
+      gameSocket.off('gameStarted');
     };
   }, []);
   const inviteNitify = (data) => {
@@ -59,7 +61,7 @@ const InvitedButton = ({setGameStarted}) => {
       theme: "dark",
       onClick: () => {
         console.log('Toast clicked!'); // Replace this with your desired 
-        state.socket.emit('acceptInvite', { friend: data.friend });
+        gameSocket.emit('acceptInvite', { friend: data.friend });
         // setGameStarted(true);
       },
     });

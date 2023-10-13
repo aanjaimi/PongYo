@@ -15,12 +15,11 @@ export class GameMaker {
 			console.log('Game starting');
 			const player1 = classicQueue.shift();
 			const player2 = classicQueue.shift();
+			console.log(player1.user);
+			console.log(player2.user);
 			player1.client.emit('gameStart', {user:player1.user, opp:player2.user});
 			player2.client.emit('gameStart', {user:player2.user, opp:player1.user});
-			player1.client.emit('updateOpponentPosition', { x: 325, y: 735 });
-			player1.client.emit('updatePlayerPosition', { x: 325, y: 15 });
-			player2.client.emit('updatePlayerPosition', { x: 325, y: 735 });
-			player2.client.emit('updateOpponentPosition', { x: 325, y: 15 });
+
 			this.gameStarterService.startGame( player1, player2);
 		}
 	}

@@ -2,18 +2,18 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrophy } from "@fortawesome/free-solid-svg-icons";
 import VsCard from "./VsCard";
-import { useStateContext } from "@/contexts/game-context";
+import { useSocket } from "@/contexts/socket-context";
 
-const GameResult = () => {
-  const { state, dispatch } = useStateContext();
+const GameResult = ({myScore, oppScore}) => {
+ const {socketGame} = useSocket();
   console.log(state.opp);
   console.log(state.user);
   let firstColor =
-    state.user?.score > state.opp?.score
+    myScore > oppScore
       ? { color: "gold", textClass: "text-yellow-300" }
       : { color: "silver", textClass: "text-gray-300" };
   let secondColor =
-    state.user?.score < state.opp?.score
+    myScore < oppScore
       ? { color: "gold", textClass: "text-yellow-300" }
       : { color: "silver", textClass: "text-gray-300" };
 
@@ -23,7 +23,7 @@ const GameResult = () => {
         <div>
           <div className="flex items-center">
             <img
-              src={state.user?.avatar}
+              src={state.user?.avatar || "/smazouz.jpeg"}
               alt={state.user?.login}
               className="w-24 h-24 rounded-full mr-4"
             />
@@ -42,7 +42,7 @@ const GameResult = () => {
             />
           </div>
         </div>
-        <VsCard myScore={state.user?.score} oppScore={state.opp?.score} />
+        <VsCard myScore={myScore} oppScore={oppScore} />
         <div>
           <div className="flex items-center">
             <div>
@@ -52,7 +52,7 @@ const GameResult = () => {
               </p>
             </div>
             <img
-              src={"/smazouz.jpeg"}
+              src={"/smazouz.jpeg" || state.opp?.avatar}
               alt={state.opp?.login}
               className="w-24 h-24 rounded-full ml-4 "
             />

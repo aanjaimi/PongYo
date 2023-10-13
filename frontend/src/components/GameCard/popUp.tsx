@@ -2,14 +2,14 @@
 import React, { useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useStateContext } from "@/contexts/game-context";
+import { useSocket } from "@/contexts/socket-context";
 import { stat } from "fs";
 import io from 'socket.io-client';
 
 
 const popUp = ({ setIsPopupOpen, setGameStarted, selectedOption }) => {
-  const { state, dispatch } = useStateContext();
-  state.socket.on('gameStart', (data) => {
+ const {socketGame} = useSocket();
+  gameSocket.on('gameStart', (data) => {
     // set user and opponent on state
     dispatch({ type: "SET_USER", payload: data.user });
     dispatch({ type: "SET_USER", payload: data.opp });
@@ -46,9 +46,9 @@ const popUp = ({ setIsPopupOpen, setGameStarted, selectedOption }) => {
               className="w-[140px] h-[40px] flex text-2xl  rounded-full bg-blue-500"
               onClick={() => {
                 if(selectedOption === "Normal game")
-                  state.socket.emit('leaveQueue', {user: state.user});
+                  gameSocket.emit('leaveQueue', {user: state.user});
                 else if(selectedOption === "Ranked game")
-                  state.socket.emit('leaveRankedQueue', {user: state.user} );
+                  gameSocket.emit('leaveRankedQueue', {user: state.user} );
                 setIsPopupOpen(false)
               }}>
               cancel

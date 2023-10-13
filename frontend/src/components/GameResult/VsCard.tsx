@@ -15,6 +15,15 @@ const VsCard = ({ myScore, oppScore }) => {
               {myScore} - {oppScore}
             </div>
           </div>
+          <div className="pt-1">
+            <button className="text-2xl font-bold text-blue-500 "
+            onClick={() => {
+              window.location.reload();
+            }
+            }
+            >Leave</button>
+
+          </div>
         </div>
 	);
 }

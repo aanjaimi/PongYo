@@ -14,7 +14,7 @@ const getCurrentUser = async () => {
 };
 
 const home = () => {
-  // const { state, dispatch } = useStateContext();
+  //const {socketGame} = useSocket();
   // const userQurey = useQuery({
   //   queryKey: ["users"],
   //   queryFn: getCurrentUser,
@@ -27,7 +27,7 @@ const home = () => {
   //   },
   // });
   // useEffect(() => {
-  //   // state.socket.connect();
+  //   // gameSocket.connect();
   // }
   // , []);
   const [gameStarted, setGameStarted] = useState(false);

@@ -5,12 +5,12 @@ import Divider from "./Divider";
 import { Button } from "@/components/ui/button";
 import PopUp from "./popUp";
 import io from 'socket.io-client';
-import { useStateContext } from "@/contexts/game-context";
+import { useSocket } from "@/contexts/socket-context";
 import CustomModal from "./CustomModal"; // Import the custom modal component
 import { stat } from "fs";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { StateProvider } from "@/contexts/game-context";
+import { StateProvider, useStateContext } from "@/contexts/game-context";
 import { fetcher } from "@/utils/fetcher";
 import type { User } from "@/types/user";
 import { Socket } from "dgram";
@@ -22,6 +22,7 @@ const getCurrentUser = async () => {
 };
 
 const GameCard = ({ setGameStarted }) => {
+  const { gameSocket } = useSocket();
   const { state, dispatch } = useStateContext();
   const [isPopupOpen, setIsPopupOpen] = React.useState(false);
   const [selectedOption, setSelectedOption] = useState(""); // Initial value as an empty string
@@ -31,8 +32,8 @@ const GameCard = ({ setGameStarted }) => {
     queryFn: getCurrentUser,
     onSuccess: (data) => {
       dispatch({ type: "SET_USER", payload: data });
-      if(!state.socket.connected){
-        state.socket.connect();
+      if (!gameSocket.connected) {
+        gameSocket.connect();
       }
     },
     onError: (err) => {
@@ -45,10 +46,10 @@ const GameCard = ({ setGameStarted }) => {
       setIsPopupOpen(true);
       if (selectedOption === "Normal game") {
         console.log("Normal game clicked");
-        console.log(state.socket);
-        state.socket.emit('joinQueue');
+        console.log(gameSocket);
+        gameSocket.emit('joinQueue');
       } else if (selectedOption === "Ranked game") {
-        state.socket.emit('joinRankedQueue');
+        gameSocket.emit('joinRankedQueue');
       }
     } else {
       setShowValidation(true);
@@ -63,18 +64,17 @@ const GameCard = ({ setGameStarted }) => {
     setSelectedOption(e.target.value);
   };
   useEffect(() => {
-    state.socket.on('gameStart', (data) => {
-      console.log("gameStart event");
+    gameSocket.on('gameStart', (data) => {
       setGameStarted(true);
     }
     );
-  state.socket.on('inviting', (data) => {
-    console.log("inviteToGame");
-    state.socket.emit('acceptInvite', { user: state.user, friend: data.login });
-  
-  });
+    gameSocket.on('inviting', (data) => {
+      console.log("inviteToGame");
+      gameSocket.emit('acceptInvite', { user: state.user, friend: data.login });
+
+    });
   }
-  , []);
+    , []);
 
   return (
     <div className="flex flex-col w-screen h-screen justify-center items-center">
