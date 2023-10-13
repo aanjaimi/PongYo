@@ -28,14 +28,9 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     protected redisService: RedisService,
   ) {}
 
-  @SubscribeMessage('data')
-  message() {
-    console.log('Data Triggered!');
-  }
-
   async handleConnection(client: Socket) {
     try {
-      console.log('New SocketIo Connection at', new Date());
+      console.log(`[${new Date()}][nsp - ${client.nsp.name}] new connection`);
       const cookies = parseCookie(client.handshake.headers.cookie || '');
       const accessToken = cookies[AUTH_COOKIE_NAME];
       if (!accessToken)
@@ -55,7 +50,6 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
       if (!user) throw new WsException('user not exists.'); // ?INFO: for security reasons, perhaps it's unnecessary to inform the user about what has occurred.
       client.user = user; // ?INFO: inject the current user into each successfully connected socket client.
-      console.log(user);
       await this.redisService.hset(
         user.id,
         client.id,

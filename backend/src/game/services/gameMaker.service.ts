@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Server, Namespace, Socket } from 'socket.io';
 import { GameStarterService } from './gameStarter.service';
 import QueueItem from '../interfaces/Queue.interface';
 

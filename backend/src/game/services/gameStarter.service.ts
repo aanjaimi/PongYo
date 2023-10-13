@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Namespace, Socket } from 'socket.io';
 import { Engine, World, Bodies, Body, Runner, Events } from 'matter-js';
 import QueueItem from '../interfaces/Queue.interface';
 
@@ -7,8 +6,6 @@ import QueueItem from '../interfaces/Queue.interface';
 export class GameStarterService {
   async startGame(player1: QueueItem, player2: QueueItem) {
     await this.delay(5040, player1, player2);
-    const height = 750;
-    const width = 650;
     let player1Score = 0;
     let player2Score = 0;
     const isGameOver = false;

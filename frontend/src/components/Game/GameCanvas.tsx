@@ -1,15 +1,15 @@
 import React, { useEffect, useRef } from "react";
 import Matter from "matter-js";
-import io from "socket.io-client";
-import { stat } from "fs";
-import GameResult from "@/components/GameResult/GameResult";
 import { useSocket } from "@/contexts/socket-context";
+import { useStateContext } from "@/contexts/game-context";
 
 const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
   const canvasRef = useRef(null);
-  const { socketGame } = useSocket();
+  const { gameSocket } = useSocket();
+  const { dispatch } = useStateContext();
   useEffect(() => {
     const engine = Matter.Engine.create({ gravity: { x: 0, y: 0 } });
+
     const canvas = canvasRef.current;
     const renderOptions = {
       canvas: canvas,

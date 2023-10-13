@@ -2,38 +2,23 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  OnGatewayConnection,
-  MessageBody,
-  OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Injectable } from '@nestjs/common';
-import { Server, Namespace, Socket } from 'socket.io';
-import { Engine, World, Bodies, Body, Runner } from 'matter-js';
-import { GameStarterService } from './gameStarter.service';
-import { map } from 'rxjs/operators';
 import { GameMaker } from './gameMaker.service';
 import QueueItem from '../interfaces/Queue.interface';
-import { ConnectedSocket } from '@nestjs/websockets';
-import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '@/auth/guards/jwt.guard';
-import { User } from '@prisma/client';
-import { CurrentUser } from '@/auth/auth.decorator';
 import { WsGateway } from '@/ws/ws.gateway';
 import { PrismaService } from '@/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '@/redis/redis.service';
-import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 import { InviteService } from '@/game/services/getFriend.service';
-import { GuardsConsumer } from '@nestjs/core/guards';
+import { Socket } from 'socket.io';
 
 @Injectable()
 @WebSocketGateway({
   namespace: 'game',
 })
 export class GameGateway extends WsGateway {
-  @WebSocketServer()
-  server: Server;
   constructor(
     private gameMaker: GameMaker,
     protected prismaService: PrismaService,
@@ -55,8 +40,7 @@ export class GameGateway extends WsGateway {
   }
 
   @SubscribeMessage('joinQueue')
-  // @UseGuards(JwtAuthGuard)
-  hadleJoinQueue(client: Socket, body: any) {
+  hadleJoinQueue(client: Socket) {
     console.log('joining');
     this.gameMaker.addPlayerToQueue(this.classicQueue, {
       client,
@@ -64,7 +48,6 @@ export class GameGateway extends WsGateway {
     });
   }
   @SubscribeMessage('leaveQueue')
-  // @UseGuards(JwtAuthGuard)
   handleLeaveQueue(client: Socket) {
     console.log('leaving');
     this.classicQueue = this.classicQueue.filter(
@@ -72,8 +55,7 @@ export class GameGateway extends WsGateway {
     );
   }
   @SubscribeMessage('joinRankedQueue')
-  // @UseGuards(JwtAuthGuard)
-  hadleJoinRankedQueue(client: Socket, body: any) {
+  hadleJoinRankedQueue(client: Socket) {
     console.log('joining ranked');
     this.gameMaker.addPlayerToQueue(this.rankedQueue, {
       client,
@@ -81,7 +63,6 @@ export class GameGateway extends WsGateway {
     });
   }
   @SubscribeMessage('leaveRankedQueue')
-  // @UseGuards(JwtAuthGuard)
   handleLeaveRankedQueue(client: Socket) {
     console.log('leaving ranked');
     this.rankedQueue = this.rankedQueue.filter(
