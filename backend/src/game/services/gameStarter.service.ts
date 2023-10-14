@@ -1,14 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { Engine, World, Bodies, Body, Runner, Events } from 'matter-js';
 import QueueItem from '../interfaces/Queue.interface';
+import { UserService } from '@/game/services/getFriend.service';
+import { NumberSchema } from 'joi';
 
 @Injectable()
 export class GameStarterService {
+  constructor(private userService: UserService) {}
   async startGame(player1: QueueItem, player2: QueueItem) {
-    await this.delay(5040, player1, player2);
+    await this.delay(5060);
+    //"Here, I assigned each player their position before the game started."
     let player1Score = 0;
     let player2Score = 0;
     const isGameOver = false;
+    player1.client.emit('updateOpponentPosition', { x: 325, y: 735 });
+    player1.client.emit('updatePlayerPosition', { x: 325, y: 15 });
+    player2.client.emit('updatePlayerPosition', { x: 325, y: 735 });
+    player2.client.emit('updateOpponentPosition', { x: 325, y: 15 });
+
     const engine = Engine.create({ gravity: { x: 0, y: 0 } });
     const createWall = (
       x: number,
@@ -44,7 +53,6 @@ export class GameStarterService {
       createWall(325, 0, 650, 1, true),
       createWall(325, 750, 650, 1, true),
     ];
-
     World.add(engine.world, [ball, playerPaddle, opponentPaddle, ...walls]);
     const runner = Runner.create();
     Runner.run(runner, engine);
@@ -117,14 +125,13 @@ export class GameStarterService {
             Engine.clear(engine);
             World.clear(engine.world, false);
             if (player1Score > player2Score) {
-              player1.user.resoult = 'Winner';
-              player2.user.resoult = 'Loser';
+              this.userService.updateUserStats(player1.user.id, 1, 0, 10);
+              this.userService.updateUserStats(player2.user.id, 0, 1, 0);
             } else {
-              player1.user.resoult = 'Loser';
-              player2.user.resoult = 'Winner';
+              this.userService.updateUserStats(player1.user.id, 0, 1, 0);
+              this.userService.updateUserStats(player2.user.id, 1, 0, 10);
             }
             console.log('Game over');
-
             player1.client.emit('gameOver', {
               user: player1.user,
               opp: player2.user,
@@ -138,11 +145,8 @@ export class GameStarterService {
       });
     }
   }
-  private delay(ms: number, player1: QueueItem, player2: QueueItem) {
-    player1.client.emit('updateOpponentPosition', { x: 325, y: 735 });
-    player1.client.emit('updatePlayerPosition', { x: 325, y: 15 });
-    player2.client.emit('updatePlayerPosition', { x: 325, y: 735 });
-    player2.client.emit('updateOpponentPosition', { x: 325, y: 15 });
+  private  delay(ms:number)
+  {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

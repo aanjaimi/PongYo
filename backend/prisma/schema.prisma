@@ -34,7 +34,7 @@ model User {
   displayname String
   login       String     @unique
   email       String     @unique
-  // userStatus  UserStatus @default(OFFLINE) @map("user_status")
+  userStatus  UserStatus @default(OFFLINE) @map("user_status")
   vectories Int
   defeats   Int
   points    Int

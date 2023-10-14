@@ -4,7 +4,7 @@ import { useSocket } from "@/contexts/socket-context";
 import { useStateContext } from "@/contexts/state-context";
 
 const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
-  const canvasRef = useRef(null);
+  const canvasRef = useRef();
   const { gameSocket } = useSocket();
   const { dispatch } = useStateContext();
   useEffect(() => {
@@ -81,9 +81,13 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
       Matter.Body.setPosition(ball, { x: data.x, y: data.y });
     });
     gameSocket.on("updatePlayerPosition", (data) => {
+      console.log("here where player position is updated");
+      console.log(data);
       Matter.Body.setPosition(playerPaddle, { x: data.x, y: data.y });
     });
     gameSocket.on("updateOpponentPosition", (data) => {
+      console.log("here where opponent position is updated");
+      console.log(data);
       Matter.Body.setPosition(opponentPaddle, { x: data.x, y: data.y });
     });
     gameSocket.on("updateScore", (data) => {
@@ -95,8 +99,10 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
     gameSocket.on("gameOver", (data) => {
       Matter.Engine.clear(engine);
       Matter.Render.stop(render);
-      dispatch({ type: "SET_OPP", payload: data.opp });
+      // dispatch({ type: "SET_OPP", payload: data.opp });
       dispatch({ type: "SET_USER", payload: data.user });
+      
+      
       setIsGameOver(true);
     });
     const handleMousemove = (event) => {
@@ -119,7 +125,6 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
       }
     };
   }, []);
-
   return (
     <div>
       <canvas ref={canvasRef} className="h-full w-full rounded-3xl" />

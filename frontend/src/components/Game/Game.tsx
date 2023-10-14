@@ -3,23 +3,26 @@ import GameCanvas from "./GameCanvas";
 import GameResult from "../GameResult/GameResult";
 import { useEffect } from "react";
 import ImageCard from "./imageCard";
+import { User } from "@/types/user";
+import { useSocket } from "@/contexts/socket-context";
+import { Socket } from "socket.io-client";
 
-const Game = () => {
+const Game = ({oppData}) => {
   const [isGameOver, setIsGameOver] = React.useState(false);
   const [myScore, setMyScore] = useState(0);
   const [oppScore, setOppScore] = useState(0);
   const [countdown, setCountdown] = useState(5);
-
+  const [PlayerPosition, setPlayerPosition] = useState({x: 325, y: 15});
+  const [OpponentPosition, setOpponentPosition] = useState({x: 325, y: 735});
+  const { gameSocket } = useSocket();
   useEffect(() => {
     const timer = setInterval(() => {
       if (countdown > 0) {
         setCountdown(countdown - 1);
-      } else {
-        clearInterval(timer); // Stop the countdown when it reaches 0
+      }else {
+        clearInterval(timer);
       }
     }, 1000);
-
-    // Clean up the interval when the component unmounts
     return () => clearInterval(timer);
   }, [countdown]);
 
@@ -33,7 +36,7 @@ const Game = () => {
           </div>
         </div>
       )}
-      {!isGameOver && (
+      {!isGameOver && countdown <=0 && (
         <div className="flex h-screen w-screen flex-col items-center justify-start sm:flex-row sm:justify-center">
           <ImageCard
             sideclass="h-full flex-col justify-start sm:w-auto w-full  sm:flex"
@@ -56,7 +59,7 @@ const Game = () => {
           />
         </div>
       )}
-      {isGameOver && <GameResult myScore={myScore} oppScore={oppScore} />}
+      {isGameOver && <GameResult myScore={myScore} oppScore={oppScore} oppData={oppData} />}
     </div>
   );
 };

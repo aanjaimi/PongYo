@@ -28,3 +28,42 @@ export class InviteService {
     return isFriend.id;
   }
 }
+@Injectable()
+export class UserService {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async updateUserStats(id: string, vectories: number, defeats: number, pints: number) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      // Handle the case where the user is not found
+      // You can return an error or throw an exception.
+      throw new Error(`User with ID ${id} not found.`);
+    }
+
+    // Calculate the new values for vectories and defeats by adding the specified values
+    const newVectories = user.vectories + vectories;
+    const newDefeats = user.defeats + defeats;
+    const newPoints = user.points + pints;
+    console.log(newVectories);
+    console.log(newDefeats);
+    console.log(newPoints);
+    
+
+    // Update the user's vectories and defeats
+    await this.prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: {
+        vectories: newVectories,
+        defeats: newDefeats,
+        points: newPoints,
+      },
+    });
+  }
+}

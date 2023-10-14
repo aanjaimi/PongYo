@@ -13,7 +13,6 @@ type Action = {
 };
 
 type Dispatch = (action: Action) => void;
-
 const initialState: State = {
   user: null,
 };

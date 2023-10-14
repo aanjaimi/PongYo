@@ -20,7 +20,7 @@ const getCurrentUser = async () => {
   return resp.data;
 };
 
-const GameCard = ({ setGameStarted }) => {
+const GameCard = ({ setGameStarted, setOppData }) => {
   const { gameSocket } = useSocket();
   const { state, dispatch } = useStateContext();
   const [isPopupOpen, setIsPopupOpen] = React.useState(false);
@@ -36,6 +36,7 @@ const GameCard = ({ setGameStarted }) => {
       }
     },
     onError: (err) => {
+      console.log("error");
       console.error(err);
       dispatch({ type: "SET_USER", payload: null });
     },
@@ -63,7 +64,11 @@ const GameCard = ({ setGameStarted }) => {
   };
   useEffect(() => {
     gameSocket.on("gameStart", (data) => {
+      console.log("gameStart");
+      setOppData(data.opp);
       setGameStarted(true);
+      setIsPopupOpen(false);
+
     });
     gameSocket.on("inviting", (data) => {
       console.log("inviteToGame");

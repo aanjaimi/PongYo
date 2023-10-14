@@ -3,20 +3,23 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrophy } from "@fortawesome/free-solid-svg-icons";
 import VsCard from "./VsCard";
 import { useSocket } from "@/contexts/socket-context";
+import { useStateContext } from "@/contexts/state-context";
 
-const GameResult = ({myScore, oppScore}) => {
- const {socketGame} = useSocket();
-  console.log(state.opp);
+
+const GameResult = ({myScore, oppScore, oppData}) => {
+  const { state } = useStateContext();
+  console.log(oppData);
   console.log(state.user);
   let firstColor =
     myScore > oppScore
-      ? { color: "gold", textClass: "text-yellow-300" }
-      : { color: "silver", textClass: "text-gray-300" };
+      ? { color: "gold", textClass: "text-yellow-300" , resoult: "Winner"}
+      : { color: "silver", textClass: "text-gray-300" , resoult: "Loser"};
   let secondColor =
     myScore < oppScore
-      ? { color: "gold", textClass: "text-yellow-300" }
-      : { color: "silver", textClass: "text-gray-300" };
-
+      ? { color: "gold", textClass: "text-yellow-300", resoult: "Winner" }
+      : { color: "silver", textClass: "text-gray-300", resoult: "Loser" };
+  console.log(firstColor);
+  console.log(secondColor);
   return (
     <div className="flex w-screen h-screen justify-center items-center">
       <div className="flex justify-around items-center text-white bg-[#ffffff33] sm:h-[230px] sm:w-[700px] text-lg rounded-lg p-4 flex-col sm:flex-row">
@@ -30,7 +33,7 @@ const GameResult = ({myScore, oppScore}) => {
             <div>
               <p className="font-semibold">{state.user?.login}</p>
               <p className={`animate-pulse ${firstColor.textClass}`}>
-                {state.user?.resoult}
+                {firstColor.resoult}
               </p>
             </div>
           </div>
@@ -46,14 +49,14 @@ const GameResult = ({myScore, oppScore}) => {
         <div>
           <div className="flex items-center">
             <div>
-              <p className="font-semibold">{state.opp?.login}</p>
+              <p className="font-semibold">{oppData?.login}</p>
               <p className={`animate-pulse ${secondColor.textClass}`}>
-                {state.opp?.resoult}
+                {secondColor.resoult}
               </p>
             </div>
             <img
-              src={"/smazouz.jpeg" || state.opp?.avatar}
-              alt={state.opp?.login}
+              src={"/smazouz.jpeg" || oppData?.avatar}
+              alt={oppData?.login}
               className="w-24 h-24 rounded-full ml-4 "
             />
           </div>

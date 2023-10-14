@@ -8,23 +8,13 @@ import { useStateContext } from "@/contexts/state-context";
 const PopUp = ({ setIsPopupOpen, setGameStarted, selectedOption }) => {
   const { gameSocket } = useSocket();
   const { state, dispatch } = useStateContext();
-
-  useEffect(() => {
-    gameSocket.on("gameStart", (data) => {
-      // set user and opponent on state
-      dispatch({ type: "SET_USER", payload: data.user });
-      dispatch({ type: "SET_USER", payload: data.opp });
-      setGameStarted(true);
-      setIsPopupOpen(false);
-    });
-  });
   return (
     <div className=" fixed z-10 flex h-[300px] w-[700px] flex-col rounded-lg bg-[#ffffff33] px-6 text-white shadow-2xl ">
       {/* First Part */}
       <div className="m-8 flex h-full flex-row justify-between ">
         <div className=" flex flex-col justify-center">
           <Image
-            src={state.user?.avatar}
+            src={state.user?.avatar || "/smazouz.jpeg"}
             alt={state.user?.login}
             className="mx-auto rounded-full "
             width={140}
