@@ -1,6 +1,7 @@
 import {
   ConnectedSocket,
   OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
@@ -15,7 +16,10 @@ import { RedisService } from '@/redis/redis.service';
 import { ConfigService } from '@nestjs/config';
 
 @WebSocketGateway({ namespace: 'chat' })
-export class ChatGateway extends WsGateway implements OnGatewayConnection {
+export class ChatGateway
+  extends WsGateway
+  implements OnGatewayConnection, OnGatewayDisconnect
+{
   constructor(
     protected readonly prismaService: PrismaService,
     protected readonly chatService: ChatService,
@@ -27,21 +31,25 @@ export class ChatGateway extends WsGateway implements OnGatewayConnection {
   }
 
   async handleConnection(@ConnectedSocket() client: Socket) {
-    // here we check for user's token and set up socket connection
+    await super.handleConnection(client);
   }
 
-  @SubscribeMessage('joinChannel')
+  async handleDisconnect(@ConnectedSocket() client: Socket) {
+    await super.handleDisconnect(client);
+  }
+
+  @SubscribeMessage('join-channel')
   handleJoinChannel(client: Socket, data: any) {
     client.join(`channel-${data.channelId}`);
   }
 
-  @SubscribeMessage('leaveChannel')
+  @SubscribeMessage('leave-channel')
   @UseGuards(JwtAuthGuard)
   handleLeaveChannel(client: Socket, data: any) {
     client.leave(`channel-${data.channelId}`);
   }
 
-  @SubscribeMessage('sendMessage')
+  @SubscribeMessage('send-message')
   @UseGuards(JwtAuthGuard)
   handleSendMessage(client: Socket, data: any) {
     client.to(`channel-${data.channelId}`).emit('message', data);
