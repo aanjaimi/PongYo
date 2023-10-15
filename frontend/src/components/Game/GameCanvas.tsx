@@ -2,15 +2,16 @@ import React, { useEffect, useRef } from "react";
 import Matter from "matter-js";
 import { useSocket } from "@/contexts/socket-context";
 import { useStateContext } from "@/contexts/state-context";
-
-const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
-  const canvasRef = useRef();
+import type { User } from "@/types/user";
+import type { itemPosition,GameCanvasProps } from "../gameTypes/types";
+const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null); // Specify the type for canvasRef
   const { gameSocket } = useSocket();
   const { dispatch } = useStateContext();
   useEffect(() => {
     const engine = Matter.Engine.create({ gravity: { x: 0, y: 0 } });
 
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current ?? undefined;
     const renderOptions = {
       canvas: canvas,
       engine: engine,
@@ -22,7 +23,7 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
       },
     };
     const render = Matter.Render.create(renderOptions);
-    const createWall = (x, y, width, height, isStatic) => {
+    const createWall = (x:number, y:number, width:number, height:number, isStatic:boolean) => {
       return Matter.Bodies.rectangle(x, y, width, height, {
         isStatic: isStatic,
         render: {
@@ -35,7 +36,7 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
         fillStyle: "white",
       },
     });
-
+   
     const playerPaddle = Matter.Bodies.rectangle(325, 15, 150, 20, {
       isStatic: true,
       render: {
@@ -68,7 +69,6 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
         fillStyle: "white",
       },
     });
-
     Matter.World.add(engine.world, [
       ball,
       playerPaddle,
@@ -77,35 +77,31 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
       net,
     ]);
     Matter.Render.run(render);
-    gameSocket.on("updateBallPosition", (data) => {
+    gameSocket.on("updateBallPosition", (data:itemPosition) => {
       Matter.Body.setPosition(ball, { x: data.x, y: data.y });
     });
-    gameSocket.on("updatePlayerPosition", (data) => {
-      console.log("here where player position is updated");
+    gameSocket.on("updatePlayerPosition", (data:itemPosition) => {
       console.log(data);
       Matter.Body.setPosition(playerPaddle, { x: data.x, y: data.y });
     });
-    gameSocket.on("updateOpponentPosition", (data) => {
-      console.log("here where opponent position is updated");
+    gameSocket.on("updateOpponentPosition", (data:itemPosition) => {
       console.log(data);
       Matter.Body.setPosition(opponentPaddle, { x: data.x, y: data.y });
     });
-    gameSocket.on("updateScore", (data) => {
-      console.log("here where score is updated");
+    gameSocket.on("updateScore", (data:{myScore:number,oppScore:number}) => {
       console.log(data);
       setMyScore(data.myScore);
       setOppScore(data.oppScore);
     });
-    gameSocket.on("gameOver", (data) => {
+    gameSocket.on("gameOver", (data:{user:User}) => {
       Matter.Engine.clear(engine);
       Matter.Render.stop(render);
       // dispatch({ type: "SET_OPP", payload: data.opp });
       dispatch({ type: "SET_USER", payload: data.user });
-      
-      
       setIsGameOver(true);
     });
-    const handleMousemove = (event) => {
+    const handleMousemove = (event:MouseEvent) => {
+      if(canvas === undefined) return;
       const mouseX = event.clientX - canvas.getBoundingClientRect().left;
       gameSocket.emit("updatePlayerPosition", {
         x: mouseX,
@@ -113,14 +109,13 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }) => {
       });
     };
 
-    if (canvas !== null) {
+    if (canvas !== undefined) {
       canvas.addEventListener("mousemove", handleMousemove);
     }
-
     return () => {
       Matter.Render.stop(render);
       Matter.Engine.clear(engine);
-      if (canvas !== null) {
+      if (canvas !== undefined) {
         canvas.removeEventListener("mousemove", handleMousemove);
       }
     };

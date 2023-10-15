@@ -11,4 +11,7 @@ export type User = {
   oppositeGames: Game[];
   createdAt: Date;
   updatedAt: Date;
+  avatar: string;
+  rank: string;
+
 };

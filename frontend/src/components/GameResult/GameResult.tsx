@@ -2,19 +2,23 @@ import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrophy } from "@fortawesome/free-solid-svg-icons";
 import VsCard from "./VsCard";
-import { useSocket } from "@/contexts/socket-context";
 import { useStateContext } from "@/contexts/state-context";
+import type { User } from "@/types/user";
 
-
-const GameResult = ({myScore, oppScore, oppData}) => {
+type GameResultProps = {
+  myScore: number;
+  oppScore: number;
+  oppData: User;
+};
+const GameResult = ({myScore, oppScore, oppData}:GameResultProps) => {
   const { state } = useStateContext();
   console.log(oppData);
   console.log(state.user);
-  let firstColor =
+  const firstColor =
     myScore > oppScore
       ? { color: "gold", textClass: "text-yellow-300" , resoult: "Winner"}
       : { color: "silver", textClass: "text-gray-300" , resoult: "Loser"};
-  let secondColor =
+  const secondColor =
     myScore < oppScore
       ? { color: "gold", textClass: "text-yellow-300", resoult: "Winner" }
       : { color: "silver", textClass: "text-gray-300", resoult: "Loser" };

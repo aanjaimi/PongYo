@@ -1,6 +1,9 @@
 import React from "react";
-
-const VsCard = ({ myScore, oppScore }) => {
+type VsCardProps = {
+  myScore: number;
+  oppScore: number;
+};
+const VsCard = ({ myScore, oppScore }:VsCardProps) => {
 	return (
 		<div className="flex items-center flex-col">
           <div className="relative">

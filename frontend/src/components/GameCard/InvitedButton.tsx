@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSocket } from "@/contexts/socket-context";
+import type { ChangeEvent } from "react";
 
-const InvitedButton = ({ setGameStarted }) => {
+const InvitedButton = () => {
   // State
   const { gameSocket } = useSocket();
   const [username, setUsername] = useState("");
@@ -11,38 +12,43 @@ const InvitedButton = ({ setGameStarted }) => {
   // Handle Invite Click
   const handleInviteClick = () => {
     console.log("event 1");
-    gameSocket.emit("invite", { username: username });
+    gameSocket.emit("invite", { username });
   };
 
   // Handle Input Change
-  const handleInputChange = (event) => {
+  const handleInputChange = (event:ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value);
   };
 
   useEffect(() => {
-    const invitedSuccessHandler = (data) => {
+    const invitedSuccessHandler = (data:{msg:string}) => {
       console.log(data);
       notifySuccess(data.msg);
     };
-    const invitedHandler = (data) => {
+
+    const invitedHandler = (data:{msg:string, friend:string}) => {
       console.log(data);
-      inviteNitify(data);
+      inviteNotify(data);
     };
-    const invitedFailHandler = (data) => {
+
+    const invitedFailHandler = (data:{msg:string}) => {
       console.log(data);
       notifyError(data.msg);
     };
+
     gameSocket.on("invitedSuccess", invitedSuccessHandler);
     gameSocket.on("invitedFail", invitedFailHandler);
     gameSocket.on("invited", invitedHandler);
+
     return () => {
       gameSocket.off("invitedSuccess", invitedSuccessHandler);
       gameSocket.off("invitedFail", invitedFailHandler);
       gameSocket.off("invited", invitedHandler);
       gameSocket.off("gameStarted");
     };
-  }, []);
-  const inviteNitify = (data) => {
+  }, [gameSocket]);
+
+  const inviteNotify = (data:{msg:string, friend:string}) => {
     toast(data.msg, {
       position: "top-center",
       autoClose: 5000,
@@ -53,14 +59,15 @@ const InvitedButton = ({ setGameStarted }) => {
       progress: undefined,
       theme: "dark",
       onClick: () => {
-        console.log("Toast clicked!"); // Replace this with your desired
-        gameSocket.emit("acceptInvite", { friend: data.friend });
+        console.log("Toast clicked!");
+        gameSocket.emit("acceptInvite", { friend : data.friend});
         // setGameStarted(true);
       },
     });
   };
+
   // Notify Success
-  const notifySuccess = (message) => {
+  const notifySuccess = (message:string) => {
     toast.success(message, {
       position: "top-right",
       autoClose: 5000,
@@ -74,7 +81,7 @@ const InvitedButton = ({ setGameStarted }) => {
   };
 
   // Notify Error
-  const notifyError = (message) => {
+  const notifyError = (message:string) => {
     toast.error(message, {
       position: "top-right",
       autoClose: 5000,
@@ -92,13 +99,13 @@ const InvitedButton = ({ setGameStarted }) => {
       <input
         type="text"
         placeholder="Enter username"
-        className="h-10 w-[100%] rounded-full bg-gray-500 pl-4 focus:outline-none" // Add padding to the left using pl-2
+        className="h-10 w-[100%] rounded-full bg-gray-500 pl-4 focus:outline-none"
         value={username}
         onChange={handleInputChange}
         maxLength={22}
       />
       <button
-        className="absolute right-0 h-10 w-[30%] rounded-full bg-blue-500 text-white" // Add margin using m-1 and mr-4
+        className="absolute right-0 h-10 w-[30%] rounded-full bg-blue-500 text-white"
         onClick={handleInviteClick}
       >
         Invite

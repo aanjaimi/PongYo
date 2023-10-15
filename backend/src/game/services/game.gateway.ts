@@ -33,16 +33,19 @@ export class GameGateway extends WsGateway {
   async handleConnection(client: Socket) {
     if (!(await super.handleConnection(client))) return false;
     this.users.set(client.user.id, client);
+    console.log('connected');
+    console.log(client.id);
     return true;
   }
 
-  @SubscribeMessage('joinQueue')
+  @SubscribeMessage('joinQueue')  
   hadleJoinQueue(client: Socket) {
-    console.log('joining');
+
     this.gameMaker.addPlayerToQueue(this.classicQueue, {
       client,
       user: client.user,
-    });
+    },false
+    );
   }
   @SubscribeMessage('leaveQueue')
   handleLeaveQueue(client: Socket) {
@@ -57,7 +60,8 @@ export class GameGateway extends WsGateway {
     this.gameMaker.addPlayerToQueue(this.rankedQueue, {
       client,
       user: client.user,
-    });
+    },true
+    );
   }
   @SubscribeMessage('leaveRankedQueue')
   handleLeaveRankedQueue(client: Socket) {
@@ -89,7 +93,6 @@ export class GameGateway extends WsGateway {
       } else {
         client.emit('invitedFail', {
           msg: `"${username}" is not your friend`,
-          friend: client.user.id,
         });
       }
     });
@@ -106,11 +109,14 @@ export class GameGateway extends WsGateway {
       this.gameMaker.addPlayerToQueue(this.classicQueue, {
         client: friendSocket,
         user: friendSocket.user,
-      });
+        
+      }
+      ,false);
       this.gameMaker.addPlayerToQueue(this.classicQueue, {
         client,
         user: client.user,
-      });
+      }
+      ,false);
     }
   }
 }

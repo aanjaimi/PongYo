@@ -1,36 +1,36 @@
-import React, { use, useState } from "react";
-import Image from "next/image";
+import React, { useState, useEffect } from "react";
 import InvitedButton from "./InvitedButton";
 import Divider from "./Divider";
 import { Button } from "@/components/ui/button";
 import PopUp from "./popUp";
-import io from "socket.io-client";
 import { useSocket } from "@/contexts/socket-context";
-import CustomModal from "./CustomModal"; // Import the custom modal component
-import { stat } from "fs";
-import { useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { StateProvider, useStateContext } from "@/contexts/state-context";
+import CustomModal from "./CustomModal";
 import { fetcher } from "@/utils/fetcher";
+import { useQuery } from "@tanstack/react-query";
+import { useStateContext } from "@/contexts/state-context";
+import { toast } from "react-toastify";
 import type { User } from "@/types/user";
-import { Socket } from "dgram";
+import type { ChangeEvent } from "react";
+import type { GameCardProps } from "../gameTypes/types";
 
 const getCurrentUser = async () => {
   const resp = await fetcher.get<User>("/users/@me");
   return resp.data;
 };
 
-const GameCard = ({ setGameStarted, setOppData }) => {
+const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   const { gameSocket } = useSocket();
   const { state, dispatch } = useStateContext();
-  const [isPopupOpen, setIsPopupOpen] = React.useState(false);
-  const [selectedOption, setSelectedOption] = useState(""); // Initial value as an empty string
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("");
   const [showValidation, setShowValidation] = useState(false);
-  const userQurey = useQuery({
+  const userQuery = useQuery({
     queryKey: ["users"],
     queryFn: getCurrentUser,
     onSuccess: (data) => {
       dispatch({ type: "SET_USER", payload: data });
+      console.log("user");
+      console.log(state.user);
       if (!gameSocket.connected) {
         gameSocket.connect();
       }
@@ -41,15 +41,13 @@ const GameCard = ({ setGameStarted, setOppData }) => {
       dispatch({ type: "SET_USER", payload: null });
     },
   });
+
   const handleStartClick = () => {
-    if (selectedOption === "Normal game" || selectedOption === "Ranked game") {
-      setIsPopupOpen(true);
-      if (selectedOption === "Normal game") {
-        console.log("Normal game clicked");
-        gameSocket.emit("joinQueue");
-      } else if (selectedOption === "Ranked game") {
-        gameSocket.emit("joinRankedQueue");
-      }
+    if (selectedOption === "Normal game") {
+      console.log("Normal game clicked");
+      gameSocket.emit("joinQueue");
+    } else if (selectedOption === "Ranked game") {
+      gameSocket.emit("joinRankedQueue");
     } else {
       setShowValidation(true);
     }
@@ -59,24 +57,49 @@ const GameCard = ({ setGameStarted, setOppData }) => {
     setShowValidation(false);
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setSelectedOption(e.target.value);
   };
+
+  const notifyError = (message:string) => {
+    toast.error(message, {
+      position: "top-right",
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "dark",
+    });
+  };
+
   useEffect(() => {
-    gameSocket.on("gameStart", (data) => {
+    const handleAlreadyInQueue = (data:{msg:string}) => {
+      console.log(data);
+      notifyError(data.msg);
+    };
+
+    const handleQueueJoined = () => {
+      setIsPopupOpen(true);
+    };
+
+    const handleGameStart = (data:{opp:User}) => {
       console.log("gameStart");
       setOppData(data.opp);
       setGameStarted(true);
       setIsPopupOpen(false);
+    };
 
-    });
-    gameSocket.on("inviting", (data) => {
-      console.log("inviteToGame");
-      gameSocket.emit("acceptInvite", {
-        user: state.user,
-        friend: data.login,
-      });
-    });
+    gameSocket.on("alreadyInQueue", handleAlreadyInQueue);
+    gameSocket.on("queueJoined", handleQueueJoined);
+    gameSocket.on("gameStart", handleGameStart);
+
+    return () => {
+      gameSocket.off("alreadyInQueue", handleAlreadyInQueue);
+      gameSocket.off("gameStart", handleGameStart);
+      gameSocket.off("queueJoined", handleQueueJoined);
+    };
   }, []);
 
   return (
@@ -85,9 +108,9 @@ const GameCard = ({ setGameStarted, setOppData }) => {
         <PopUp
           setIsPopupOpen={setIsPopupOpen}
           selectedOption={selectedOption}
-          setGameStarted={setGameStarted}
         />
       )}
+
       {!isPopupOpen && (
         <div className="flex h-[450px] w-[500px] flex-col rounded-xl bg-[#33437D]">
           <div className="pt-7">
@@ -103,7 +126,8 @@ const GameCard = ({ setGameStarted, setOppData }) => {
                 checked={selectedOption === "Normal game"}
                 onChange={handleChange}
               />
-              <label htmlFor="normalGame">Normal game</label>
+              <label htmlFor="normalGame">Normal game
+              </label>
             </div>
             <div className="space-x-4">
               <input
@@ -117,6 +141,7 @@ const GameCard = ({ setGameStarted, setOppData }) => {
               <label htmlFor="rankedGame">Ranked game</label>
             </div>
           </div>
+
           <div className="mt-8 flex w-full items-center justify-center text-xl text-white">
             <Button
               className="flex h-[40px] w-[140px] rounded-full bg-blue-500 text-2xl"
@@ -130,7 +155,7 @@ const GameCard = ({ setGameStarted, setOppData }) => {
             <h1 className="pl-5 text-3xl text-white "> INVITE YOUR FRIEND :</h1>
           </div>
           <div className="mt-6 flex items-center pt-2 text-xl text-white">
-            <InvitedButton setGameStarted={setGameStarted} />
+            <InvitedButton />
           </div>
         </div>
       )}

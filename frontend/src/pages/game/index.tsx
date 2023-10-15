@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import GameCard from "@/components/GameCard/GameCard";
 import Game from "@/components/Game/Game";
-import { User } from "@/types/user";
+import type { User } from "@/types/user";
 
-const home = () => {
+const Home = () => {
   const [gameStarted, setGameStarted] = useState(false);
   const [oppData, setOppData] = useState({} as User)
 
@@ -14,4 +14,4 @@ const home = () => {
   );
 };
 
-export default home;
+export default Home;

@@ -2,14 +2,28 @@ import { Injectable } from '@nestjs/common';
 import { Engine, World, Bodies, Body, Runner, Events } from 'matter-js';
 import QueueItem from '../interfaces/Queue.interface';
 import { UserService } from '@/game/services/getFriend.service';
-import { NumberSchema } from 'joi';
 
 @Injectable()
 export class GameStarterService {
   constructor(private userService: UserService) {}
-  async startGame(player1: QueueItem, player2: QueueItem) {
+  async startGame(player1: QueueItem, player2: QueueItem, isRanked: boolean) {
+    player1.client.on('disconnect', () => {
+      console.log(' player1 disconnected');
+      player2Score = 10;
+      player2.client.emit('updateScore', {
+        myScore: player2Score,
+        oppScore: 0,
+      });
+    });
+    player2.client.on('disconnect', () => {
+      console.log(' player2 disconnected');
+      player1Score = 10;
+      player1.client.emit('updateScore', {
+        myScore: player1Score,
+        oppScore: 0,
+      });
+    });
     await this.delay(5060);
-    //"Here, I assigned each player their position before the game started."
     let player1Score = 0;
     let player2Score = 0;
     const isGameOver = false;
@@ -79,7 +93,7 @@ export class GameStarterService {
     Body.applyForce(
       ball,
       { x: ball.position.x, y: ball.position.y },
-      { x: 0.005, y: -0.005 },
+      { x: 0.004, y: -0.004 },
     );
     if (!isGameOver) {
       Events.on(engine, 'collisionStart', (event) => {
@@ -120,33 +134,35 @@ export class GameStarterService {
             player1.client.emit('updateBallPosition', { x: 325, y: 375 });
             player2.client.emit('updateBallPosition', { x: 325, y: 375 });
           }
-          if (player1Score >= 5 || player2Score >= 5) {
+          if (player1Score >= 10 || player2Score >= 10) {
             Runner.stop(runner);
             Engine.clear(engine);
             World.clear(engine.world, false);
-            if (player1Score > player2Score) {
-              this.userService.updateUserStats(player1.user.id, 1, 0, 10);
-              this.userService.updateUserStats(player2.user.id, 0, 1, 0);
-            } else {
-              this.userService.updateUserStats(player1.user.id, 0, 1, 0);
-              this.userService.updateUserStats(player2.user.id, 1, 0, 10);
+            if (isRanked) {
+              if (player1Score > player2Score) {
+                this.userService.updateUserRankStats(player1.user.id, 1, 0, 10);
+                this.userService.updateUserRankStats(player2.user.id, 0, 1, -5);
+              } else {
+                this.userService.updateUserRankStats(player1.user.id, 0, 1, -5);
+                this.userService.updateUserRankStats(player2.user.id, 1, 0, 10);
+              }
             }
-            console.log('Game over');
-            player1.client.emit('gameOver', {
-              user: player1.user,
-              opp: player2.user,
-            });
-            player2.client.emit('gameOver', {
-              user: player2.user,
-              opp: player1.user,
-            });
+            if (player1.client.connected) {
+              player1.client.emit('gameOver', {
+                user: player1.user,
+              });
+            }
+            if (player2.client.connected) {
+              player2.client.emit('gameOver', {
+                user: player2.user,
+              });
+            }
           }
         }
       });
     }
   }
-  private  delay(ms:number)
-  {
+  private delay(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

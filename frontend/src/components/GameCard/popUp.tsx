@@ -1,21 +1,21 @@
 // components/SplitPopup.js
-import React, { useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useSocket } from "@/contexts/socket-context";
 import { useStateContext } from "@/contexts/state-context";
+import type { PopUpProps } from "../gameTypes/types";
 
-const PopUp = ({ setIsPopupOpen, setGameStarted, selectedOption }) => {
+const PopUp = ({ setIsPopupOpen, selectedOption }:PopUpProps) => {
   const { gameSocket } = useSocket();
-  const { state, dispatch } = useStateContext();
+  const { state } = useStateContext();
   return (
     <div className=" fixed z-10 flex h-[300px] w-[700px] flex-col rounded-lg bg-[#ffffff33] px-6 text-white shadow-2xl ">
       {/* First Part */}
       <div className="m-8 flex h-full flex-row justify-between ">
         <div className=" flex flex-col justify-center">
           <Image
-            src={state.user?.avatar || "/smazouz.jpeg"}
-            alt={state.user?.login}
+            src={state.user?.avatar ?? "/smazouz.jpeg"}
+            alt={state.user?.login ?? ""}
             className="mx-auto rounded-full "
             width={140}
             height={140}

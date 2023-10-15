@@ -3,18 +3,13 @@ import GameCanvas from "./GameCanvas";
 import GameResult from "../GameResult/GameResult";
 import { useEffect } from "react";
 import ImageCard from "./imageCard";
-import { User } from "@/types/user";
-import { useSocket } from "@/contexts/socket-context";
-import { Socket } from "socket.io-client";
+import type { GameProps } from "../gameTypes/types";
 
-const Game = ({oppData}) => {
+const Game = ({oppData}:GameProps) => {
   const [isGameOver, setIsGameOver] = React.useState(false);
   const [myScore, setMyScore] = useState(0);
   const [oppScore, setOppScore] = useState(0);
   const [countdown, setCountdown] = useState(5);
-  const [PlayerPosition, setPlayerPosition] = useState({x: 325, y: 15});
-  const [OpponentPosition, setOpponentPosition] = useState({x: 325, y: 735});
-  const { gameSocket } = useSocket();
   useEffect(() => {
     const timer = setInterval(() => {
       if (countdown > 0) {
