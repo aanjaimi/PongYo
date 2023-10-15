@@ -1,22 +1,21 @@
-import type { User } from "./User";
-import type { Message } from "./Message";
+import type { User } from './User';
+import type { Message } from './Message';
 
 export enum ChatType {
-  PUBLIC= 'public',
-  PRIVATE= 'private',
-  PROTECTED= 'protected',
+  PUBLIC = 'PUBLIC',
+  PRIVATE = 'PRIVATE',
+  PROTECTED = 'PROTECTED',
 }
 
 export type Channel = {
-  id: string
-  name: string
-  isDM: boolean
-  type: ChatType
-  moderatorId: string
-  createdAt: Date
-	updatedAt: Date
-  messages: Message[]
-  members: User[]
-  memberCount: number
-  memberLimit: number
-}
+  id: string;
+  name: string;
+  isDM: boolean;
+  type: ChatType;
+  moderators?: User[];
+  owner?: User;
+  createdAt: Date;
+  updatedAt: Date;
+  messages: Message[];
+  members: User[];
+};

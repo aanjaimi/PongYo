@@ -7,6 +7,10 @@ import CreateOrJoin from './CreateOrJoin'
 import Image from 'next/image'
 import { ScrollArea } from '../ui/scroll-area'
 import ScrollableFeed from 'react-scrollable-feed'
+import { useSocket } from '@/contexts/socket-context'
+import axios from 'axios'
+import { env } from '@/env.mjs'
+import { Message } from '@/types/Message'
 
 export default function ChannelContent(
 	{
@@ -15,7 +19,6 @@ export default function ChannelContent(
 		user,
 		channels,
 		updateChannels,
-		// socket
 	} :
 	{
 		channel : Channel | undefined,
@@ -23,25 +26,10 @@ export default function ChannelContent(
 		user : User,
 		channels : Channel[],
 		updateChannels : (arg : Channel[]) => void,
-		// socket: unknown
 	}) {
-	const [messages, setMessages] = useState<string>("");
-
-	const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
-		// setMessages(messages.trim());
-		console.log("'"+messages+"'");
-		if (messages === "") return;
-		channel?.messages.push({
-			id: Math.random().toString(36).substring(7),
-			userId: user.id,
-			content: messages,
-			channelId: channel.id
-		})
-		setMessages("");
-		(e.target as HTMLFormElement).reset();
-	}
-
+	const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
+	const { chatSocket } = useSocket();
+	const [message, setMessage] = useState<string>("");
 
 	if (channel === undefined) 
 		return (
@@ -52,6 +40,23 @@ export default function ChannelContent(
 				updateSelectedChannel={updateSelectedChannel}
 			/>
 		)
+
+	const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => { // ! not working cause of cors
+		try {
+			e.preventDefault();
+			if (message === "") return;
+			const { data }: { data : Message} = await axios.post(`${uri}/chat/${channel.id}/messages`, {
+				content: message,
+			}, { withCredentials: true });
+			channel.messages.push(data);
+			updateChannels([...channels]);
+			setMessage("");
+			(e.target as HTMLFormElement).reset();
+		} catch(err) {
+			console.log("error sending message")
+			console.log(err);
+		}
+	}
 
 	return (
 		<div className="flex flex-col w-[75%] h-[100%]">
@@ -77,8 +82,9 @@ export default function ChannelContent(
 					<input
 						type="text"
 						placeholder="type your message here..."
+						value={message}
 						className="pb-[5px] rounded-l-full w-[90%] h-[2rem] bg-[#00000000] px-3 focus:outline-none"
-						onChange={(e) => setMessages(e.target.value.trim())}
+						onChange={(e) => setMessage(e.target.value.trim())}
 					/>
 					<button className="flex items-center justify-center rounded-full w-[10%] bg-[#382FA3]">
 						<Image className="" src={"/send_button.png"} alt="image" width={21} height={16}/>

@@ -3,6 +3,6 @@ export type Message = {
   content: string
   channelId: string
   userId: string
-  createdAt?: Date
-	updatedAt?: Date
+  createdAt: Date
+	updatedAt: Date
 }
