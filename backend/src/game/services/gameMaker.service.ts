@@ -10,19 +10,19 @@ export class GameMaker {
     console.log('User');
     console.log(client.user);
     if (classicQueue.some(item => item.user.login === client.user.login)) {
-      client.client.emit('alreadyInQueue', {
+      client.client.emit('already-in-Queue', {
         msg: 'You are already in queue'
       });
       return;
     }
     if(client.user.userStatus === 'IN_GAME') {
-      client.client.emit('alreadyInQueue', {
+      client.client.emit('already-in-Queue', {
         msg: 'You are already in game'
       });
       return;
     }
     console.log('Client joined queue');
-    client.client.emit('queueJoined');
+    client.client.emit('queue-joined');
     classicQueue.push(client);
     if (classicQueue.length >= 2) {
       console.log('Game starting');
@@ -32,10 +32,10 @@ export class GameMaker {
       // this.userService.updateUserStatus(player2.user.id, 'IN_GAME');
       console.log(player1.user);
       console.log(player2.user);
-      player1.client.emit('gameStart',{
+      player1.client.emit('game-start',{
         oppData: player2.user
       });
-      player2.client.emit('gameStart',{
+      player2.client.emit('game-start',{
         oppData: player1.user
       });
       this.gameStarterService.startGame(player1, player2, isRanked);

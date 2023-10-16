@@ -10,7 +10,7 @@ export class GameStarterService {
     player1.client.on('disconnect', () => {
       console.log(' player1 disconnected');
       player2Score = 10;
-      player2.client.emit('updateScore', {
+      player2.client.emit('update-score', {
         myScore: player2Score,
         oppScore: 0,
       });
@@ -18,7 +18,7 @@ export class GameStarterService {
     player2.client.on('disconnect', () => {
       console.log(' player2 disconnected');
       player1Score = 10;
-      player1.client.emit('updateScore', {
+      player1.client.emit('update-score', {
         myScore: player1Score,
         oppScore: 0,
       });
@@ -27,11 +27,10 @@ export class GameStarterService {
     let player1Score = 0;
     let player2Score = 0;
     const isGameOver = false;
-    player1.client.emit('updateOpponentPosition', { x: 325, y: 735 });
-    player1.client.emit('updatePlayerPosition', { x: 325, y: 15 });
-    player2.client.emit('updatePlayerPosition', { x: 325, y: 735 });
-    player2.client.emit('updateOpponentPosition', { x: 325, y: 15 });
-
+    player1.client.emit('update-opponent-position', { x: 325, y: 735 });
+    player1.client.emit('update-player-position', { x: 325, y: 15 });
+    player2.client.emit('update-player-position', { x: 325, y: 735 });
+    player2.client.emit('update-opponent-position', { x: 325, y: 15 });
     const engine = Engine.create({ gravity: { x: 0, y: 0 } });
     const createWall = (
       x: number,
@@ -75,20 +74,20 @@ export class GameStarterService {
         x: ball.position.x,
         y: ball.position.y,
       };
-      player1.client.emit('updateBallPosition', ballPosition);
-      player2.client.emit('updateBallPosition', ballPosition);
+      player1.client.emit('update-ball-position', ballPosition);
+      player2.client.emit('update-ball-position', ballPosition);
     });
 
-    player1.client.on('updatePlayerPosition', (position) => {
-      player1.client.emit('updatePlayerPosition', position);
+    player1.client.on('update-player-position', (position) => {
+      player1.client.emit('update-player-position', position);
       Body.setPosition(playerPaddle, position);
-      player2.client.emit('updateOpponentPosition', position);
+      player2.client.emit('update-opponent-position', position);
     });
-    player2.client.on('updatePlayerPosition', (position) => {
-      player2.client.emit('updatePlayerPosition', position);
+    player2.client.on('update-player-position', (position) => {
+      player2.client.emit('update-player-position', position);
       Body.setPosition(opponentPaddle, position);
 
-      player1.client.emit('updateOpponentPosition', position);
+      player1.client.emit('update-opponent-position', position);
     });
     Body.applyForce(
       ball,
@@ -105,34 +104,34 @@ export class GameStarterService {
             (pair.bodyB === walls[2] && pair.bodyA === ball)
           ) {
             player2Score++;
-            player1.client.emit('updateScore', {
+            player1.client.emit('update-score', {
               myScore: player1Score,
               oppScore: player2Score,
             });
-            player2.client.emit('updateScore', {
+            player2.client.emit('update-score', {
               myScore: player2Score,
               oppScore: player1Score,
             });
             Body.setPosition(ball, { x: 325, y: 375 });
-            player1.client.emit('updateBallPosition', { x: 325, y: 375 });
-            player2.client.emit('updateBallPosition', { x: 325, y: 375 });
+            player1.client.emit('update-ball-position', { x: 325, y: 375 });
+            player2.client.emit('update-ball-position', { x: 325, y: 375 });
           }
           if (
             (pair.bodyA === walls[3] && pair.bodyB === ball) ||
             (pair.bodyB === walls[3] && pair.bodyA === ball)
           ) {
             player1Score++;
-            player1.client.emit('updateScore', {
+            player1.client.emit('update-score', {
               myScore: player1Score,
               oppScore: player2Score,
             });
-            player2.client.emit('updateScore', {
+            player2.client.emit('update-score', {
               myScore: player2Score,
               oppScore: player1Score,
             });
             Body.setPosition(ball, { x: 325, y: 375 });
-            player1.client.emit('updateBallPosition', { x: 325, y: 375 });
-            player2.client.emit('updateBallPosition', { x: 325, y: 375 });
+            player1.client.emit('update-ball-position', { x: 325, y: 375 });
+            player2.client.emit('update-ball-position', { x: 325, y: 375 });
           }
           if (player1Score >= 10 || player2Score >= 10) {
             Runner.stop(runner);
@@ -148,12 +147,12 @@ export class GameStarterService {
               }
             }
             if (player1.client.connected) {
-              player1.client.emit('gameOver', {
+              player1.client.emit('game-over', {
                 user: player1.user,
               });
             }
             if (player2.client.connected) {
-              player2.client.emit('gameOver', {
+              player2.client.emit('game-over', {
                 user: player2.user,
               });
             }

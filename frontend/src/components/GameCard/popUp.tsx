@@ -39,9 +39,9 @@ const PopUp = ({ setIsPopupOpen, selectedOption }:PopUpProps) => {
               className="flex h-[40px] w-[140px] rounded-full  bg-blue-500 text-2xl"
               onClick={() => {
                 if (selectedOption === "Normal game")
-                  gameSocket.emit("leaveQueue", { user: state.user });
+                  gameSocket.emit("leave-queue", { user: state.user });
                 else if (selectedOption === "Ranked game")
-                  gameSocket.emit("leaveRankedQueue", { user: state.user });
+                  gameSocket.emit("leave-ranked-queue", { user: state.user });
                 setIsPopupOpen(false);
               }}
             >

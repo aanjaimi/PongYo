@@ -45,9 +45,9 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   const handleStartClick = () => {
     if (selectedOption === "Normal game") {
       console.log("Normal game clicked");
-      gameSocket.emit("joinQueue");
+      gameSocket.emit("join-queue");
     } else if (selectedOption === "Ranked game") {
-      gameSocket.emit("joinRankedQueue");
+      gameSocket.emit("join-ranked-queue");
     } else {
       setShowValidation(true);
     }
@@ -86,19 +86,20 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
 
     const handleGameStart = (data:{opp:User}) => {
       console.log("gameStart");
+      console.log(data);
       setOppData(data.opp);
       setGameStarted(true);
       setIsPopupOpen(false);
     };
 
-    gameSocket.on("alreadyInQueue", handleAlreadyInQueue);
-    gameSocket.on("queueJoined", handleQueueJoined);
-    gameSocket.on("gameStart", handleGameStart);
+    gameSocket.on("already-in-Queue", handleAlreadyInQueue);
+    gameSocket.on("queue-joined", handleQueueJoined);
+    gameSocket.on("game-start", handleGameStart);
 
     return () => {
-      gameSocket.off("alreadyInQueue", handleAlreadyInQueue);
-      gameSocket.off("gameStart", handleGameStart);
-      gameSocket.off("queueJoined", handleQueueJoined);
+      gameSocket.off("already-in-Queue", handleAlreadyInQueue);
+      gameSocket.off("game-start", handleGameStart);
+      gameSocket.off("queue-joined", handleQueueJoined);
     };
   }, []);
 

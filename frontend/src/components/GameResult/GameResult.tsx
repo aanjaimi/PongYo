@@ -11,6 +11,7 @@ type GameResultProps = {
   oppData: User;
 };
 const GameResult = ({myScore, oppScore, oppData}:GameResultProps) => {
+  
   const { state } = useStateContext();
   console.log(oppData);
   console.log(state.user);

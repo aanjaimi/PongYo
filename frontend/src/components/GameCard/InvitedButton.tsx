@@ -36,15 +36,14 @@ const InvitedButton = () => {
       notifyError(data.msg);
     };
 
-    gameSocket.on("invitedSuccess", invitedSuccessHandler);
-    gameSocket.on("invitedFail", invitedFailHandler);
+    gameSocket.on("invited-success", invitedSuccessHandler);
+    gameSocket.on("invited-fail", invitedFailHandler);
     gameSocket.on("invited", invitedHandler);
 
     return () => {
-      gameSocket.off("invitedSuccess", invitedSuccessHandler);
-      gameSocket.off("invitedFail", invitedFailHandler);
+      gameSocket.off("invited-success", invitedSuccessHandler);
+      gameSocket.off("invited-fail", invitedFailHandler);
       gameSocket.off("invited", invitedHandler);
-      gameSocket.off("gameStarted");
     };
   }, [gameSocket]);
 
