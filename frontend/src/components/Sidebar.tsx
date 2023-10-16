@@ -5,7 +5,11 @@ import { Buttons } from '../types/common'
 import { ALLbuttons } from '../types/common'
 import { useState, useEffect } from 'react';
 
-const Sidebar = (props: any) => {
+interface SideBarProps {
+  button: Buttons;
+}
+
+const Sidebar = (props: SideBarProps) => {
   const [profile, setProfile] = useState(false);
   const [game, setGame] = useState(false);
   const [friends, setFriends] = useState(false);
@@ -13,15 +17,15 @@ const Sidebar = (props: any) => {
   const [param, setParam] = useState(false);
 
     useEffect(() => {
-      if (Object.values(props)[0] == Buttons.PROFILE)
+      if (props.button == Buttons.PROFILE)
         setProfile(true);
-      else if (Object.values(props)[0] == Buttons.GAME)
+      else if (props.button == Buttons.GAME)
         setGame(true);
-      else if (Object.values(props)[0] == Buttons.FRIENDS)
+      else if (props.button == Buttons.FRIENDS)
         setFriends(true);
-      else if (Object.values(props)[0] == Buttons.CHAT)
+      else if (props.button == Buttons.CHAT)
         setChat(true);
-      else if (Object.values(props)[0] == Buttons.PARAM)
+      else if (props.button == Buttons.PARAM)
         setParam(true);
     }, [props]);
 

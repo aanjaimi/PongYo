@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { Button } from "@/components/ui/button";
 import Achievement from './Achievement';
 import History from './History';
-import Rank from './Rank';
+import Rank from './LeaderBoard';
 import { ALLbuttons } from '../types/common'
 import type { Achievements } from '@/types/achievement';
 import { useStateContext } from '@/contexts/state-context';

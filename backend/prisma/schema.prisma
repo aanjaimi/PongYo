@@ -34,11 +34,12 @@ model User {
   displayname String
   login       String     @unique
   email       String     @unique
-  // userStatus  UserStatus @default(OFFLINE) @map("user_status")
+  // avatar      String
+  userStatus  UserStatus @default(OFFLINE) @map("user_status")
   vectories Int
   defeats   Int
   points    Int
-  // rank      Rank @default(UNRANKED) @map("rank")
+  rank      Rank @default(UNRANKED) @map("rank")
   // towFactorAuth Boolean         @default(false)
 
   friends              Friend[]

@@ -1,28 +1,59 @@
-import React from 'react'
-import Image from 'next/image';
-import Link from 'next/link';
+import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { fetcher } from "@/utils/fetcher";
+import type { User } from "@/types/user";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import SearchList from "./SearchList";
 
 const Navbar = () => {
+  const [users, setUsers] = useState<User[] | []>([]);
+
+  const getUsers = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    setUsers([]);
+    const target = "/users/search?value=" + e.target.value;
+    const resp = await fetcher.get<User[] | []>(target);
+    setUsers(resp.data);
+  };
+
   return (
-    <div className="w-screen h-[50px] bg-[#33437D] flex justify-between z-20">
-        <div className="border-r border-black flex justify-start items-center">
-          <Link href="/profile">
-            <Image src={"/profile_logo.png"} alt="image" width={74} height={50}/>
-          </Link>
-        </div>
-        <div className="border border-black rounded-md sm:w-[400px] w-[300px] h-[30px] flex justify-start items-center mt-[12px] mb-[12px]">
-          <div className="ml-[5px]">
-            <Image src={"/search.png"} alt="image" width={25} height={25}/>
-          </div>
-          <input className="sm:w-[400px] w-[300px] h-[25px] bg-[#33437D] rounded-2xl text-white focus:border-none focus:outline-none ml-[10px]" placeholder="search...">
-            
-          </input>
-        </div>
-        <div className="flex justify-start items-center mr-[12px]">
-          <Image src={"/notifications_off.png"} alt="image" width={22} height={22}/>
-        </div>
+    <div className="z-20 flex h-[50px] w-screen justify-between bg-[#33437D]">
+      <div className="flex items-center justify-start border-r border-black">
+        <Link href="/profile">
+          <Image src={"/profile_logo.png"} alt="image" width={74} height={50} />
+        </Link>
       </div>
-  )
-}
+      <div className="flex mb-[12px] mt-[12px] h-[30px] w-[300px] items-center justify-start rounded-md border border-black sm:w-[400px]">
+        {users.length != 0 && <SearchList users={users} />}
+        <div className="ml-[5px]">
+          <Image src={"/search.png"} alt="image" width={25} height={25} />
+        </div>
+        <input
+          className="ml-[10px] h-[25px] w-[300px] rounded-2xl bg-[#33437D] text-white focus:border-none focus:outline-none sm:w-[400px]"
+          placeholder="search..."
+          onChange={getUsers}
+        >
+        </input>
+      </div>
+      <div className="mr-[12px] flex items-center justify-start">
+        <Image
+          src={"/notifications_off.png"}
+          alt="image"
+          width={22}
+          height={22}
+        />
+      </div>
+    </div>
+  );
+};
 
 export default Navbar;
