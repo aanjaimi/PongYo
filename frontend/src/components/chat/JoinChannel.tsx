@@ -45,17 +45,10 @@ export default function JoinChannel({
     try {
       const { data }: { data: Channel } = await axios.get(
         `${uri}/chat/directMessage?displayName=${displayName}`,
-        {
-          withCredentials: true,
-        },
+        { withCredentials: true },
       );
       channel = data;
-    } catch (err) {
-      toast.error('User not found', toastOptions);
-    } finally {
       if (!channel) return;
-
-      chatSocket.emit('join-channel', { channelId: channel.id });
 
       const name: string[] = channel.name.split('-');
       channel.name = (name[0] === user.displayName
@@ -64,6 +57,8 @@ export default function JoinChannel({
 
       updateChannels([channel, ...channels]);
       updateSelectedChannel(channel);
+    } catch (err) {
+      toast.error('User not found', toastOptions);
     }
   };
 
@@ -102,15 +97,14 @@ export default function JoinChannel({
         );
         channel = data;
       }
-    } catch (err) {
-      toast.error('Channel not found', toastOptions);
-    } finally {
       if (!channel) return;
 
       chatSocket.emit('join-channel', { channelId: channel.id });
 
       updateChannels([channel, ...channels]);
       updateSelectedChannel(channel);
+    } catch (err) {
+      toast.error('Channel not found', toastOptions);
     }
   };
 

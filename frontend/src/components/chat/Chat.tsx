@@ -1,10 +1,10 @@
 import type { User } from '@/types/User';
 import type { Channel } from '@/types/Channel';
+import type { Message } from '@/types/Message';
 import React, { useEffect, useState } from 'react';
 import ChannelsList from './ChannelsList';
 import ChannelContent from './ChannelContent';
 import { ScrollArea } from '../ui/scroll-area';
-import { io, Socket } from 'socket.io-client';
 import { useSocket } from '@/contexts/socket-context';
 
 export default function Chat({ user }: { user: User }) {
@@ -15,10 +15,9 @@ export default function Chat({ user }: { user: User }) {
   );
 
   useEffect(() => {
-    chatSocket.on('message', (data) => {
-      console.log(data);
+    chatSocket.on('message', (data: Message) => {
       const channel = channels.find((channel) => channel.id === data.channelId);
-      if (channel) {
+      if (channel && data.userId !== user.id) {
         channel.messages.push(data);
         setChannels([...channels]);
         if (selectedChannel?.id === channel.id) {
@@ -26,6 +25,10 @@ export default function Chat({ user }: { user: User }) {
         }
       }
     });
+
+    return () => {
+      chatSocket.off('message');
+    };
   }, []);
 
   const updateChannels = (channels: Channel[]) => {

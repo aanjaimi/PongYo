@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import type { User } from '@/types/User';
+import type { Channel } from '@/types/Channel';
+import React, { use, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import Chat from '@/components/chat/Chat';
 import { useSocket } from '@/contexts/socket-context';
@@ -8,8 +9,23 @@ import { env } from '@/env.mjs';
 import { ToastContainer } from 'react-toastify';
 
 export default function Home() {
+  const { chatSocket } = useSocket();
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [user, setUser] = useState<User | null>(null);
+
+  const joinAllChannels = () => {
+    user?.channels.forEach((channel) => {
+      if (!channel.isDM)
+        chatSocket.emit('join-channel', { channelId: channel.id });
+    });
+  };
+
+  const leaveAllChannels = () => {
+    user?.channels.forEach((channel) => {
+      if (!channel.isDM)
+        chatSocket.emit('leave-channel', { channelId: channel.id });
+    });
+  };
 
   useQuery({
     queryKey: ['userData'],
@@ -27,6 +43,20 @@ export default function Home() {
       return data;
     },
   });
+
+  useEffect(() => {
+    if (user) {
+      console.log(user);
+      joinAllChannels();
+    }
+
+    return () => {
+      if (user) {
+        leaveAllChannels();
+      }
+    }
+
+  }, [user]);
 
   if (!user) return <></>;
 
