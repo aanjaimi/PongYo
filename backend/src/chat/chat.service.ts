@@ -41,7 +41,6 @@ export class ChatService {
   }
 
   async getDirectMessage(currentUser: User, displayName: string) {
-    console.log('user =>', currentUser);
     // check the current user and other user
     if (currentUser.displayName === displayName)
       throw new HttpException('Cannot DM yourself', HttpStatus.BAD_REQUEST);
@@ -308,6 +307,7 @@ export class ChatService {
       const otherUser = channel.members.find((member) => member.id !== user.id);
       this.chatGateway.io().to(otherUser.displayName).emit('message', message);
     } else {
+      console.log(`sending to channel-${id}`);
       this.chatGateway.io().to(`channel-${id}`).emit('message', message);
     }
 

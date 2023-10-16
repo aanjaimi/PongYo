@@ -57,7 +57,6 @@ export class ChatController {
 
   @Get('/channel')
   getChannelByName(@CurrentUser() user: User, @Query('name') name: string) {
-    console.log('name =>', name);
     return this.chatService.getChannelByName(user, name);
   }
 

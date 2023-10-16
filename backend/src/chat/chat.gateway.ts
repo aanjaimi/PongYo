@@ -39,13 +39,15 @@ export class ChatGateway
 
   @SubscribeMessage('join-channel')
   handleJoinChannel(client: Socket, data: any) {
-    console.log('join-channel =>', data);
+    if (!client.user) return;
+    console.log(`${client.user.displayName} join-channel =>${data.channelId}`);
     client.join(`channel-${data.channelId}`);
   }
 
   @SubscribeMessage('leave-channel')
   handleLeaveChannel(client: Socket, data: any) {
-    console.log('leave-channel =>', data);
+    if (!client.user) return;
+    console.log(`${client.user.displayName} leave-channel =>${data.channelId}`);
     client.leave(`channel-${data.channelId}`);
   }
 }
