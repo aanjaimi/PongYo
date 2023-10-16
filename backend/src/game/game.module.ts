@@ -9,6 +9,12 @@ import { UserService } from './services/getFriend.service';
 
 @Module({
   controllers: [],
-  providers: [GameGateway, GameStarterService, GameMaker, InviteService,UserService],
+  providers: [
+    GameGateway,
+    GameStarterService,
+    GameMaker,
+    InviteService,
+    UserService,
+  ],
 })
 export class GameModule {}

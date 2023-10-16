@@ -40,10 +40,13 @@ export class GameGateway extends WsGateway {
 
   @SubscribeMessage('join-queue')
   hadleJoinQueue(client: Socket) {
-    this.gameMaker.addPlayerToQueue(this.classicQueue, {
-      client,
-      user: client.user,
-    },false
+    this.gameMaker.addPlayerToQueue(
+      this.classicQueue,
+      {
+        client,
+        user: client.user,
+      },
+      false,
     );
   }
   @SubscribeMessage('leave-queue')
@@ -56,10 +59,13 @@ export class GameGateway extends WsGateway {
   @SubscribeMessage('join-ranked-queue')
   hadleJoinRankedQueue(client: Socket) {
     console.log('joining ranked');
-    this.gameMaker.addPlayerToQueue(this.rankedQueue, {
-      client,
-      user: client.user,
-    },true
+    this.gameMaker.addPlayerToQueue(
+      this.rankedQueue,
+      {
+        client,
+        user: client.user,
+      },
+      true,
     );
   }
   @SubscribeMessage('leave-ranked-queue')
@@ -69,52 +75,58 @@ export class GameGateway extends WsGateway {
       (item) => item.client.id !== client.id,
     );
   }
-  @SubscribeMessage('invite')
-  handleInvite(client: Socket, payload: { username: string }) {
-    const { username } = payload; // ?INFO: the username of the user to be invited.
-    console.log(username);
-    console.log(client.user);
-    this.inviteService.handleInvite(client.user.id, username).then((res) => {
-      if (res) {
-        if (this.users.get(res)) {
-          console.log(res);
-          client.emit('invited-success', {
-            msg: `"${username}" invited successfully`,
-          });
-          // emite to the invited user
-          this.users.get(res).emit('invited', {
-            msg: `"${client.user.login}" invited you to a game`,
-            friend: client.user.id,
-          });
-        } else {
-          client.emit('invited-fail', { msg: `"${username}" is not online` });
-        }
-      } else {
-        client.emit('invited-fail', {
-          msg: `"${username}" is not your friend`,
-        });
-      }
-    });
-  }
-  @SubscribeMessage('acceptInvite')
-  handleAcceptInvite(client: Socket, payload: { friend: string }) {
-    const { friend } = payload; // ?INFO: the username of the user to be invited.
-    const friendSocket = this.users.get(friend);
-    if (friendSocket) {
-      // friendSocket.emit('acceptedInvite', {
-      //   msg: `"${client.user.login}" accepted your invite`,
-      //   friend: client.user.id,
-      // });
-      this.gameMaker.addPlayerToQueue(this.classicQueue, {
-        client: friendSocket,
-        user: friendSocket.user,
-      }
-      ,false);
-      this.gameMaker.addPlayerToQueue(this.classicQueue, {
-        client,
-        user: client.user,
-      }
-      ,false);
-    }
-  }
+  // @SubscribeMessage('invite')
+  // handleInvite(client: Socket, payload: { username: string }) {
+  //   const { username } = payload; // ?INFO: the username of the user to be invited.
+  //   console.log(username);
+  //   console.log(client.user);
+  //   this.inviteService.handleInvite(client.user.id, username).then((res) => {
+  //     if (res) {
+  //       if (this.users.get(res)) {
+  //         console.log(res);
+  //         client.emit('invited-success', {
+  //           msg: `"${username}" invited successfully`,
+  //         });
+  //         // emite to the invited user
+  //         this.users.get(res).emit('invited', {
+  //           msg: `"${client.user.login}" invited you to a game`,
+  //           friend: client.user.id,
+  //         });
+  //       } else {
+  //         client.emit('invited-fail', { msg: `"${username}" is not online` });
+  //       }
+  //     } else {
+  //       client.emit('invited-fail', {
+  //         msg: `"${username}" is not your friend`,
+  //       });
+  //     }
+  //   });
+  // }
+  // @SubscribeMessage('acceptInvite')
+  // handleAcceptInvite(client: Socket, payload: { friend: string }) {
+  //   const { friend } = payload; // ?INFO: the username of the user to be invited.
+  //   const friendSocket = this.users.get(friend);
+  //   if (friendSocket) {
+  //     // friendSocket.emit('acceptedInvite', {
+  //     //   msg: `"${client.user.login}" accepted your invite`,
+  //     //   friend: client.user.id,
+  //     // });
+  //     this.gameMaker.addPlayerToQueue(
+  //       this.classicQueue,
+  //       {
+  //         client: friendSocket,
+  //         user: friendSocket.user,
+  //       },
+  //       false,
+  //     );
+  //     this.gameMaker.addPlayerToQueue(
+  //       this.classicQueue,
+  //       {
+  //         client,
+  //         user: client.user,
+  //       },
+  //       false,
+  //     );
+  //   }
+  // }
 }

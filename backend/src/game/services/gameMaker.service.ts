@@ -5,19 +5,26 @@ import { UserService } from './getFriend.service';
 
 @Injectable()
 export class GameMaker {
-  constructor(private gameStarterService: GameStarterService, private userService: UserService) {}
-  addPlayerToQueue(classicQueue: QueueItem[], client: QueueItem, isRanked: boolean) {
+  constructor(
+    private gameStarterService: GameStarterService,
+    private userService: UserService,
+  ) {}
+  addPlayerToQueue(
+    classicQueue: QueueItem[],
+    client: QueueItem,
+    isRanked: boolean,
+  ) {
     console.log('User');
     console.log(client.user);
-    if (classicQueue.some(item => item.user.login === client.user.login)) {
+    if (classicQueue.some((item) => item.user.login === client.user.login)) {
       client.client.emit('already-in-Queue', {
-        msg: 'You are already in queue'
+        msg: 'You are already in queue',
       });
       return;
     }
-    if(client.user.userStatus === 'IN_GAME') {
+    if (client.user.userStatus === 'IN_GAME') {
       client.client.emit('already-in-Queue', {
-        msg: 'You are already in game'
+        msg: 'You are already in game',
       });
       return;
     }
@@ -32,11 +39,11 @@ export class GameMaker {
       // this.userService.updateUserStatus(player2.user.id, 'IN_GAME');
       console.log(player1.user);
       console.log(player2.user);
-      player1.client.emit('game-start',{
-        oppData: player2.user
+      player1.client.emit('game-start', {
+        oppData: player2.user,
       });
-      player2.client.emit('game-start',{
-        oppData: player1.user
+      player2.client.emit('game-start', {
+        oppData: player1.user,
       });
       this.gameStarterService.startGame(player1, player2, isRanked);
     }

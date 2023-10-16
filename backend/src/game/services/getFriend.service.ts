@@ -2,10 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
 import { UserStatus } from '@prisma/client';
 
-
 @Injectable()
 export class InviteService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   async handleInvite(userId: string, friend: string) {
     const user = await this.prisma.user.findUnique({
@@ -32,9 +31,14 @@ export class InviteService {
 }
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  async updateUserRankStats(id: string, vectories: number, defeats: number, pints: number) {
+  async updateUserRankStats(
+    id: string,
+    vectories: number,
+    defeats: number,
+    pints: number,
+  ) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: id,
@@ -50,23 +54,22 @@ export class UserService {
     // Calculate the new values for vectories and defeats by adding the specified values
     const newVectories = user.vectories + vectories;
     const newDefeats = user.defeats + defeats;
-    const newPoints = Math.max(user.points + pints,0);
+    const newPoints = Math.max(user.points + pints, 0);
     const rankScores: Record<string, number> = {
-      "Bronze": 0,
-      "Silver": 50,
-      "Gold": 125,
-      "Platinum": 200,
-      "Legend": 300,
+      Bronze: 0,
+      Silver: 50,
+      Gold: 125,
+      Platinum: 200,
+      Legend: 300,
     };
 
     // Determine the user's current rank based on their score
-    let currentRank = "Bronze";
+    let currentRank = 'Bronze';
     for (const rank in rankScores) {
       if (newPoints >= rankScores[rank]) {
         currentRank = rank;
       }
     }
-
 
     // Update the user's vectories and defeats
     await this.prisma.user.update({
@@ -96,9 +99,8 @@ export class UserService {
         id: id,
       },
       data: {
-        userStatus: status as UserStatus
+        userStatus: status as UserStatus,
       },
     });
   }
 }
-

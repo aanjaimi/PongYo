@@ -1,10 +1,10 @@
 // friends.controller.ts
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+// import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 // import { FriendsService } from './friends.service';
-import { BadRequestException } from '@nestjs/common';
-import { JwtAuthGuard } from '@/auth/guards/jwt.guard';
-import { CurrentUser } from '@/auth/auth.decorator';
-import { User } from '@prisma/client';
+// import { BadRequestException } from '@nestjs/common';
+// import { JwtAuthGuard } from '@/auth/guards/jwt.guard';
+// import { CurrentUser } from '@/auth/auth.decorator';
+// import { User } from '@prisma/client';
 
 // @Controller('game')
 // @UseGuards(JwtAuthGuard)
