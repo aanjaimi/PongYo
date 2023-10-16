@@ -5,42 +5,16 @@ import { Button } from "@/components/ui/button";
 import PopUp from "./popUp";
 import { useSocket } from "@/contexts/socket-context";
 import CustomModal from "./CustomModal";
-import { fetcher } from "@/utils/fetcher";
-import { useQuery } from "@tanstack/react-query";
-import { useStateContext } from "@/contexts/state-context";
 import { toast } from "react-toastify";
 import type { User } from "@/types/user";
 import type { ChangeEvent } from "react";
 import type { GameCardProps } from "../gameTypes/types";
 
-const getCurrentUser = async () => {
-  const resp = await fetcher.get<User>("/users/@me");
-  return resp.data;
-};
-
-const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
+const GameCard = ({ setGameStarted, setOppData }: GameCardProps) => {
   const { gameSocket } = useSocket();
-  const { state, dispatch } = useStateContext();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [showValidation, setShowValidation] = useState(false);
-  const userQuery = useQuery({
-    queryKey: ["users"],
-    queryFn: getCurrentUser,
-    onSuccess: (data) => {
-      dispatch({ type: "SET_USER", payload: data });
-      console.log("user");
-      console.log(state.user);
-      if (!gameSocket.connected) {
-        gameSocket.connect();
-      }
-    },
-    onError: (err) => {
-      console.log("error");
-      console.error(err);
-      dispatch({ type: "SET_USER", payload: null });
-    },
-  });
 
   const handleStartClick = () => {
     if (selectedOption === "Normal game") {
@@ -61,7 +35,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
     setSelectedOption(e.target.value);
   };
 
-  const notifyError = (message:string) => {
+  const notifyError = (message: string) => {
     toast.error(message, {
       position: "top-right",
       autoClose: 5000,
@@ -75,7 +49,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   };
 
   useEffect(() => {
-    const handleAlreadyInQueue = (data:{msg:string}) => {
+    const handleAlreadyInQueue = (data: { msg: string }) => {
       console.log(data);
       notifyError(data.msg);
     };
@@ -84,7 +58,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
       setIsPopupOpen(true);
     };
 
-    const handleGameStart = (data:{opp:User}) => {
+    const handleGameStart = (data: { opp: User }) => {
       console.log("gameStart");
       console.log(data);
       setOppData(data.opp);
@@ -127,8 +101,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
                 checked={selectedOption === "Normal game"}
                 onChange={handleChange}
               />
-              <label htmlFor="normalGame">Normal game
-              </label>
+              <label htmlFor="normalGame">Normal game</label>
             </div>
             <div className="space-x-4">
               <input

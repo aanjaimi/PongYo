@@ -47,7 +47,7 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
         // TODO: pass opts from provider!
         io(uri, opts),
         io(uri + "/chat", opts), // ! TODO:  avoid double slash in path!
-        io(uri + "/game", { ...opts, autoConnect: false }),
+        io(uri + "/game", { ...opts }),
       ];
       return { socket, chatSocket, gameSocket } satisfies SocketContextProps;
     }

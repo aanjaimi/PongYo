@@ -36,7 +36,7 @@ const StateProvider = ({ children }: StateProviderProps) => {
   const [state, dispatch] = useReducer(stateReducer, initialState);
   const value = { state, dispatch };
   useQuery({
-    queryKey: ["users"],
+    queryKey: ["users", "@me"],
     queryFn: async () => {
       return getCurrentUser();
     },

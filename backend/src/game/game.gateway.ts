@@ -33,8 +33,6 @@ export class GameGateway extends WsGateway {
   async handleConnection(client: Socket) {
     if (!(await super.handleConnection(client))) return false;
     this.users.set(client.user.id, client);
-    console.log('connected');
-    console.log(client.id);
     return true;
   }
 
