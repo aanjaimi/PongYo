@@ -6,7 +6,6 @@ import {
   OnGatewayDisconnect,
   WsException,
   WebSocketServer,
-  SubscribeMessage,
 } from '@nestjs/websockets';
 
 import { JsonWebTokenError } from 'jsonwebtoken';
@@ -20,7 +19,7 @@ import { JwtAuthPayload } from '@/auth/interfaces/jwt.interface';
 @WebSocketGateway()
 export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  private readonly _io: Server;
+  protected readonly _io: Server;
   constructor(
     protected prismaService: PrismaService,
     protected jwtService: JwtService,
@@ -28,17 +27,11 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     protected redisService: RedisService,
   ) {}
 
-  @SubscribeMessage('data')
-  message() {
-    console.log('Data Triggered!');
-  }
-
   async handleConnection(client: Socket) {
-    console.log('From Normal HandelConnection');
     try {
+      console.log(`[${new Date()}][nsp - ${client.nsp.name}] new connection`);
       const cookies = parseCookie(client.handshake.headers.cookie || '');
       const accessToken = cookies[AUTH_COOKIE_NAME];
-
       if (!accessToken)
         throw new WsException(`missing ${AUTH_COOKIE_NAME} cookie.`);
       const isAccessTokenMarkedAsExpired =
@@ -61,6 +54,7 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.id,
         JSON.stringify({ timestamp: Date.now() }),
       );
+      return true;
     } catch (err) {
       if (err instanceof JsonWebTokenError) err = new WsException(err.message);
       else if (!(err instanceof WsException))
@@ -68,6 +62,7 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       client.emit('error', { message: err.getError() });
       client.disconnect(true);
+      return false;
     }
   }
 

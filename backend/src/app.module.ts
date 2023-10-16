@@ -4,7 +4,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validationSchema, validationOptions } from '@/config/validation.joi';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
+import { UserModule } from './users/users.module';
 import { RedisModule } from './redis/redis.module';
+import { GameModule } from './game/game.module';
 import { WsModule } from './ws/ws.module';
 
 @Module({
@@ -17,6 +19,7 @@ import { WsModule } from './ws/ws.module';
       validationOptions,
     }),
     AuthModule,
+    UserModule,
     RedisModule.forRootAsync({
       inject: [ConfigService],
       useFactory(configService: ConfigService) {
@@ -27,6 +30,7 @@ import { WsModule } from './ws/ws.module';
         };
       },
     }),
+    GameModule,
     WsModule,
   ],
   controllers: [],

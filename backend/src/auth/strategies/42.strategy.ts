@@ -29,18 +29,15 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
         login: profile.username,
         displayname: profile.displayName,
         email: profile.emails[0].value,
-        userStatus: 'OFFLINE',
-        log: {
-          create: {
-            vectories: 0,
-            defeats: 0,
-            points: 0,
-            rank: 'UNRANKED',
-          },
-        },
+        // userStatus: 'OFFLINE',
+        vectories: 0,
+        defeats: 0,
+        points: 0,
+        rank: 'UNRANKED',
       },
       update: {},
     });
+
     return user;
   }
 }
