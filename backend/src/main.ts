@@ -1,10 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
-
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
+import { SocketIoAdapter } from './ws/socket-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -22,10 +23,13 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api-doc', app, document);
 
-  app.enableCors({
+  const corsOptions = {
     credentials: true,
-    origin: configService.getOrThrow('FRONTEND_ORIGIN'),
-  });
+    origin: [configService.getOrThrow('FRONTEND_ORIGIN')],
+  } as CorsOptions;
+
+  app.enableCors(Object.assign(corsOptions)); // nestjs updating the origin property
+  app.useWebSocketAdapter(new SocketIoAdapter(app, corsOptions));
 
   // TODO: add morgan !
   // TODO: use helmet for security reasons!

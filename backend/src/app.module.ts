@@ -4,7 +4,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validationSchema, validationOptions } from '@/config/validation.joi';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
+import { UserModule } from './users/users.module';
 import { RedisModule } from './redis/redis.module';
+import { GameModule } from './game/game.module';
 import { WsModule } from './ws/ws.module';
 import { MinioModule } from './minio/minio.module';
 
@@ -18,6 +20,7 @@ import { MinioModule } from './minio/minio.module';
       validationOptions,
     }),
     AuthModule,
+    UserModule,
     RedisModule.forRootAsync({
       inject: [ConfigService],
       useFactory(configService: ConfigService) {
@@ -28,6 +31,7 @@ import { MinioModule } from './minio/minio.module';
         };
       },
     }),
+    GameModule,
     WsModule,
     MinioModule.forRootAsync({
       inject: [ConfigService],

@@ -19,24 +19,23 @@ import { JwtAuthPayload } from '@/auth/interfaces/jwt.interface';
 @WebSocketGateway()
 export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
-  private readonly _io: Server;
+  protected readonly _io: Server;
   constructor(
-    private prismaService: PrismaService,
-    private jwtService: JwtService,
-    private configService: ConfigService,
-    private redisService: RedisService,
+    protected prismaService: PrismaService,
+    protected jwtService: JwtService,
+    protected configService: ConfigService,
+    protected redisService: RedisService,
   ) {}
 
   async handleConnection(client: Socket) {
     try {
+      console.log(`[${new Date()}][nsp - ${client.nsp.name}] new connection`);
       const cookies = parseCookie(client.handshake.headers.cookie || '');
       const accessToken = cookies[AUTH_COOKIE_NAME];
-
       if (!accessToken)
         throw new WsException(`missing ${AUTH_COOKIE_NAME} cookie.`);
-      const isAccessTokenMarkedAsExpired = await this.redisService.get(
-        accessToken,
-      );
+      const isAccessTokenMarkedAsExpired =
+        await this.redisService.get(accessToken);
       if (isAccessTokenMarkedAsExpired)
         throw new WsException('acccess token expired.');
       const { login } = await this.jwtService.verifyAsync<JwtAuthPayload>(
@@ -55,6 +54,7 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         client.id,
         JSON.stringify({ timestamp: Date.now() }),
       );
+      return true;
     } catch (err) {
       if (err instanceof JsonWebTokenError) err = new WsException(err.message);
       else if (!(err instanceof WsException))
@@ -62,6 +62,7 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       client.emit('error', { message: err.getError() });
       client.disconnect(true);
+      return false;
     }
   }
 
