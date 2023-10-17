@@ -29,25 +29,29 @@ enum Rank {
   LEGEND
   CHAMPION
 }
+
 model User {
-  id          String     @id @default(cuid())
-  displayname String
-  login       String     @unique
-  email       String     @unique
-  userStatus  UserStatus @default(OFFLINE) @map("user_status")
-  vectories Int
-  defeats   Int
-  points    Int
-  rank      String
+  id                   String         @id @default(cuid())
+  displayname          String
+  login                String         @unique
+  email                String         @unique
+  userStatus           UserStatus     @default(OFFLINE) @map("user_status")
+  vectories            Int
+  defeats              Int
+  points               Int
+  rank                 String
+  rowvectories         Int            @map("row_vectories")
   // rank      Rank @default(UNRANKED) @map("rank")
   // towFactorAuth Boolean         @default(false)
-
   friends              Friend[]
   messages             Message[]
   senderNotification   Notification[] @relation("sender")
   receiverNotification Notification[] @relation("receiver")
+  userGameHistory   Game[]    @relation(name: "user")
+  oppGameHistory    Game[]    @relation(name: "opponent")
+
   achievement          Achievement[]
-  
+
   // moderatorForChannel   Channel? @relation(name: "moderators", fields: [moderatorForChannelId], references: [id])
   // moderatorForChannelId String?  @map("moderator_for_channel") // TODO: find a name 
   // memberForChannel      Channel? @relation(name: "members", fields: [memberForChannelId], references: [id])
@@ -70,12 +74,11 @@ enum State {
 }
 
 model Friend {
-
-  id      String @id @default(cuid())
-  state   State
-  login   String @map("login")
-  userId  String @map("user_id")
-  user     User   @relation(fields: [userId], references: [id])
+  id     String @id @default(cuid())
+  state  State
+  login  String @map("login")
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -126,14 +129,18 @@ enum Mode {
 }
 
 model Game {
-  id   String @id @default(cuid())
-  // mode Mode
-
-  
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  user           User     @relation(name: "user", fields: [userId], references: [id])
+  opponentId     String   @map("opponent_id")
+  opponent       User     @relation(name: "opponent", fields: [opponentId], references: [id])
+  oppnentScore   Int
+  userScore      Int
+  mode           Mode
+  userStatus     Boolean
+  opponentStatus Boolean
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
   @@map("games")
 }
 
@@ -186,7 +193,7 @@ model Channel {
   password String?
   isDM     Boolean  @map("is_dm")
 
-  messages   Message[]
+  messages Message[]
   // moderators User[]    @relation("moderators")
   // members    User[]    @relation("members")
 

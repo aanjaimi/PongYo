@@ -1,8 +1,7 @@
-interface Player {
-	login : string;
-	rank : string;
-	score : number;
-	avatar : string;
-	resoults : string;
+export interface Player {
+	id: string;
+	score: number;
+	points: number;
+	userStatus: boolean;
 }
 export default Player;

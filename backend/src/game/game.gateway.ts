@@ -1,120 +1,93 @@
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
 import { Injectable } from '@nestjs/common';
-import { GameMaker } from './services/gameMaker.service';
-import QueueItem from './interfaces/Queue.interface';
 import { WsGateway } from '@/ws/ws.gateway';
 import { PrismaService } from '@/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { RedisService } from '@/redis/redis.service';
-import { InviteService } from '@/game/services/getFriend.service';
 import { Socket } from 'socket.io';
+import { QueueService } from './services/redis.service';
+import { QueueType } from './services/redis.service';
+import { RedisService } from '@/redis/redis.service';
+import { GameStarterService } from './services/gameStarter.service';
+import { GameQueueService } from './services/GameQueue.service';
 
 @Injectable()
 @WebSocketGateway({
   namespace: 'game',
 })
 export class GameGateway extends WsGateway {
+  
   constructor(
-    private gameMaker: GameMaker,
     protected prismaService: PrismaService,
     protected jwtService: JwtService,
     protected configService: ConfigService,
+    private queueService: QueueService,
+    // private gameQueueService: GameQueueService, // Inject the GameQueueService
     protected redisService: RedisService,
-    private inviteService: InviteService,
+    private gameStarterService: GameStarterService,
   ) {
-    super(prismaService, jwtService, configService, redisService);
+    super(prismaService, jwtService, configService , redisService);
   }
-
-  private classicQueue: QueueItem[] = [];
-  private rankedQueue: QueueItem[] = [];
-  private users: Map<string, Socket> = new Map();
-
-  async handleConnection(client: Socket) {
-    if (!(await super.handleConnection(client))) return false;
-    this.users.set(client.user.id, client);
-    console.log('connected');
-    console.log(client.id);
-    return true;
-  }
-
+  // creat map of id and dockets for each user
+  private readonly gameMap = new Map<string, Socket>();
   @SubscribeMessage('join-queue')
-  hadleJoinQueue(client: Socket) {
-    this.gameMaker.addPlayerToQueue(this.classicQueue, {
-      client,
-      user: client.user,
-    },false
-    );
-  }
-  @SubscribeMessage('leave-queue')
-  handleLeaveQueue(client: Socket) {
-    console.log('leaving');
-    this.classicQueue = this.classicQueue.filter(
-      (item) => item.client.id !== client.id,
-    );
-  }
-  @SubscribeMessage('join-ranked-queue')
-  hadleJoinRankedQueue(client: Socket) {
-    console.log('joining ranked');
-    this.gameMaker.addPlayerToQueue(this.rankedQueue, {
-      client,
-      user: client.user,
-    },true
-    );
-  }
-  @SubscribeMessage('leave-ranked-queue')
-  handleLeaveRankedQueue(client: Socket) {
-    console.log('leaving ranked');
-    this.rankedQueue = this.rankedQueue.filter(
-      (item) => item.client.id !== client.id,
-    );
-  }
-  @SubscribeMessage('invite')
-  handleInvite(client: Socket, payload: { username: string }) {
-    const { username } = payload; // ?INFO: the username of the user to be invited.
-    console.log(username);
-    console.log(client.user);
-    this.inviteService.handleInvite(client.user.id, username).then((res) => {
-      if (res) {
-        if (this.users.get(res)) {
-          console.log(res);
-          client.emit('invited-success', {
-            msg: `"${username}" invited successfully`,
-          });
-          // emite to the invited user
-          this.users.get(res).emit('invited', {
-            msg: `"${client.user.login}" invited you to a game`,
-            friend: client.user.id,
-          });
-        } else {
-          client.emit('invited-fail', { msg: `"${username}" is not online` });
-        }
-      } else {
-        client.emit('invited-fail', {
-          msg: `"${username}" is not your friend`,
-        });
-      }
-    });
-  }
-  @SubscribeMessage('acceptInvite')
-  handleAcceptInvite(client: Socket, payload: { friend: string }) {
-    const { friend } = payload; // ?INFO: the username of the user to be invited.
-    const friendSocket = this.users.get(friend);
-    if (friendSocket) {
-      // friendSocket.emit('acceptedInvite', {
-      //   msg: `"${client.user.login}" accepted your invite`,
-      //   friend: client.user.id,
-      // });
-      this.gameMaker.addPlayerToQueue(this.classicQueue, {
-        client: friendSocket,
-        user: friendSocket.user,
-      }
-      ,false);
-      this.gameMaker.addPlayerToQueue(this.classicQueue, {
-        client,
-        user: client.user,
-      }
-      ,false);
+  async handleJoinQueue(client: Socket) {
+    
+    const user = client.user;
+    console.log('User');
+    if(await this.queueService.isUserInQueue(QueueType.NORMAL, user.id)) {
+      client.emit('already-in-Queue', {
+        msg: 'You are already in queue'
+      });
+      return;
     }
+    if (await this.queueService.getLength(QueueType.NORMAL) !== 0) {
+      const opponent = (await this.queueService.pop(QueueType.NORMAL)).replace(/"/g, '');
+      const clientSocket = this.gameMap.get(opponent);
+      clientSocket.emit('game-start', {
+        opp: client.user,
+      });
+      client.emit('game-start', {
+        opp: clientSocket.user,
+      });
+      this.gameStarterService.startGame(client,clientSocket, true);
+      return;
+    }
+    client.emit('queue-joined');
+    this.gameMap.set(user.id, client);
+    this.queueService.push(QueueType.NORMAL, user.id);
+  }
+
+  @SubscribeMessage('leave-queue')
+  async handleLeaveQueue(client: Socket) {
+    this.queueService.remove(QueueType.NORMAL, client.user.id);
+  }
+
+  @SubscribeMessage('join-ranked-queue')
+  async handleJoinRankedQueue(client: Socket) {
+    const user = client.user;
+    if(await this.queueService.isUserInQueue(QueueType.RANKED, user.id)) {
+      client.emit('already-in-Queue', {
+        msg: 'You are already in queue'
+      });
+      return;
+    }
+    if (await this.queueService.getLength(QueueType.RANKED) !== 0) {
+      const opponent = await this.queueService.pop(QueueType.RANKED);
+      client.emit('game-start', {
+        oppData: opponent,
+      });
+      client.to(opponent).emit('game-start', {
+        oppData: user,
+      });
+      return;
+    }
+    client.emit('queue-joined');
+    this.queueService.push(QueueType.RANKED, user.id);
+  }
+
+  @SubscribeMessage('leave-ranked-queue')
+  async handleLeaveRankedQueue(client: Socket) {
+    this.queueService.remove(QueueType.RANKED, client.user.id);
   }
 }

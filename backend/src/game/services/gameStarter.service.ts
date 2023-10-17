@@ -1,24 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { Engine, World, Bodies, Body, Runner, Events } from 'matter-js';
-import QueueItem from '../interfaces/Queue.interface';
 import { UserService } from '@/game/services/getFriend.service';
+import { Socket } from 'socket.io';
+import { Mode } from '@prisma/client';
 
 @Injectable()
 export class GameStarterService {
-  constructor(private userService: UserService) {}
-  async startGame(player1: QueueItem, player2: QueueItem, isRanked: boolean) {
-    player1.client.on('disconnect', () => {
+  constructor(private userService: UserService) { }
+  async startGame(player1: Socket, player2: Socket, isRanked: boolean) {
+    player1.on('disconnect', () => {
       console.log(' player1 disconnected');
       player2Score = 10;
-      player2.client.emit('update-score', {
+      player2.emit('update-score', {
         myScore: player2Score,
         oppScore: 0,
       });
     });
-    player2.client.on('disconnect', () => {
+    player2.on('disconnect', () => {
       console.log(' player2 disconnected');
       player1Score = 10;
-      player1.client.emit('update-score', {
+      player1.emit('update-score', {
         myScore: player1Score,
         oppScore: 0,
       });
@@ -27,10 +28,10 @@ export class GameStarterService {
     let player1Score = 0;
     let player2Score = 0;
     const isGameOver = false;
-    player1.client.emit('update-opponent-position', { x: 325, y: 735 });
-    player1.client.emit('update-player-position', { x: 325, y: 15 });
-    player2.client.emit('update-player-position', { x: 325, y: 735 });
-    player2.client.emit('update-opponent-position', { x: 325, y: 15 });
+    player1.emit('update-opponent-position', { x: 325, y: 735 });
+    player1.emit('update-player-position', { x: 325, y: 15 });
+    player2.emit('update-player-position', { x: 325, y: 735 });
+    player2.emit('update-opponent-position', { x: 325, y: 15 });
     const engine = Engine.create({ gravity: { x: 0, y: 0 } });
     const createWall = (
       x: number,
@@ -74,20 +75,20 @@ export class GameStarterService {
         x: ball.position.x,
         y: ball.position.y,
       };
-      player1.client.emit('update-ball-position', ballPosition);
-      player2.client.emit('update-ball-position', ballPosition);
+      player1.emit('update-ball-position', ballPosition);
+      player2.emit('update-ball-position', ballPosition);
     });
 
-    player1.client.on('update-player-position', (position) => {
-      player1.client.emit('update-player-position', position);
+    player1.on('update-player-position', (position) => {
+      player1.emit('update-player-position', position);
       Body.setPosition(playerPaddle, position);
-      player2.client.emit('update-opponent-position', position);
+      player2.emit('update-opponent-position', position);
     });
-    player2.client.on('update-player-position', (position) => {
-      player2.client.emit('update-player-position', position);
+    player2.on('update-player-position', (position) => {
+      player2.emit('update-player-position', position);
       Body.setPosition(opponentPaddle, position);
 
-      player1.client.emit('update-opponent-position', position);
+      player1.emit('update-opponent-position', position);
     });
     Body.applyForce(
       ball,
@@ -104,55 +105,110 @@ export class GameStarterService {
             (pair.bodyB === walls[2] && pair.bodyA === ball)
           ) {
             player2Score++;
-            player1.client.emit('update-score', {
+            player1.emit('update-score', {
               myScore: player1Score,
               oppScore: player2Score,
             });
-            player2.client.emit('update-score', {
+            player2.emit('update-score', {
               myScore: player2Score,
               oppScore: player1Score,
             });
             Body.setPosition(ball, { x: 325, y: 375 });
-            player1.client.emit('update-ball-position', { x: 325, y: 375 });
-            player2.client.emit('update-ball-position', { x: 325, y: 375 });
+            player1.emit('update-ball-position', { x: 325, y: 375 });
+            player2.emit('update-ball-position', { x: 325, y: 375 });
           }
           if (
             (pair.bodyA === walls[3] && pair.bodyB === ball) ||
             (pair.bodyB === walls[3] && pair.bodyA === ball)
           ) {
             player1Score++;
-            player1.client.emit('update-score', {
+            player1.emit('update-score', {
               myScore: player1Score,
               oppScore: player2Score,
             });
-            player2.client.emit('update-score', {
+            player2.emit('update-score', {
               myScore: player2Score,
               oppScore: player1Score,
             });
             Body.setPosition(ball, { x: 325, y: 375 });
-            player1.client.emit('update-ball-position', { x: 325, y: 375 });
-            player2.client.emit('update-ball-position', { x: 325, y: 375 });
+            player1.emit('update-ball-position', { x: 325, y: 375 });
+            player2.emit('update-ball-position', { x: 325, y: 375 });
           }
           if (player1Score >= 10 || player2Score >= 10) {
             Runner.stop(runner);
             Engine.clear(engine);
             World.clear(engine.world, false);
-            if (isRanked) {
-              if (player1Score > player2Score) {
-                this.userService.updateUserRankStats(player1.user.id, 1, 0, 10);
-                this.userService.updateUserRankStats(player2.user.id, 0, 1, -5);
-              } else {
-                this.userService.updateUserRankStats(player1.user.id, 0, 1, -5);
-                this.userService.updateUserRankStats(player2.user.id, 1, 0, 10);
-              }
+            if (player1Score > player2Score) {
+              this.userService.updateUserRankStats(
+                {
+                id: player1.user.id,
+                score: player1Score,
+                points: 10,
+                userStatus: true,
+              },
+                {
+                  id: player2.user.id,
+                  score: player2Score,
+                  points: -5,
+                  userStatus: false,
+                },
+                isRanked ? Mode.RANKED : Mode.CLASSIC,
+              );
+              this.userService.updateUserRankStats(
+                {
+                  id : player2.user.id,
+                  score: player2Score,
+                  points: -5,
+                  userStatus: false,
+                },
+                {
+                  id: player1.user.id,
+                  score: player1Score,
+                  points: 10,
+                  userStatus: true,
+                },
+                isRanked ? Mode.RANKED : Mode.CLASSIC,
+              );
+            } else {
+              this.userService.updateUserRankStats(
+                {
+                  id: player1.user.id,
+                  score: player1Score,
+                  points: -5,
+                  userStatus: false,
+                },
+                {
+                  id: player2.user.id,
+                  score: player2Score,
+                  points: 10,
+                  userStatus: true,
+                },
+                isRanked ? Mode.RANKED : Mode.CLASSIC,
+              )
+              this.userService.updateUserRankStats(
+                {
+                  id: player2.user.id,
+                  score: player2Score,
+                  points: 10,
+                  userStatus: true,
+                },
+                {
+                  id: player1.user.id,
+                  score: player1Score,
+                  points: -5,
+                  userStatus: false,
+                },
+                isRanked ? Mode.RANKED : Mode.CLASSIC,
+              );
             }
-            if (player1.client.connected) {
-              player1.client.emit('game-over', {
+
+            if (player1.connected) {
+              player1.emit('game-over', {
                 user: player1.user,
               });
             }
-            if (player2.client.connected) {
-              player2.client.emit('game-over', {
+            if (player2.connected) {
+              player2.emit('game-over', {
                 user: player2.user,
               });
             }
