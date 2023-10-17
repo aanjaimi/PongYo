@@ -42,10 +42,8 @@ export default function ChannelContent({
       e.preventDefault();
       if (message === '') return;
       const { data }: { data: Message } = await axios.post(
-        `${uri}/chat/${channel.id}/messages`,
-        {
-          content: message,
-        },
+        `${uri}/chat/channel/${channel.id}/messages`,
+        { content: message },
         { withCredentials: true },
       );
       channel.messages.push(data);
@@ -53,7 +51,6 @@ export default function ChannelContent({
       setMessage('');
       (e.target as HTMLFormElement).reset();
     } catch (err) {
-      console.log('error sending message');
       console.log(err);
     }
   };

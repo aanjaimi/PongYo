@@ -1,23 +1,25 @@
 import { ChatType, type Channel } from '@/types/Channel';
 import type { User } from '@/types/User';
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { env } from '@/env.mjs';
 import { useSocket } from '@/contexts/socket-context';
 import { type ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+interface JoinChannelProps {
+  user: User;
+  channels: Channel[];
+  updateChannels: (arg: Channel[]) => void;
+  updateSelectedChannel: (arg: Channel | undefined) => void;
+}
 
 export default function JoinChannel({
   user,
   channels,
   updateChannels,
   updateSelectedChannel,
-}: {
-  user: User;
-  channels: Channel[];
-  updateChannels: (arg: Channel[]) => void;
-  updateSelectedChannel: (arg: Channel | undefined) => void;
-}) {
+}: JoinChannelProps) {
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const { chatSocket } = useSocket();
   const [passwordRequired, setPasswordRequired] = useState<boolean>(false);
@@ -74,25 +76,36 @@ export default function JoinChannel({
 
     try {
       if (!passwordRequired) {
-        console.log('not protected');
         const { data }: { data: Channel } = await axios.get(
           `${uri}/chat/channel?name=${joinChannelName}`,
           { withCredentials: true },
         );
         channel = data;
-        console.log(channel);
         if (channel.type === ChatType.PROTECTED) {
-          console.log('protected');
           setPasswordRequired(true);
           channel = undefined;
           return;
+        } else {
+          const { data }: { data: Channel } = await axios.patch(
+            `${uri}/chat/channel/${channel.id}/join`,
+            { password: '' },
+            { withCredentials: true },
+          );
+          channel = data;
         }
       } else {
-        const { data }: { data: Channel } = await axios.post(
-          `${uri}/chat/channel/${joinChannelName}`,
-          {
-            password: joinChannelPassword,
-          },
+        if (!joinChannelPassword)
+          return toast.error("Password can't be empty", toastOptions);
+        {
+          const { data }: { data: Channel } = await axios.get(
+            `${uri}/chat/channel?name=${joinChannelName}`,
+            { withCredentials: true },
+          );
+          channel = data;
+        }
+        const { data }: { data: Channel } = await axios.patch(
+          `${uri}/chat/channel/${channel.id}/join`,
+          { password: joinChannelPassword },
           { withCredentials: true },
         );
         channel = data;
@@ -100,18 +113,16 @@ export default function JoinChannel({
       if (!channel) return;
 
       chatSocket.emit('join-channel', { channelId: channel.id });
-
+      
       updateChannels([channel, ...channels]);
       updateSelectedChannel(channel);
     } catch (err) {
-      toast.error('Channel not found', toastOptions);
+      toast.error(err.response.data.message, toastOptions);
     }
   };
 
-  // todo finish the join channel component
-
   return (
-    <div className="my-[1rem] ml-[15%] flex flex-col items-end self-start text-[18px]">
+    <div className="mt-[1rem] ml-[15%] flex flex-col items-end self-start text-[18px]">
       <div className="my-[2rem] flex grow">
         <div className="text-xl">Direct message:</div>
         <form

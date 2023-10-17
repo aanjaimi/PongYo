@@ -46,7 +46,6 @@ export default function Home() {
 
   useEffect(() => {
     if (user) {
-      console.log(user);
       joinAllChannels();
     }
 

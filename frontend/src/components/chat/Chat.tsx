@@ -15,7 +15,7 @@ export default function Chat({ user }: { user: User }) {
   );
 
   useEffect(() => {
-    chatSocket.on('message', (data: Message) => {
+    chatSocket.on('message', (data: {channel: Channel} & Message) => {
       const channel = channels.find((channel) => channel.id === data.channelId);
       if (channel && data.userId !== user.id) {
         channel.messages.push(data);
@@ -23,20 +23,30 @@ export default function Chat({ user }: { user: User }) {
         if (selectedChannel?.id === channel.id) {
           setSelectedChannel(channel);
         }
+      } else if (!channel && data.userId !== user.id && data.channel.isDM) {
+        const dmName: string[] = data.channel.name.split('-');
+        data.channel.name = (dmName[0] === user.displayName
+          ? dmName[1]
+          : dmName[0]) as unknown as string;
+        setChannels([data.channel, ...channels]);
+        if (selectedChannel?.id === data.channel.id) {
+          setSelectedChannel(data.channel);
+        }
       }
+
     });
 
     return () => {
       chatSocket.off('message');
     };
-  }, []);
+  }, [channels]);
 
-  const updateChannels = (channels: Channel[]) => {
-    setChannels(channels);
+  const updateChannels = (newChannels: Channel[]) => {
+    setChannels(newChannels);
   };
 
-  const updateSelectedChannel = (channel: Channel | undefined) => {
-    setSelectedChannel(channel);
+  const updateSelectedChannel = (newSelectedChannel: Channel | undefined) => {
+    setSelectedChannel(newSelectedChannel);
   };
 
   return (
@@ -64,7 +74,6 @@ export default function Chat({ user }: { user: User }) {
         user={user}
         channels={channels}
         updateChannels={updateChannels}
-        // socket={socket}
       />
     </div>
   );
