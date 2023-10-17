@@ -29,6 +29,7 @@ model User {
   senderNotification   Notification[] @relation("sender")
   receiverNotification Notification[] @relation("receiver")
   achievement          Achievement[]
+  avatar               Json
 
   // moderatorForChannel   Channel? @relation(name: "moderators", fields: [moderatorForChannelId], references: [id])
   // moderatorForChannelId String?  @map("moderator_for_channel") // TODO: find a name 
