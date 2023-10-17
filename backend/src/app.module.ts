@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { RedisModule } from './redis/redis.module';
 import { WsModule } from './ws/ws.module';
+import { MinioModule } from './minio/minio.module';
 
 @Module({
   imports: [
@@ -28,6 +29,18 @@ import { WsModule } from './ws/ws.module';
       },
     }),
     WsModule,
+    MinioModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory(configService: ConfigService) {
+        return {
+          endPoint: configService.get('MINIO_ENDPOINT'),
+          port: 9000,
+          useSSL: false,
+          accessKey: configService.get('MINIO_ACCESS_KEY'),
+          secretKey: configService.get('MINIO_SECRET_KEY'),
+        };
+      },
+    }),
   ],
   controllers: [],
   providers: [],
