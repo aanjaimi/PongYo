@@ -224,7 +224,8 @@ export class ChatService {
     });
 
     // check if channel exists
-    if (!channel) throw new HttpException('Channel not found', 404);
+    if (!channel || channel.type === RoomType.PRIVATE)
+      throw new HttpException('Channel not found', 404);
 
     // check if user is a member
     // const isMember = channel.members.some((member) => member.id === user.id);
@@ -287,6 +288,18 @@ export class ChatService {
         id: true,
         content: true,
         channelId: true,
+        channel: {
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            isDM: true,
+            members: true,
+            messages: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
         userId: true,
         createdAt: true,
         updatedAt: true,
@@ -450,6 +463,8 @@ export class ChatService {
         },
       },
     });
+
+    console.log(updatedChannel);
 
     return updatedChannel;
   }

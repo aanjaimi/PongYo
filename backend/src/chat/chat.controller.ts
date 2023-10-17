@@ -60,12 +60,12 @@ export class ChatController {
     return this.chatService.getChannelByName(user, name);
   }
 
-  @Get(':id')
+  @Get('/channel/:id')
   findOne(@CurrentUser() user: User, @Param('id') id: string) {
     return this.chatService.findOne(user, id);
   }
 
-  @Post(':id/messages')
+  @Post('/channel/:id/messages')
   createMessage(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -74,12 +74,12 @@ export class ChatController {
     return this.chatService.createMessage(user, id, createMessageDto);
   }
 
-  @Get(':id/messages')
+  @Get('/channel/:id/messages')
   findMessages(@CurrentUser() user: User, @Param('id') id: string) {
     return this.chatService.findMessages(user, id);
   }
 
-  @Patch(':id')
+  @Patch('/channel/:id')
   update(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -88,7 +88,7 @@ export class ChatController {
     return this.chatService.update(user, id, createChannelDto);
   }
 
-  @Patch(':id/join')
+  @Patch('/channel/:id/join')
   join(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -97,12 +97,12 @@ export class ChatController {
     return this.chatService.join(user, id, joinChannelDto);
   }
 
-  @Delete(':id/leave')
+  @Delete('/channel/:id/leave')
   leave(@CurrentUser() user: User, @Param('id') id: string) {
     return this.chatService.leave(user, id);
   }
 
-  @Patch(':id/moderator')
+  @Patch('/channel/:id/moderator')
   addModerator(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -111,7 +111,7 @@ export class ChatController {
     return this.chatService.addModerator(user, id, addModeratorDto);
   }
 
-  @Delete(':id/moderator')
+  @Delete('/channel/:id/moderator')
   removeModerator(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -120,7 +120,7 @@ export class ChatController {
     return this.chatService.removeModerator(user, id, addModeratorDto);
   }
 
-  @Patch(':id/ban')
+  @Patch('/channel/:id/ban')
   ban(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -129,7 +129,7 @@ export class ChatController {
     return this.chatService.ban(user, id, banUserDto);
   }
 
-  @Patch(':id/mute')
+  @Patch('/channel/:id/mute')
   mute(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -138,7 +138,7 @@ export class ChatController {
     return this.chatService.mute(user, id, muteUserDto);
   }
 
-  @Delete(':id/ban')
+  @Delete('/channel/:id/ban')
   unban(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -147,7 +147,7 @@ export class ChatController {
     return this.chatService.unban(user, id, banUserDto);
   }
 
-  @Delete(':id/mute')
+  @Delete('/channel/:id/mute')
   unmute(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -156,7 +156,7 @@ export class ChatController {
     return this.chatService.unmute(user, id, muteUserDto);
   }
 
-  @Delete(':id')
+  @Delete('/channel/:id')
   remove(@CurrentUser() user: User, @Param('id') id: string) {
     return this.chatService.remove(user, id);
   }

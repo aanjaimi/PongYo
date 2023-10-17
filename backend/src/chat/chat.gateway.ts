@@ -40,14 +40,14 @@ export class ChatGateway
   @SubscribeMessage('join-channel')
   handleJoinChannel(client: Socket, data: any) {
     if (!client.user) return;
-    console.log(`${client.user.displayName} join-channel =>${data.channelId}`);
+    // console.log(`${client.user.displayName} join-channel =>${data.channelId}`);
     client.join(`channel-${data.channelId}`);
   }
 
   @SubscribeMessage('leave-channel')
   handleLeaveChannel(client: Socket, data: any) {
     if (!client.user) return;
-    console.log(`${client.user.displayName} leave-channel =>${data.channelId}`);
+    // console.log(`${client.user.displayName} leave-channel =>${data.channelId}`);
     client.leave(`channel-${data.channelId}`);
   }
 }
