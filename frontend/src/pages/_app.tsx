@@ -6,6 +6,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { User } from "@/types/user";
 import { fetcher } from "@/utils/fetcher";
 import { useEffect } from "react";
+import { SocketProvider } from "@/contexts/socket-context";
 
 const queryClient = new QueryClient({});
 
@@ -16,15 +17,17 @@ const getCurrentUser = async () => {
 
 const MyApp: AppType = ({ Component, pageProps }) => {
   useEffect(() => {
-    queryClient.prefetchQuery(["users"], getCurrentUser).catch(console.error);
+    queryClient.prefetchQuery(["users", "@me"], getCurrentUser).catch(console.error);
   }, []);
   return (
-    <StateProvider>
-      <QueryClientProvider client={queryClient}>
-        <Component {...pageProps} />
-        <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
-    </StateProvider>
+    <QueryClientProvider client={queryClient}>
+      <StateProvider>
+        <SocketProvider>
+          <Component {...pageProps} />
+          <ReactQueryDevtools></ReactQueryDevtools>
+        </SocketProvider>
+      </StateProvider>
+    </QueryClientProvider>
   );
 };
 

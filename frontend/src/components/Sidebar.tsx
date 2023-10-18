@@ -4,12 +4,15 @@ import Link from 'next/link';
 import { Buttons } from '../types/common'
 import { ALLbuttons } from '../types/common'
 import { useState, useEffect } from 'react';
+import { useStateContext } from '@/contexts/state-context';
 
 interface SideBarProps {
   button: Buttons;
 }
 
 const Sidebar = (props: SideBarProps) => {
+
+  const { state } = useStateContext();
   const [profile, setProfile] = useState(false);
   const [game, setGame] = useState(false);
   const [friends, setFriends] = useState(false);
@@ -34,7 +37,7 @@ const Sidebar = (props: SideBarProps) => {
       <div className="side border-r border-black w-[75px] h-[100%] bg-[#000355] sm:bg-[#33437D] z-10 flex flex-col justify-between overflow-auto">
         <div className="sm:bg-[#33437D] sm:block hidden">
           <div className="flex justify-center mb-[50px] mt-[20px]">
-            <Link href="/profile">
+            <Link href="/profile/@me">
               <Image className="sm:block hidden" src={profile == true ? ALLbuttons.PROFILE_ON : ALLbuttons.PROFILE_OFF} alt="image" width={30} height={30}/>
             </Link>
           </div>

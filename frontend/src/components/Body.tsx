@@ -1,20 +1,22 @@
 import React from 'react'
 import Sidebar from '@/components/Sidebar';
-import Firstdiv from './Firstdiv';
-import Lastdiv from './Lastdiv';
+import Cover from './Cover';
+import UserInfo from './UserInfo';
+import UsreData from './UsreData';
 import { Buttons } from '@/types/common';
 
-const Content = () => {
+const Body = () => {
   const str: string = Buttons.PROFILE;
   return (
     <div className="flex grow">
       <Sidebar data={str} />
       <div className="flex flex-col grow items-center justify-start">
-        <Firstdiv/>
-        <Lastdiv/>
+        <Cover/>
+        <UsreData/>
+        <UserInfo/>
       </div>
     </div>
   )
 }
 
-export default Content;
+export default Body;

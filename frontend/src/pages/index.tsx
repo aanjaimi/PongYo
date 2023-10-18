@@ -1,5 +1,4 @@
 import Head from "next/head";
-import Test from "@/components/Home";
 import Landingpage from "@/components/Landingpage";
 
 export default function Home() {

@@ -8,7 +8,7 @@ import { ALLbuttons } from '../types/common'
 import type { Achievements } from '@/types/achievement';
 import { useStateContext } from '@/contexts/state-context';
 
-const Lastdiv = () => {
+const UserInfo = () => {
 
   const { state } = useStateContext();
 
@@ -60,4 +60,4 @@ const Lastdiv = () => {
   )
 }
 
-export default Lastdiv;
+export default UserInfo;

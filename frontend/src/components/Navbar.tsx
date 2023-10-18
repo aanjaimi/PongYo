@@ -3,18 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { fetcher } from "@/utils/fetcher";
 import type { User } from "@/types/user";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import SearchList from "./SearchList";
+import { useStateContext } from "@/contexts/state-context";
 
 const Navbar = () => {
+
+  const { state } = useStateContext();
   const [users, setUsers] = useState<User[] | []>([]);
 
   const getUsers = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,7 +22,7 @@ const Navbar = () => {
   return (
     <div className="z-20 flex h-[50px] w-screen justify-between bg-[#33437D]">
       <div className="flex items-center justify-start border-r border-black">
-        <Link href="/profile">
+        <Link href="/profile/@me">
           <Image src={"/profile_logo.png"} alt="image" width={74} height={50} />
         </Link>
       </div>
