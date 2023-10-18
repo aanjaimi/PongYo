@@ -19,28 +19,29 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
   }
 
   async validate(
-    accessToken: string,
-    refreshToken: string,
+    _accessToken: string,
+    _refreshToken: string,
     profile: FortyTwoProfile,
   ) {
     const user = await this.prismaService.user.upsert({
       where: { login: profile.username },
       create: {
+        avatar: {
+          minio: false,
+          path: profile.profileUrl, // ? INFO :maybe we can't rename it to link !
+        },
         login: profile.username,
         displayname: profile.displayName,
         email: profile.emails[0].value,
-        userStatus: 'OFFLINE',
-        log: {
-          create: {
-            vectories: 0,
-            defeats: 0,
-            points: 0,
-            rank: 'UNRANKED',
-          },
-        },
+        // userStatus: 'OFFLINE',
+        vectories: 0,
+        defeats: 0,
+        points: 0,
+        rank: 'UNRANKED',
       },
       update: {},
     });
+
     return user;
   }
 }
