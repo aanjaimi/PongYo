@@ -1,11 +1,13 @@
 import { User } from '@prisma/client';
 import prisma from '../utils/db';
 
-type _User = Pick<User, 'displayname' | 'login' | 'email'>;
+type _User = Pick<User, 'displayname' | 'login' | 'email'> & {
+  profileUrl: string;
+};
 
 export const getAvailableUsers = (users: _User[]) =>
   prisma.$transaction(
-    users.map(({ displayname, email, login }) =>
+    users.map(({ displayname, email, login, profileUrl }) =>
       prisma.user.upsert({
         where: {
           login,
@@ -14,7 +16,11 @@ export const getAvailableUsers = (users: _User[]) =>
           displayname,
           email,
           login,
-          log: {
+          avatar: {
+            minio: false,
+            path: profileUrl,
+          },
+          stat: {
             create: {
               defeats: 0,
               points: 0,
