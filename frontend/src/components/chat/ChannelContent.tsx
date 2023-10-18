@@ -47,6 +47,12 @@ export default function ChannelContent({
         { withCredentials: true },
       );
       channel.messages.push(data);
+      channel.updatedAt = data.createdAt;
+      channels.sort((a, b) => {
+        const aDate = new Date(a.updatedAt);
+        const bDate = new Date(b.updatedAt);
+        return bDate.getTime() - aDate.getTime();
+      });
       updateChannels([...channels]);
       setMessage('');
       (e.target as HTMLFormElement).reset();

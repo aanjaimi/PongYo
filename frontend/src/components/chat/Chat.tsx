@@ -1,7 +1,7 @@
 import type { User } from '@/types/User';
 import type { Channel } from '@/types/Channel';
 import type { Message } from '@/types/Message';
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import ChannelsList from './ChannelsList';
 import ChannelContent from './ChannelContent';
 import { ScrollArea } from '../ui/scroll-area';
@@ -14,11 +14,19 @@ export default function Chat({ user }: { user: User }) {
     undefined,
   );
 
+
   useEffect(() => {
     chatSocket.on('message', (data: {channel: Channel} & Message) => {
       const channel = channels.find((channel) => channel.id === data.channelId);
       if (channel && data.userId !== user.id) {
         channel.messages.push(data);
+        channel.updatedAt = data.createdAt;
+        // sort channels by updated at
+        channels.sort((a, b) => {
+          const aDate = new Date(a.updatedAt);
+          const bDate = new Date(b.updatedAt);
+          return bDate.getTime() - aDate.getTime();
+        });
         setChannels([...channels]);
         if (selectedChannel?.id === channel.id) {
           setSelectedChannel(channel);
@@ -39,7 +47,7 @@ export default function Chat({ user }: { user: User }) {
     return () => {
       chatSocket.off('message');
     };
-  }, [channels]);
+  }, []);
 
   const updateChannels = (newChannels: Channel[]) => {
     setChannels(newChannels);
