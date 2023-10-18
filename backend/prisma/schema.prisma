@@ -35,12 +35,8 @@ model User {
   displayname String
   login       String     @unique
   email       String     @unique
-  userStatus  UserStatus @default(OFFLINE) @map("user_status")
-  vectories   Int
-  defeats     Int
-  points      Int
-  rank        String
-  // rank      Rank @default(UNRANKED) @map("rank")
+  status      UserStatus @default(OFFLINE) @map("status")
+
   // towFactorAuth Boolean         @default(false)
 
   // friends of the User
@@ -58,8 +54,8 @@ model User {
   // memberForChannel      Channel? @relation(name: "members", fields: [memberForChannelId], references: [id])
   // memberForChannelId    String?  @map("member_for_channel_id")
   // games Game[]
-  // log                   Log      @relation(fields: [logId], references: [id])
-  // logId                 String   @unique
+  stat   Stat   @relation(fields: [statId], references: [id])
+  statId String @unique
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -141,19 +137,18 @@ model Game {
   @@map("games")
 }
 
-model Log {
+model Stat {
   id        String @id @unique @default(cuid())
   vectories Int
   defeats   Int
   points    Int
   rank      Rank
-
-  // user User?
+  user      User?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("logs")
+  @@map("stats")
 }
 
 enum MessageType {
