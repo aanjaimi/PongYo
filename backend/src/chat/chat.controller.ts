@@ -40,13 +40,11 @@ export class ChatController {
   }
 
   // ? from here --------------------------------------------
-  @Post()
+  @Post('channel')
   create(
     @CurrentUser() user: User,
     @Body() createChannelDto: CreateChannelDto,
   ) {
-    console.log('createChannelDto =>', createChannelDto);
-    return;
     return this.chatService.create(user, createChannelDto);
   }
 
@@ -63,6 +61,11 @@ export class ChatController {
   @Get('/channel/:id')
   findOne(@CurrentUser() user: User, @Param('id') id: string) {
     return this.chatService.findOne(user, id);
+  }
+
+  @Get('channel/:id/messages')
+  getAllMessages(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.chatService.getAllMessages(user, id);
   }
 
   @Post('/channel/:id/messages')

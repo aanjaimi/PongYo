@@ -120,6 +120,19 @@ export class ChatService {
     }
 
     const channel = await this.prisma.channel.create({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        isDM: true,
+        password: true,
+        owner: true,
+        moderators: true,
+        members: true,
+        messages: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       data: {
         name,
         type,
@@ -246,6 +259,29 @@ export class ChatService {
     }
 
     return channel;
+  }
+
+  async getAllMessages(user: User, id: string) {
+    // check if channel exists
+    const channel = await this.prisma.channel.findUnique({
+      where: { id },
+      select: {
+        members: true,
+        messages: true,
+      },
+    });
+
+    if (!channel) {
+      throw new HttpException('Channel not found', 404);
+    }
+
+    // check if user is a member
+    const isMember = channel.members.some((member) => member.id === user.id);
+    if (!isMember) {
+      throw new HttpException('You are not a member', 403);
+    }
+
+    return channel.messages;
   }
 
   async createMessage(
@@ -463,8 +499,6 @@ export class ChatService {
         },
       },
     });
-
-    console.log(updatedChannel);
 
     return updatedChannel;
   }

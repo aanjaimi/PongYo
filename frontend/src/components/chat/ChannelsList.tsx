@@ -1,5 +1,6 @@
 import type { Channel } from '@/types/Channel';
 import React from 'react';
+import Image from 'next/image';
 
 interface ChannelsListProps {
   channels: Channel[];
@@ -29,7 +30,8 @@ export default function ChannelsList({
             }}
             key={channel.id}
           >
-            {channel.name}
+            {/* <div><Image /></div> */}
+            <div>{channel.name}</div>
           </div>
         ))}
       </ul>

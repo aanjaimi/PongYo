@@ -1,14 +1,14 @@
 import type { Channel } from '@/types/Channel';
 import type { User } from '@/types/User';
 import type { Message } from '@/types/Message';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ChannelInfo from './ChannelInfo';
 import CreateOrJoin from './CreateOrJoin';
 import Image from 'next/image';
 import ScrollableFeed from 'react-scrollable-feed';
-import { useSocket } from '@/contexts/socket-context';
 import axios from 'axios';
 import { env } from '@/env.mjs';
+import { useQuery } from '@tanstack/react-query';
 
 export default function ChannelContent({
   channel,
@@ -24,7 +24,6 @@ export default function ChannelContent({
   updateChannels: (arg: Channel[]) => void;
 }) {
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
-  const { chatSocket } = useSocket();
   const [message, setMessage] = useState<string>('');
 
   if (channel === undefined)
@@ -72,7 +71,7 @@ export default function ChannelContent({
       {/* channel messages container*/}
       <div className="pb-10px flex h-[86%] flex-col justify-end">
         <ScrollableFeed className="grow">
-          {channel?.messages.map((message) => (
+          {channel?.messages?.map((message) => (
             <div
               className={`chat ml-[0.75rem] justify-self-end rounded-md ${
                 message.userId === user.id ? 'chat-end' : 'chat-start'

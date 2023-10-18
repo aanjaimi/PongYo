@@ -14,14 +14,12 @@ export default function Chat({ user }: { user: User }) {
     undefined,
   );
 
-
   useEffect(() => {
-    chatSocket.on('message', (data: {channel: Channel} & Message) => {
+    chatSocket.on('message', (data: { channel: Channel } & Message) => {
       const channel = channels.find((channel) => channel.id === data.channelId);
       if (channel && data.userId !== user.id) {
         channel.messages.push(data);
         channel.updatedAt = data.createdAt;
-        // sort channels by updated at
         channels.sort((a, b) => {
           const aDate = new Date(a.updatedAt);
           const bDate = new Date(b.updatedAt);
@@ -41,13 +39,12 @@ export default function Chat({ user }: { user: User }) {
           setSelectedChannel(data.channel);
         }
       }
-
     });
 
     return () => {
       chatSocket.off('message');
     };
-  }, []);
+  }, [channels, selectedChannel, user]);
 
   const updateChannels = (newChannels: Channel[]) => {
     setChannels(newChannels);
