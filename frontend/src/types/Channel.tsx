@@ -18,4 +18,5 @@ export type Channel = {
   updatedAt: Date;
   messages: Message[];
   members: User[];
+  msgNotification: boolean;
 };

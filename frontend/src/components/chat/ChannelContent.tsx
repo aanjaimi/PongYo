@@ -1,14 +1,13 @@
 import type { Channel } from '@/types/Channel';
 import type { User } from '@/types/User';
 import type { Message } from '@/types/Message';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import ChannelInfo from './ChannelInfo';
 import CreateOrJoin from './CreateOrJoin';
 import Image from 'next/image';
 import ScrollableFeed from 'react-scrollable-feed';
 import axios from 'axios';
 import { env } from '@/env.mjs';
-import { useQuery } from '@tanstack/react-query';
 
 export default function ChannelContent({
   channel,
@@ -39,7 +38,7 @@ export default function ChannelContent({
   const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
     try {
       e.preventDefault();
-      if (message === '') return;
+      if (message.trim() === '') return;
       const { data }: { data: Message } = await axios.post(
         `${uri}/chat/channel/${channel.id}/messages`,
         { content: message },

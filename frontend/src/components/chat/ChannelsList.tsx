@@ -18,7 +18,7 @@ export default function ChannelsList({
       <ul>
         {channels.map((channel: Channel) => (
           <div
-            className={`m-[5px] flex h-[2.5rem] items-center justify-center rounded-md text-xl hover:cursor-pointer hover:bg-[#382FA3] ${
+            className={`m-[5px] px-[1rem] flex h-[2.5rem] items-center justify-between rounded-md text-xl hover:cursor-pointer hover:bg-[#382FA3] ${
               selectedChannel === undefined
                 ? 'bg-[#6466F1]'
                 : selectedChannel.id === channel.id
@@ -30,8 +30,17 @@ export default function ChannelsList({
             }}
             key={channel.id}
           >
-            {/* <div><Image /></div> */}
+            <div>
+              <Image 
+                src={channel.isDM ? '/direct_chat_icon.png' : '/group_chat_icon.png'}
+                alt='pic'
+                height={25}
+                width={25}
+                className="bg-white rounded-full"
+              />
+            </div>
             <div>{channel.name}</div>
+            <div className={`w-[0.5rem] h-[0.5rem] rounded-full ${channel.msgNotification && 'bg-[#10F990]'}`}></div>
           </div>
         ))}
       </ul>

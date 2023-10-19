@@ -17,6 +17,7 @@ export default function Home() {
     user?.channels.forEach((channel) => {
       if (!channel.isDM)
         chatSocket.emit('join-channel', { channelId: channel.id });
+      channel.msgNotification = false;
     });
   };
 

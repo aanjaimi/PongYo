@@ -25,10 +25,12 @@ export default function Chat({ user }: { user: User }) {
           const bDate = new Date(b.updatedAt);
           return bDate.getTime() - aDate.getTime();
         });
-        setChannels([...channels]);
         if (selectedChannel?.id === channel.id) {
           setSelectedChannel(channel);
+        } else {
+          channel.msgNotification = true;
         }
+        setChannels([...channels]);
       } else if (!channel && data.userId !== user.id && data.channel.isDM) {
         const dmName: string[] = data.channel.name.split('-');
         data.channel.name = (dmName[0] === user.displayName
@@ -51,6 +53,9 @@ export default function Chat({ user }: { user: User }) {
   };
 
   const updateSelectedChannel = (newSelectedChannel: Channel | undefined) => {
+    if (newSelectedChannel) {
+      newSelectedChannel.msgNotification = false;
+    }
     setSelectedChannel(newSelectedChannel);
   };
 

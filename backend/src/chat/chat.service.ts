@@ -356,7 +356,6 @@ export class ChatService {
       const otherUser = channel.members.find((member) => member.id !== user.id);
       this.chatGateway.io().to(otherUser.displayName).emit('message', message);
     } else {
-      console.log(`sending to channel-${id}`);
       this.chatGateway.io().to(`channel-${id}`).emit('message', message);
     }
 
