@@ -6,6 +6,8 @@ import ImageCard from "./imageCard";
 import type { GameProps } from "../gameTypes/types";
 
 const Game = ({oppData}:GameProps) => {
+  console.log("oppData from game");
+  console.log(oppData);
   const [isGameOver, setIsGameOver] = React.useState(false);
   const [myScore, setMyScore] = useState(0);
   const [oppScore, setOppScore] = useState(0);

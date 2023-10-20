@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import InvitedButton from "./InvitedButton";
 import Divider from "./Divider";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,8 @@ import { toast } from "react-toastify";
 import type { User } from "@/types/user";
 import type { ChangeEvent } from "react";
 import type { GameCardProps } from "../gameTypes/types";
-
+import InvitationCard from "./inviteCard";
+import { useRouter } from "next/router";
 const getCurrentUser = async () => {
   const resp = await fetcher.get<User>("/users/@me");
   return resp.data;
@@ -20,28 +21,32 @@ const getCurrentUser = async () => {
 
 const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   const { gameSocket } = useSocket();
-  const { state, dispatch } = useStateContext();
+  const { state} = useStateContext();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [showValidation, setShowValidation] = useState(false);
-  const userQuery = useQuery({
-    queryKey: ["users"],
-    queryFn: getCurrentUser,
-    onSuccess: (data) => {
-      dispatch({ type: "SET_USER", payload: data });
-      console.log("user");
-      console.log(state.user);
-      if (!gameSocket.connected) {
-        gameSocket.connect();
-      }
-    },
-    onError: (err) => {
-      console.log("error");
-      console.error(err);
-      dispatch({ type: "SET_USER", payload: null });
-    },
-  });
+  const [inviteNotify, setInviteNotify] = useState(false);
+  const [friend , setFriend] = useState({} as User);
+  const router = useRouter();
 
+  // const userQuery = useQuery({
+  //   queryKey: ["users"],
+  //   queryFn: getCurrentUser,
+  //   onSuccess: (data) => {
+  //     dispatch({ type: "SET_USER", payload: data });
+  //     console.log("user");
+  //     console.log(state.user);
+  //     if (!gameSocket.connected) {
+  //       gameSocket.connect();
+  //     }
+  //   },
+  //   onError: (err) => {
+  //     console.log("error");
+  //     console.error(err);
+  //     dispatch({ type: "SET_USER", payload: null });
+  //   },
+  // });
+ 
   const handleStartClick = () => {
     if (selectedOption === "Normal game") {
       console.log("Normal game clicked");
@@ -75,6 +80,8 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   };
 
   useEffect(() => {
+    if(!state.user)
+    router.push("/").catch((err) => console.error(err));
     const handleAlreadyInQueue = (data:{msg:string}) => {
       console.log(data);
       notifyError(data.msg);
@@ -86,7 +93,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
 
     const handleGameStart = (data:{opp:User}) => {
       console.log("gameStart");
-      console.log(data);
+      console.log(data.opp);
       setOppData(data.opp);
       setGameStarted(true);
       setIsPopupOpen(false);
@@ -105,6 +112,12 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center">
+      {inviteNotify && (
+        <InvitationCard
+          setInviteNotify={setInviteNotify}
+          opp={friend}
+        />
+      )}
       {isPopupOpen && (
         <PopUp
           setIsPopupOpen={setIsPopupOpen}
@@ -112,7 +125,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
         />
       )}
 
-      {!isPopupOpen && (
+      {!isPopupOpen && !inviteNotify  && (
         <div className="flex h-[450px] w-[500px] flex-col rounded-xl bg-[#33437D]">
           <div className="pt-7">
             <h1 className="pl-5 text-3xl text-white "> Start A Game :</h1>
@@ -156,7 +169,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
             <h1 className="pl-5 text-3xl text-white "> INVITE YOUR FRIEND :</h1>
           </div>
           <div className="mt-6 flex items-center pt-2 text-xl text-white">
-            <InvitedButton />
+            <InvitedButton setInviteNotify={setInviteNotify} setFriend={setFriend}/>
           </div>
         </div>
       )}

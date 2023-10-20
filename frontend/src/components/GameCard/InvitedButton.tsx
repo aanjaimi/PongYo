@@ -3,8 +3,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSocket } from "@/contexts/socket-context";
 import type { ChangeEvent } from "react";
-
-const InvitedButton = () => {
+import type { User } from "@/types/user";
+type InvitedButtonProps = {
+  setInviteNotify: (value: boolean) => void;
+  setFriend: (value: User) => void
+};
+const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
   // State
   const { gameSocket } = useSocket();
   const [username, setUsername] = useState("");
@@ -12,7 +16,7 @@ const InvitedButton = () => {
   // Handle Invite Click
   const handleInviteClick = () => {
     console.log("event 1");
-    gameSocket.emit("invite", { username });
+    gameSocket.emit("invite", { opponent : username });
   };
 
   // Handle Input Change
@@ -21,12 +25,15 @@ const InvitedButton = () => {
   };
 
   useEffect(() => {
-    const invitedSuccessHandler = (data:{msg:string}) => {
-      console.log(data);
-      notifySuccess(data.msg);
+    const invitedSuccessHandler = (data:{opp:User}) => {
+      console.log("invited success");
+      setFriend(data.opp);
+      console.log(data.opp);
+      setInviteNotify(true);
     };
 
     const invitedHandler = (data:{msg:string, friend:string}) => {
+      console.log("invited");
       console.log(data);
       inviteNotify(data);
     };
@@ -59,7 +66,7 @@ const InvitedButton = () => {
       theme: "dark",
       onClick: () => {
         console.log("Toast clicked!");
-        gameSocket.emit("acceptInvite", { friend : data.friend});
+        gameSocket.emit("acceptInvite", { opponent : data.friend});
         // setGameStarted(true);
       },
     });

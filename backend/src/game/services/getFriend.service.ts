@@ -21,6 +21,8 @@ export class InviteService {
     if (!user) {
       throw new Error('User not found');
     }
+    console.log("freind");
+    console.log(friend);
     console.log(user.friends);
     const isFriend = user.friends.find((f) => f.login === friend);
     if (!isFriend) {

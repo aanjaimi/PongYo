@@ -11,6 +11,7 @@ export class GameStarterService {
     player1.on('disconnect', () => {
       console.log(' player1 disconnected');
       player2Score = 10;
+      player1Score = 0;
       player2.emit('update-score', {
         myScore: player2Score,
         oppScore: 0,
@@ -19,6 +20,7 @@ export class GameStarterService {
     player2.on('disconnect', () => {
       console.log(' player2 disconnected');
       player1Score = 10;
+      player2Score = 0;
       player1.emit('update-score', {
         myScore: player1Score,
         oppScore: 0,
@@ -53,7 +55,20 @@ export class GameStarterService {
       frictionAir: 0,
       inertia: Infinity,
     });
-
+   
+    const cyanball = Bodies.circle(500, 250, 15, {
+      isStatic: true,
+    });
+    const magentaball = Bodies.circle(500, 550, 15, {
+      isStatic: true,
+    });
+    const yellowball = Bodies.circle(150, 550, 15, {
+      isStatic: true,
+    });
+    const tanball = Bodies.circle(150, 250, 15, {
+      isStatic: true,
+    });
+    // const 
     const playerPaddle = Bodies.rectangle(325, 15, 150, 20, {
       isStatic: true,
     });
@@ -67,7 +82,10 @@ export class GameStarterService {
       createWall(325, 0, 650, 1, true),
       createWall(325, 750, 650, 1, true),
     ];
-    World.add(engine.world, [ball, playerPaddle, opponentPaddle, ...walls]);
+    World.add(engine.world, [ball, playerPaddle, opponentPaddle, ...walls, cyanball, magentaball,
+       yellowball
+      , tanball
+    ]);
     const runner = Runner.create();
     Runner.run(runner, engine);
     Events.on(engine, 'beforeUpdate', () => {
@@ -100,6 +118,43 @@ export class GameStarterService {
         const pairs = event.pairs;
         for (let i = 0; i < pairs.length; i++) {
           const pair = pairs[i];
+          if(pair.bodyA === cyanball || pair.bodyB === cyanball)
+          {
+            player1.emit('change-color', {
+              color: "cyan",
+            });
+            player2.emit('change-color', {
+              color: "cyan",
+            });
+          }
+          if(pair.bodyA === magentaball || pair.bodyB === magentaball)
+          {
+            player1.emit('change-color', {
+              color: "magenta",
+            });
+            player2.emit('change-color', {
+              color: "magenta",
+            });
+          }
+          if(pair.bodyA === yellowball || pair.bodyB === yellowball)
+          {
+            player1.emit('change-color', {
+              color: "yellow",
+            });
+            player2.emit('change-color', {
+              color: "yellow",
+            });
+          }
+          if(pair.bodyA === tanball || pair.bodyB === tanball)
+          {
+            player1.emit('change-color', {
+              color: "tan",
+            });
+            player2.emit('change-color', {
+              color: "tan",
+            });
+          }
+
           if (
             (pair.bodyA === walls[2] && pair.bodyB === ball) ||
             (pair.bodyB === walls[2] && pair.bodyA === ball)
@@ -134,18 +189,18 @@ export class GameStarterService {
             player1.emit('update-ball-position', { x: 325, y: 375 });
             player2.emit('update-ball-position', { x: 325, y: 375 });
           }
-          if (player1Score >= 10 || player2Score >= 10) {
+          if (player1Score >= 5 || player2Score >= 5) {
             Runner.stop(runner);
             Engine.clear(engine);
             World.clear(engine.world, false);
             if (player1Score > player2Score) {
               this.userService.updateUserRankStats(
                 {
-                id: player1.user.id,
-                score: player1Score,
-                points: 10,
-                userStatus: true,
-              },
+                  id: player1.user.id,
+                  score: player1Score,
+                  points: 10,
+                  userStatus: true,
+                },
                 {
                   id: player2.user.id,
                   score: player2Score,
@@ -156,7 +211,7 @@ export class GameStarterService {
               );
               this.userService.updateUserRankStats(
                 {
-                  id : player2.user.id,
+                  id: player2.user.id,
                   score: player2Score,
                   points: -5,
                   userStatus: false,
