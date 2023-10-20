@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
+import { Controller, Get, UseGuards, Req, Res, Param } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
 import { FortyTwoGuard } from './guards/42.guard';
@@ -29,5 +29,11 @@ export class AuthController {
   @Get('me')
   me(@Req() req: Request) {
     return req.user;
+  }
+
+  // TODO: remove later
+  @Get('/token/:login')
+  getToken(@Param('login') login: string) {
+    return this.authService.getToken(login);
   }
 }
