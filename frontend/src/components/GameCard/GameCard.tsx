@@ -5,15 +5,11 @@ import { Button } from "@/components/ui/button";
 import PopUp from "./popUp";
 import { useSocket } from "@/contexts/socket-context";
 import CustomModal from "./CustomModal";
-import { fetcher } from "@/utils/fetcher";
-import { useQuery } from "@tanstack/react-query";
-import { useStateContext } from "@/contexts/state-context";
 import { toast } from "react-toastify";
 import type { User } from "@/types/user";
 import type { ChangeEvent } from "react";
 import type { GameCardProps } from "../gameTypes/types";
-import InvitationCard from "./inviteCard";
-import { useRouter } from "next/router";
+
 const getCurrentUser = async () => {
   const resp = await fetcher.get<User>("/users/@me");
   return resp.data;
@@ -21,32 +17,28 @@ const getCurrentUser = async () => {
 
 const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   const { gameSocket } = useSocket();
-  const { state} = useStateContext();
+  const { state, dispatch } = useStateContext();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [showValidation, setShowValidation] = useState(false);
-  const [inviteNotify, setInviteNotify] = useState(false);
-  const [friend , setFriend] = useState({} as User);
-  const router = useRouter();
+  const userQuery = useQuery({
+    queryKey: ["users"],
+    queryFn: getCurrentUser,
+    onSuccess: (data) => {
+      dispatch({ type: "SET_USER", payload: data });
+      console.log("user");
+      console.log(state.user);
+      if (!gameSocket.connected) {
+        gameSocket.connect();
+      }
+    },
+    onError: (err) => {
+      console.log("error");
+      console.error(err);
+      dispatch({ type: "SET_USER", payload: null });
+    },
+  });
 
-  // const userQuery = useQuery({
-  //   queryKey: ["users"],
-  //   queryFn: getCurrentUser,
-  //   onSuccess: (data) => {
-  //     dispatch({ type: "SET_USER", payload: data });
-  //     console.log("user");
-  //     console.log(state.user);
-  //     if (!gameSocket.connected) {
-  //       gameSocket.connect();
-  //     }
-  //   },
-  //   onError: (err) => {
-  //     console.log("error");
-  //     console.error(err);
-  //     dispatch({ type: "SET_USER", payload: null });
-  //   },
-  // });
- 
   const handleStartClick = () => {
     if (selectedOption === "Normal game") {
       console.log("Normal game clicked");
@@ -66,7 +58,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
     setSelectedOption(e.target.value);
   };
 
-  const notifyError = (message:string) => {
+  const notifyError = (message: string) => {
     toast.error(message, {
       position: "top-right",
       autoClose: 5000,
@@ -80,8 +72,6 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   };
 
   useEffect(() => {
-    if(!state.user)
-    router.push("/").catch((err) => console.error(err));
     const handleAlreadyInQueue = (data:{msg:string}) => {
       console.log(data);
       notifyError(data.msg);
@@ -91,7 +81,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
       setIsPopupOpen(true);
     };
 
-    const handleGameStart = (data:{opp:User}) => {
+    const handleGameStart = (data: { opp: User }) => {
       console.log("gameStart");
       console.log(data.opp);
       setOppData(data.opp);
@@ -140,8 +130,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
                 checked={selectedOption === "Normal game"}
                 onChange={handleChange}
               />
-              <label htmlFor="normalGame">Normal game
-              </label>
+              <label htmlFor="normalGame">Normal game</label>
             </div>
             <div className="space-x-4">
               <input
