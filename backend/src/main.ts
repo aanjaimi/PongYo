@@ -26,6 +26,7 @@ async function bootstrap() {
   const corsOptions = {
     credentials: true,
     origin: [configService.getOrThrow('FRONTEND_ORIGIN')],
+    preflightContinue: true,
   } as CorsOptions;
 
   app.enableCors(Object.assign(corsOptions)); // nestjs updating the origin property

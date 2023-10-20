@@ -23,6 +23,8 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     refreshToken: string,
     profile: FortyTwoProfile,
   ) {
+
+  console.log('user', profile);
     const user = await this.prismaService.user.upsert({
       where: { login: profile.username },
       create: {
@@ -39,6 +41,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
       update: {},
     });
 
+   
     return user;
   }
 }

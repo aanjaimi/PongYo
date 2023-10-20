@@ -152,8 +152,9 @@ export class UserService {
         id: id,
       },
       data: {
-        userStatus: status as UserStatus,
+        userStatus: status as UserStatus
       },
     });
   }
 }
+

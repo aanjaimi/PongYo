@@ -6,6 +6,7 @@ import {
   OnGatewayDisconnect,
   WsException,
   WebSocketServer,
+  SubscribeMessage,
 } from '@nestjs/websockets';
 
 import { JsonWebTokenError } from 'jsonwebtoken';
