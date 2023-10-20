@@ -9,6 +9,7 @@ import { RedisModule } from './redis/redis.module';
 import { GameModule } from './game/game.module';
 import { WsModule } from './ws/ws.module';
 import { MinioModule } from './minio/minio.module';
+import { FriendModule } from './friends/friends.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
@@ -47,6 +48,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
         };
       },
     }),
+    FriendModule,
   ],
   controllers: [],
   providers: [],
