@@ -16,6 +16,7 @@ export default function Chat({ user }: { user: User }) {
 
   useEffect(() => {
     chatSocket.on('message', (data: { channel: Channel } & Message) => {
+      console.log(data);
       const channel = channels.find((channel) => channel.id === data.channelId);
       if (channel && data.userId !== user.id) {
         channel.messages.push(data);
@@ -36,6 +37,7 @@ export default function Chat({ user }: { user: User }) {
         data.channel.name = (dmName[0] === user.displayName
           ? dmName[1]
           : dmName[0]) as unknown as string;
+        data.channel.msgNotification = true;
         setChannels([data.channel, ...channels]);
         if (selectedChannel?.id === data.channel.id) {
           setSelectedChannel(data.channel);

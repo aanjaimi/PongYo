@@ -7,6 +7,7 @@ import type { User } from '@/types/User';
 import type { Channel } from '@/types/Channel';
 import { env } from '@/env.mjs';
 import axios from 'axios';
+import { useSocket } from '@/contexts/socket-context';
 
 interface CreateChannelProps {
   user: User;
@@ -22,6 +23,7 @@ export default function CreateChannel({
   updateSelectedChannel,
 }: CreateChannelProps) {
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
+  const { chatSocket } = useSocket();
   const [channelName, setChannelName] = useState<string>('');
   const [channelPassword, setChannelPassword] = useState<string>('');
   const [channelType, setChannelType] = useState<string>('');
@@ -48,6 +50,7 @@ export default function CreateChannel({
         },
         { withCredentials: true },
       );
+      chatSocket.emit('join-channel', { channelId: data.id });
       updateChannels([data, ...channels]);
       updateSelectedChannel(data);
     } catch (err) {

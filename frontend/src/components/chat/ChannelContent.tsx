@@ -8,6 +8,7 @@ import Image from 'next/image';
 import ScrollableFeed from 'react-scrollable-feed';
 import axios from 'axios';
 import { env } from '@/env.mjs';
+import ChannelSettings from './ChannelSettings';
 
 export default function ChannelContent({
   channel,
@@ -24,6 +25,7 @@ export default function ChannelContent({
 }) {
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [message, setMessage] = useState<string>('');
+  const [showSettings, setShowSettings] = useState<boolean>(false);
 
   if (channel === undefined)
     return (
@@ -59,11 +61,21 @@ export default function ChannelContent({
     }
   };
 
-  return (
+  return showSettings ? (
+    <ChannelSettings
+      channel={channel}
+      updateSelectedChannel={updateSelectedChannel}
+      user={user}
+      channels={channels}
+      updateChannels={updateChannels}
+      setShowSettings={setShowSettings}
+    />
+  ) : (
     <div className="flex h-[100%] w-[75%] flex-col">
       <ChannelInfo
         channel={channel}
         updateSelectedChannel={updateSelectedChannel}
+        setShowSettings={setShowSettings}
       />
       {/* seperator */}
       <div className="mr-1 rounded-r-full border"></div>

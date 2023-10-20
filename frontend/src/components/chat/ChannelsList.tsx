@@ -40,8 +40,8 @@ export default function ChannelsList({
               />
             </div>
             <div className="flex flex-col">
-              <div>{channel.name}</div>
-              <div></div>
+              <div className="text-[md]">{channel.name}</div>
+              {/* <div className="text-[12px] border">qwdqwd</div> */}
             </div>
             <div className={`w-[0.5rem] h-[0.5rem] rounded-full ${channel.msgNotification && 'bg-[#10F990] animate-ping delay-150'}`}></div>
           </div>
