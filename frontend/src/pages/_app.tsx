@@ -2,7 +2,7 @@ import { type AppType } from "next/dist/shared/lib/utils";
 import "@/styles/globals.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StateProvider } from "@/contexts/state-context";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+// import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { User } from "@/types/user";
 import { fetcher } from "@/utils/fetcher";
 import { useEffect } from "react";
@@ -24,7 +24,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
       <StateProvider>
         <SocketProvider>
           <Component {...pageProps} />
-          <ReactQueryDevtools></ReactQueryDevtools>
+          {/* <ReactQueryDevtools></ReactQueryDevtools> */}
         </SocketProvider>
       </StateProvider>
     </QueryClientProvider>

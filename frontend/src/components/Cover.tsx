@@ -8,6 +8,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { fetcher } from "@/utils/fetcher";
 import type { User } from "@/types/user";
 
@@ -68,6 +78,37 @@ const Cover = () => {
                   </DropdownMenu>
                 </Button>
               </div>
+            </div>
+          )}
+          {isMe && (
+            <div className="mr-[20px] flex items-center">
+              <Button className="w-[130px] bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]">
+                <Dialog>
+                  <DialogTrigger>Edit profile</DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Edit profile</DialogTitle>
+                      <DialogDescription>
+                        Make changes to your profile here. Click save when
+                        you're done.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                      <Label htmlFor="email">DisplayName</Label>
+                      <Input placeholder="DisplayName" />
+                    </div>
+                    <div className="grid w-full max-w-sm items-center gap-1.5">
+                      <Label htmlFor="picturw">Avatar</Label>
+                      <Input id="picture" type="file" />
+                    </div>
+                    <div className="mt-[20px] flex justify-end">
+                      <Button className="w-[130px] bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]">
+                        Save changes
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </Button>
             </div>
           )}
         </div>

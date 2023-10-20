@@ -5,6 +5,8 @@ import { Buttons } from '../types/common'
 import { ALLbuttons } from '../types/common'
 import { useState, useEffect } from 'react';
 import { useStateContext } from '@/contexts/state-context';
+import type { User } from '@/types/user';
+import { fetcher } from '@/utils/fetcher';
 
 interface SideBarProps {
   button: Buttons;
@@ -13,6 +15,17 @@ interface SideBarProps {
 const Sidebar = (props: SideBarProps) => {
 
   const { state } = useStateContext();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const resp = await fetcher.get<User>("/users/@me");
+      setUser(resp.data);
+    })().catch((err) => console.error(err));
+  }, [state.user]);
+
+  const isMe = state.user?.id === user?.id;
+
   const [profile, setProfile] = useState(false);
   const [game, setGame] = useState(false);
   const [friends, setFriends] = useState(false);
@@ -57,13 +70,13 @@ const Sidebar = (props: SideBarProps) => {
             </Link>
           </div>
         </div>
-        <div className="flex justify-center mb-[30px] bg-[#33437D]">
+        {isMe && <div className="flex justify-center mb-[30px] bg-[#33437D]">
           <div className="sm:block hidden">
-            <Link href="/settings">
+            <Link href="/Settings">
               <Image src={param == true ? ALLbuttons.PARAM_ON : ALLbuttons.PARAM_OFF} alt="image" width={32} height={32}/>
             </Link>
           </div>
-        </div>
+        </div>}
       </div>
     </div>
   )

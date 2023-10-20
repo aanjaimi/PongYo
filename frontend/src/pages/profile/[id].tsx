@@ -8,6 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Body from "@/components/Body";
 import type { GetServerSidePropsContext } from "next";
+import { useRouter } from "next/router";
 
 const getUser = async (login: string) => {
   const resp = await fetcher.get<User>(`/users/${login}`);
@@ -30,11 +31,11 @@ export const getServerSideProps = (
 };
 
 export default function Profile({ id }: ProfileProps) {
+  const router = useRouter();
   const { dispatch } = useStateContext();
   const userQurey = useQuery({
     queryKey: ["users", id],
     queryFn: ({ queryKey: [, id] }) => {
-      console.log(id)
       return getUser(id!);
     },
     retry: false,
@@ -54,11 +55,7 @@ export default function Profile({ id }: ProfileProps) {
       </div>
     );
   if (userQurey.isError)
-    return (
-      <div className="flex h-screen w-screen items-center justify-center text-[40px] font-black">
-        Error
-      </div>
-    )
+      router.push("/404").catch(console.error);
   const user = userQurey.data;
 
   return (
