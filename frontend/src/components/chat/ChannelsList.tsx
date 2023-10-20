@@ -39,8 +39,11 @@ export default function ChannelsList({
                 className="bg-white rounded-full"
               />
             </div>
-            <div>{channel.name}</div>
-            <div className={`w-[0.5rem] h-[0.5rem] rounded-full ${channel.msgNotification && 'bg-[#10F990]'}`}></div>
+            <div className="flex flex-col">
+              <div>{channel.name}</div>
+              <div></div>
+            </div>
+            <div className={`w-[0.5rem] h-[0.5rem] rounded-full ${channel.msgNotification && 'bg-[#10F990] animate-ping delay-150'}`}></div>
           </div>
         ))}
       </ul>

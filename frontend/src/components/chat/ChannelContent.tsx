@@ -69,7 +69,7 @@ export default function ChannelContent({
       <div className="mr-1 rounded-r-full border"></div>
       {/* channel messages container*/}
       <div className="pb-10px flex h-[86%] flex-col justify-end">
-        <ScrollableFeed className="grow">
+        <ScrollableFeed className="grow py-[0.5rem]">
           {channel?.messages?.map((message) => (
             <div
               className={`chat ml-[0.75rem] justify-self-end rounded-md ${
@@ -77,8 +77,21 @@ export default function ChannelContent({
               }`}
               key={message.id}
             >
+              <div className="avatar chat-image">
+                <div className="w-7 rounded-full">
+                  <Image
+                    src="/avatar.png"
+                    alt="avatar"
+                    width={200}
+                    height={200}
+                  />
+                </div>
+              </div>
+              {/* <div className="chat-header text-[#9bb3c7]">
+                {message.userId}
+              </div> */}
               <div
-                className={`max-w-[36rem] rounded-2xl px-[1rem] py-[6px] ${
+                className={`chat-bubble max-w-[36rem] text-white ${
                   message.userId === user.id
                     ? 'bg-[#8d8ddab3]'
                     : 'bg-[#abd9d9b3]'
