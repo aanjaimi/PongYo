@@ -12,7 +12,7 @@ const Achievement = () => {
 			<Table>
 				<TableBody className="flex flex-col justify-center items-center mt-[20px]">
 					{/* map through achievements */}
-					{state.achievement?.map((ach) => (
+					{state.user?.achievements?.map((ach) => (
 						<TableRow key={ach.id} className="bg-[#2B3954] border rounded-[15px] flex justify-center items-center mb-[20px] w-[90%]">
 							<TableCell className="w-[127px] md:w-[194px] lg:w-[312px]"><Image alt="" src="/achievements/1.png" width={25} height={25}/></TableCell>
 							<TableCell className="w-[127px] md:w-[194px] lg:w-[312px]">{ach?.name}</TableCell>

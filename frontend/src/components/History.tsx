@@ -19,7 +19,7 @@ const History = () => {
   useEffect(() => {
     const fetchOpponents = async () => {
 			try {
-      	const opponentPromises = state.game?.map((gam) => getOpponent(gam.opponentId)) || [];
+      	const opponentPromises = state.user?.oppositeGames?.map((gam) => getOpponent(gam.opponentId)) || [];
       	const resolvedOpponents = await Promise.all(opponentPromises);
       	setOpponents(resolvedOpponents);
 			} catch (error) {
@@ -28,12 +28,12 @@ const History = () => {
     };
 
     fetchOpponents();
-  }, [state.game]);
+  }, [state.user?.oppositeGames]);
 
 	return (
 		<div style={{overflow: 'auto', maxHeight: '359px' }} className="grow mt-[10px]">
 			<h1 className="my-[10px] flex items-center justify-center font-bold">Match histories</h1>
-			{state.game?.map((gam, index) => (
+			{state.user?.oppositeGames?.map((gam, index) => (
 				<div key={gam.id} className="flex justify-center mb-[20px]">
 					<HoverCard>
 						<HoverCardTrigger className="container bg-[#2B3954] border rounded-[15px] relative flex justify-between items-center w-[70%] md:w-[60%] lg:w-[50%] h-[70px]">
