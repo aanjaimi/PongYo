@@ -99,7 +99,7 @@ export class FriendService {
       const { sender, receiver } = await this.prismaService.notification.create(
         {
           data: {
-            notifType: 'FRIEND_REQUEST',
+            type: 'FRIEND_REQUEST',
             senderId: userId,
             receiverId: _friendId,
             content: {}, // ?INFO: add some details
@@ -193,7 +193,7 @@ export class FriendService {
           const { sender, receiver } =
             await this.prismaService.notification.create({
               data: {
-                notifType: 'FRIEND_ACCEPT',
+                type: 'FRIEND_ACCEPT',
                 senderId: userId,
                 receiverId: _friendId,
                 content: {}, // ?INFO: add some details
