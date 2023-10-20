@@ -63,7 +63,7 @@ model User {
   @@map("users")
 }
 
-enum State {
+enum FriendState {
   NONE
   BLOCKED
   PENDING
@@ -72,12 +72,12 @@ enum State {
 }
 
 model Friend {
-  id       String @id @default(cuid())
-  state    State
-  user     User   @relation("userFriends", fields: [userId], references: [id])
-  userId   String @map("user_id")
-  friend   User   @relation("friendsOfUser", fields: [friendId], references: [id])
-  friendId String @map("friend_id")
+  id       String      @id @default(cuid())
+  state    FriendState
+  user     User        @relation("userFriends", fields: [userId], references: [id])
+  userId   String      @map("user_id")
+  friend   User        @relation("friendsOfUser", fields: [friendId], references: [id])
+  friendId String      @map("friend_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -104,6 +104,7 @@ enum NotifType {
   MESSAGE
   GAME_REQUEST
   FRIEND_REQUEST
+  FRIEND_ACCEPT
 }
 
 model Notification {
