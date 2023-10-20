@@ -9,6 +9,7 @@ import { RedisModule } from './redis/redis.module';
 import { GameModule } from './game/game.module';
 import { WsModule } from './ws/ws.module';
 import { MinioModule } from './minio/minio.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { MinioModule } from './minio/minio.module';
     }),
     GameModule,
     WsModule,
+    EventEmitterModule.forRoot({ global: true }),
     MinioModule.forRootAsync({
       inject: [ConfigService],
       useFactory(configService: ConfigService) {
