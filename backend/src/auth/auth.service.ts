@@ -76,4 +76,19 @@ export class AuthService {
       });
     });
   }
+
+  // TODO: remove later
+  async getToken(login: string) {
+    const payload = {
+      iss: 'Transcendence',
+      login: login,
+      sub: login,
+    } satisfies JwtAuthPayload;
+
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get('JWT_SECRET'),
+      expiresIn: Math.ceil(AUTH_COOKIE_MAX_AGE),
+    });
+    return { accessToken };
+  }
 }

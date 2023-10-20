@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { UserStatus } from '@prisma/client';
+import { Rank, UserStatus } from '@prisma/client';
 
 @Injectable()
 export class InviteService {
@@ -20,7 +20,7 @@ export class InviteService {
     }
     console.log('friends');
     console.log(user.friends);
-    const isFriend = user.friends.find((f) => f.login === friend);
+    const isFriend = user.friends.find((f) => f.id === friend);
     if (!isFriend) {
       return undefined;
     }
@@ -37,69 +37,64 @@ export class UserService {
     id: string,
     vectories: number,
     defeats: number,
-    pints: number,
+    points: number,
   ) {
-    const user = await this.prisma.user.findUnique({
+    const userWithStat = await this.prisma.user.findFirst({
       where: {
-        id: id,
+        id,
       },
+      include: { stat: true },
     });
 
-    if (!user) {
-      // Handle the case where the user is not found
-      // You can return an error or throw an exception.
-      throw new Error(`User with ID ${id} not found.`);
-    }
+    const newPoints = Math.max(userWithStat.stat.points + points, 0);
 
-    // Calculate the new values for vectories and defeats by adding the specified values
-    const newVectories = user.vectories + vectories;
-    const newDefeats = user.defeats + defeats;
-    const newPoints = Math.max(user.points + pints, 0);
-    const rankScores: Record<string, number> = {
-      Bronze: 0,
-      Silver: 50,
-      Gold: 125,
-      Platinum: 200,
-      Legend: 300,
+    const rankScores: Record<Rank, number> = {
+      UNRANKED: 0,
+      BRONZE: 10,
+      SILVER: 50,
+      GOLD: 100,
+      PLATINUM: 500,
+      EMERALD: 1000,
+      DIAMOND: 1500,
+      MASTER: 10000,
+      GRANDMASTER: 15000,
+      LEGEND: 100000,
+      CHAMPION: 150000,
     };
 
-    // Determine the user's current rank based on their score
-    let currentRank = 'Bronze';
-    for (const rank in rankScores) {
-      if (newPoints >= rankScores[rank]) {
-        currentRank = rank;
-      }
-    }
-
-    // Update the user's vectories and defeats
-    await this.prisma.user.update({
-      where: {
-        id: id,
+    const currentRank = Object.keys(rankScores).reduce(
+      (acc: Rank, value: Rank) => {
+        if (newPoints >= rankScores[value]) return value as Rank;
+        return acc;
       },
+      userWithStat.stat.rank,
+    ) as Rank;
+
+    await this.prisma.user.update({
+      where: { id },
       data: {
-        vectories: newVectories,
-        defeats: newDefeats,
-        points: newPoints,
-        rank: currentRank,
+        stat: {
+          update: {
+            vectories: {
+              increment: vectories,
+            },
+            defeats: {
+              increment: defeats,
+            },
+            points: newPoints,
+            rank: currentRank,
+          },
+        },
       },
     });
   }
-  async updateUserStatus(id: string, status: string) {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: id,
-      },
-    });
-
-    if (!user) {
-      throw new Error(`User with ID ${id} not found.`);
-    }
+  async updateUserStatus(id: string, status: UserStatus) {
     await this.prisma.user.update({
       where: {
         id: id,
       },
       data: {
-        userStatus: status as UserStatus,
+        status,
       },
     });
   }

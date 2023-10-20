@@ -2,5 +2,9 @@ export interface FortyTwoProfile {
   username: string;
   displayName: string;
   emails: { value: string }[];
-  profileUrl: string;
+  _json: {
+    image: {
+      link: string;
+    };
+  };
 }
