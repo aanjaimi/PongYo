@@ -108,9 +108,9 @@ enum NotifType {
 }
 
 model Notification {
-  id        String    @id @default(cuid())
-  content   Json?
-  notifType NotifType @map("notif_type")
+  id      String    @id @default(cuid())
+  content Json?
+  type    NotifType @map("notif_type")
 
   sender     User   @relation(name: "sender", fields: [senderId], references: [id])
   senderId   String @map("sender_id")
