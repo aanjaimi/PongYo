@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { SocketProvider } from "@/contexts/socket-context";
 import { StateProvider } from "@/contexts/state-context";
+import Layout from "@/components/layout";
 
 const queryClient = new QueryClient({});
 
@@ -12,7 +13,9 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     <QueryClientProvider client={queryClient}>
       <StateProvider>
         <SocketProvider>
-          <Component {...pageProps} />
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
           <ReactQueryDevtools initialIsOpen={false} />
         </SocketProvider>
       </StateProvider>
