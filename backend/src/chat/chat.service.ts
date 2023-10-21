@@ -9,16 +9,19 @@ import { JoinChannelDto } from './dto/join-channel.dto';
 import { MuteUserDto } from './dto/mute-user.dto';
 import { PrismaService } from '@/prisma/prisma.service';
 import { ChatGateway } from './chat.gateway';
+import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ChatService {
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prismaService: PrismaService,
     private readonly chatGateway: ChatGateway,
+    private readonly configService: ConfigService,
   ) {}
 
   async getUser(user: User) {
-    return await this.prisma.user.findUnique({
+    return await this.prismaService.user.findUnique({
       where: { id: user.id },
       include: {
         channels: {
@@ -28,6 +31,9 @@ export class ChatService {
             isDM: true,
             type: true,
             members: true,
+            owner: true,
+            ownerId: true,
+            moderators: true,
             messages: true,
             createdAt: true,
             updatedAt: true,
@@ -45,7 +51,7 @@ export class ChatService {
     if (currentUser.displayName === displayName)
       throw new HttpException('Cannot DM yourself', HttpStatus.BAD_REQUEST);
 
-    const otherUser = await this.prisma.user.findUnique({
+    const otherUser = await this.prismaService.user.findUnique({
       where: { displayName },
     });
 
@@ -54,7 +60,7 @@ export class ChatService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
     // check if dm exists
-    const dm = await this.prisma.channel.findFirst({
+    const dm = await this.prismaService.channel.findFirst({
       select: {
         id: true,
         name: true,
@@ -76,11 +82,14 @@ export class ChatService {
     if (dm) return dm;
 
     // create new dm
-    const newDM = await this.prisma.channel.create({
+    const newDM = await this.prismaService.channel.create({
       select: {
         id: true,
         name: true,
         type: true,
+        owner: true,
+        ownerId: true,
+        moderators: true,
         members: true,
         messages: true,
         createdAt: true,
@@ -107,7 +116,7 @@ export class ChatService {
   async create(user: User, createChannelDto: CreateChannelDto) {
     const { name, type, password } = createChannelDto;
     // check if channel name is already taken
-    const oldChannel = await this.prisma.channel.findUnique({
+    const oldChannel = await this.prismaService.channel.findUnique({
       where: { name },
     });
     if (oldChannel) {
@@ -119,7 +128,10 @@ export class ChatService {
       throw new HttpException('Password required', 400);
     }
 
-    const channel = await this.prisma.channel.create({
+    // create channel
+    const salt = bcrypt.genSaltSync();
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const channel = await this.prismaService.channel.create({
       select: {
         id: true,
         name: true,
@@ -127,6 +139,7 @@ export class ChatService {
         isDM: true,
         password: true,
         owner: true,
+        ownerId: true,
         moderators: true,
         members: true,
         messages: true,
@@ -137,7 +150,7 @@ export class ChatService {
         name,
         type,
         isDM: false,
-        password,
+        password: hashedPassword,
         owner: {
           connect: { id: user.id },
         },
@@ -151,11 +164,14 @@ export class ChatService {
   }
 
   findAll(user: User) {
-    return this.prisma.channel.findMany({
+    return this.prismaService.channel.findMany({
       select: {
         id: true,
         name: true,
         type: true,
+        owner: true,
+        ownerId: true,
+        moderators: true,
         members: true,
         messages: true,
         mutes: true,
@@ -177,7 +193,7 @@ export class ChatService {
   }
 
   async findOne(user: User, id: string) {
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       select: {
         id: true,
         name: true,
@@ -185,6 +201,7 @@ export class ChatService {
         members: true,
         moderators: true,
         owner: true,
+        ownerId: true,
         bans: true,
         mutes: true,
         messages: true,
@@ -219,7 +236,7 @@ export class ChatService {
   }
 
   async getChannelByName(user: User, name: string) {
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       select: {
         id: true,
         name: true,
@@ -227,6 +244,7 @@ export class ChatService {
         members: true,
         moderators: true,
         owner: true,
+        ownerId: true,
         bans: true,
         mutes: true,
         messages: true,
@@ -263,7 +281,7 @@ export class ChatService {
 
   async getAllMessages(user: User, id: string) {
     // check if channel exists
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         members: true,
@@ -290,7 +308,7 @@ export class ChatService {
     createMessageDto: CreateMessageDto,
   ) {
     const { content } = createMessageDto;
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         members: true,
@@ -319,7 +337,7 @@ export class ChatService {
     }
 
     // create message
-    const message = await this.prisma.message.create({
+    const message = await this.prismaService.message.create({
       select: {
         id: true,
         content: true,
@@ -363,7 +381,7 @@ export class ChatService {
   }
 
   async findMessages(user: User, id: string) {
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         members: true,
@@ -404,7 +422,7 @@ export class ChatService {
   async update(user: User, id: string, createChannelDto: CreateChannelDto) {
     const { name, type, password } = createChannelDto;
 
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         owner: true,
@@ -414,6 +432,14 @@ export class ChatService {
     // check if channel exists
     if (!channel) {
       throw new HttpException('Channel not found', 404);
+    }
+
+    // check if channel name is already taken
+    const oldChannel = await this.prismaService.channel.findUnique({
+      where: { name },
+    });
+    if (oldChannel) {
+      throw new HttpException('Channel name already taken', 403);
     }
 
     // check if user is owner
@@ -427,18 +453,22 @@ export class ChatService {
     }
 
     // update channel
-    const updatedChannel = await this.prisma.channel.update({
+    const salt = bcrypt.genSaltSync();
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const updatedChannel = await this.prismaService.channel.update({
       select: {
         id: true,
         name: true,
         type: true,
         moderators: true,
+        owner: true,
+        ownerId: true,
       },
       where: { id },
       data: {
         name,
         type,
-        password,
+        password: hashedPassword,
       },
     });
 
@@ -447,7 +477,7 @@ export class ChatService {
 
   async join(user: User, id: string, joinChannelDto: JoinChannelDto) {
     const { password } = joinChannelDto;
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         type: true,
@@ -465,8 +495,11 @@ export class ChatService {
     }
 
     // match password if channel is protected
-    if (channel.password && channel.password !== password) {
-      throw new HttpException('Invalid password', 401);
+    if (channel.type === RoomType.PROTECTED) {
+      const passwordMatch = await bcrypt.compare(password, channel.password);
+      if (channel.password && !passwordMatch) {
+        throw new HttpException('Invalid password', 401);
+      }
     }
 
     // check if user is banned
@@ -481,12 +514,15 @@ export class ChatService {
     }
 
     // add user to channel
-    const updatedChannel = await this.prisma.channel.update({
+    const updatedChannel = await this.prismaService.channel.update({
       select: {
         id: true,
         name: true,
         type: true,
         members: true,
+        moderators: true,
+        owner: true,
+        ownerId: true,
         messages: true,
         createdAt: true,
         updatedAt: true,
@@ -503,7 +539,7 @@ export class ChatService {
   }
 
   async leave(user: User, id: string) {
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         members: true,
@@ -528,7 +564,7 @@ export class ChatService {
     }
 
     // remove user from channel
-    await this.prisma.channel.update({
+    await this.prismaService.channel.update({
       where: { id },
       data: {
         members: {
@@ -540,7 +576,7 @@ export class ChatService {
 
   async addModerator(user: User, id: string, addModeratorDto: AddModeratorDto) {
     const { userId } = addModeratorDto;
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         owner: true,
@@ -567,7 +603,7 @@ export class ChatService {
     }
 
     // add moderator
-    await this.prisma.channel.update({
+    await this.prismaService.channel.update({
       where: { id },
       data: {
         moderators: {
@@ -583,7 +619,7 @@ export class ChatService {
     addModeratorDto: AddModeratorDto,
   ) {
     const { userId } = addModeratorDto;
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         owner: true,
@@ -610,7 +646,7 @@ export class ChatService {
     }
 
     // remove moderator
-    await this.prisma.channel.update({
+    await this.prismaService.channel.update({
       where: { id },
       data: {
         moderators: {
@@ -622,7 +658,7 @@ export class ChatService {
 
   async ban(user: User, id: string, banUserDto: BanUserDto) {
     const { userId } = banUserDto;
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         owner: true,
@@ -656,7 +692,7 @@ export class ChatService {
     }
 
     // ban user
-    await this.prisma.channel.update({
+    await this.prismaService.channel.update({
       where: { id },
       data: {
         bans: {
@@ -666,7 +702,7 @@ export class ChatService {
     });
 
     // remove user from channel
-    await this.prisma.channel.update({
+    await this.prismaService.channel.update({
       where: { id },
       data: {
         members: {
@@ -678,7 +714,7 @@ export class ChatService {
 
   async unban(user: User, id: string, banUserDto: BanUserDto) {
     const { userId } = banUserDto;
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         owner: true,
@@ -707,7 +743,7 @@ export class ChatService {
     }
 
     // unban user
-    await this.prisma.channel.update({
+    await this.prismaService.channel.update({
       where: { id },
       data: {
         bans: {
@@ -719,7 +755,7 @@ export class ChatService {
 
   async mute(user: User, id: string, muteUserDto: MuteUserDto) {
     const { userId, time } = muteUserDto;
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         owner: true,
@@ -748,7 +784,7 @@ export class ChatService {
     }
 
     // mute user
-    const updatedChannel = await this.prisma.channel.update({
+    const updatedChannel = await this.prismaService.channel.update({
       select: {
         id: true,
         name: true,
@@ -768,7 +804,7 @@ export class ChatService {
 
   async unmute(user: User, id: string, muteUserDto: MuteUserDto) {
     const { userId } = muteUserDto;
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         owner: true,
@@ -797,7 +833,7 @@ export class ChatService {
     }
 
     // unmute user
-    await this.prisma.channel.update({
+    await this.prismaService.channel.update({
       where: { id },
       data: {
         mutes: {
@@ -808,7 +844,7 @@ export class ChatService {
   }
 
   async remove(user: User, id: string) {
-    const channel = await this.prisma.channel.findUnique({
+    const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         owner: true,
@@ -826,7 +862,7 @@ export class ChatService {
     }
 
     // delete channel
-    await this.prisma.channel.delete({
+    await this.prismaService.channel.delete({
       where: { id },
     });
   }

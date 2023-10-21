@@ -14,7 +14,7 @@ async function main() {
   }
 
   for (const channel of channels) {
-    if (await prisma.channel.findFirst({ where: { name: channel.name } })) {
+    if (await prisma.channel.findUnique({ where: { name: channel.name } })) {
       continue;
     }
     await prisma.channel.create({
