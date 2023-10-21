@@ -62,7 +62,7 @@ export default function CreateChannel({
   return (
     <form
       className="my-[1.5rem flex w-[75%] flex-col"
-      onSubmit={createNewChannel}
+      onSubmit={(e) => createNewChannel}
     >
       <div className="my-[1rem] flex">
         <div className="text-xl">Create a channel:</div>

@@ -6,6 +6,15 @@ import ChannelsList from './ChannelsList';
 import ChannelContent from './ChannelContent';
 import { ScrollArea } from '../ui/scroll-area';
 import { useSocket } from '@/contexts/socket-context';
+import {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 export default function Chat({ user }: { user: User }) {
   const { chatSocket } = useSocket();
@@ -63,7 +72,8 @@ export default function Chat({ user }: { user: User }) {
 
   return (
     //Chat Box
-    <div className="flex h-[50rem] w-[60rem] rounded-[6px] bg-[#33437D] text-white">
+
+    <Card className="flex h-[50rem] w-[60rem] rounded-[6px] bg-[#33437D] text-white">
       <div className="flex h-[full] w-[25%] flex-col">
         <div className="flex h-[7%] items-center pl-[2rem] text-2xl ">
           chat room
@@ -87,6 +97,6 @@ export default function Chat({ user }: { user: User }) {
         channels={channels}
         updateChannels={updateChannels}
       />
-    </div>
+    </Card>
   );
 }

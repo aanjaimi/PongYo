@@ -18,7 +18,7 @@ export default function ChannelsList({
       <ul>
         {channels.map((channel: Channel) => (
           <div
-            className={`m-[5px] px-[1rem] flex h-[2.5rem] items-center justify-between rounded-md text-xl hover:cursor-pointer hover:bg-[#382FA3] ${
+            className={`m-[5px] px-[1rem] flex h-[3.2rem] items-center justify-between rounded-md text-xl hover:cursor-pointer hover:bg-[#382FA3] ${
               selectedChannel === undefined
                 ? 'bg-[#6466F1]'
                 : selectedChannel.id === channel.id

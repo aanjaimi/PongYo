@@ -12,8 +12,9 @@ export type Channel = {
   name: string;
   isDM: boolean;
   type: ChatType;
-  moderators?: User[];
-  owner?: User;
+  moderators: User[];
+  ownerId: string;
+  owner: User;
   createdAt: Date;
   updatedAt: Date;
   messages: Message[];

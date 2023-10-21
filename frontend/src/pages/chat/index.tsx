@@ -67,7 +67,7 @@ export default function Home() {
       <div className="flex grow flex-row">
         {/* Sidebar component */}
         <div className="w-[4rem] bg-[#252525]"></div>
-        <div className="mt-[3rem] flex grow justify-center">
+        <div className="mt-[3rem] ml-[3rem] flex grow justify-center">
           <Chat user={user} />
         </div>
       </div>

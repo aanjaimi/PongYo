@@ -85,7 +85,7 @@ export default function ChannelContent({
           {channel?.messages?.map((message) => (
             <div
               className={`chat ml-[0.75rem] justify-self-end rounded-md ${
-                message.userId === user.id ? 'chat-end' : 'chat-start'
+                message.userId === user.id ? 'chat-end mr-[1rem]' : 'chat-start'
               }`}
               key={message.id}
             >

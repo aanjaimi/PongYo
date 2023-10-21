@@ -13,20 +13,25 @@ export default function ChannelInfo({
   setShowSettings,
 }: channelInfoProps) {
   return (
-    <div className="flex justify-between h-[7%] items-center justify-center">
+    <div className="flex h-[7%] items-center justify-center justify-between">
       {channel && (
         <>
-          <button
-            className="ml-[1rem] flex h-6 w-6 items-center justify-center rounded-bl-[10px] rounded-tr-[10px] bg-[#abd9d9b3] pb-2"
-            onClick={() => setShowSettings(true)}
-          >
-            ...
-          </button>
+          <div>
+            {
+              !channel.isDM &&
+              <button
+                className="ml-[1rem] flex h-6 w-6 items-center justify-center rounded-full bg-[#abd9d9b3] pb-2"
+                onClick={() => setShowSettings(true)}
+              >
+                ...
+              </button>
+            }
+          </div>
           <div className="flex items-center justify-center">
             <h1 className="text-3xl">{channel.name}</h1>
           </div>
           <button
-            className="mr-[1rem] flex h-6 w-6 items-center justify-center rounded-br-[10px] rounded-tl-[10px] bg-[#abd9d9b3]"
+            className="mr-[1rem] flex h-6 w-6 items-center justify-center rounded-full bg-[#abd9d9b3] pb-1"
             onClick={() => updateSelectedChannel(undefined)}
           >
             x
