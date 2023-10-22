@@ -33,6 +33,6 @@ export class QuerySchemaDto {
 
   @Expose({})
   getSkip(): number {
-    return this.page * this.limit;
+    return (this.page - 1) * this.limit;
   }
 }

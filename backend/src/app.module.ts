@@ -11,6 +11,7 @@ import { WsModule } from './ws/ws.module';
 import { MinioModule } from './minio/minio.module';
 import { FriendModule } from './friends/friends.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       },
     }),
     FriendModule,
+    NotificationsModule,
   ],
   controllers: [],
   providers: [],
