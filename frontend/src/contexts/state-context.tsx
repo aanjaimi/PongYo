@@ -5,15 +5,23 @@ import { getCurrentUser } from "@/utils/user-utils";
 
 type State = {
   user: User | null;
+  authenicated: boolean;
 };
 
-type Action = {
-  type: "SET_USER";
-  payload: User | null;
-};
+type Action =
+  | {
+      type: "SET_USER";
+      payload: User | null;
+    }
+  | {
+      type: "SET_AUTH";
+      payload: boolean;
+    };
+
 type Dispatch = (action: Action) => void;
 const initialState: State = {
   user: null,
+  authenicated: false,
 };
 
 const StateContext = createContext<
@@ -24,6 +32,8 @@ const stateReducer = (state: State, action: Action) => {
   switch (action.type) {
     case "SET_USER":
       return { ...state, user: action.payload };
+    case "SET_AUTH":
+      return { ...state, authenicated: action.payload };
     default:
       return state;
   }
@@ -38,6 +48,12 @@ const StateProvider = ({ children }: StateProviderProps) => {
     queryKey: ["users"],
     queryFn: async () => {
       return getCurrentUser();
+    },
+    onSuccess() {
+      dispatch({ type: "SET_AUTH", payload: true });
+    },
+    onError() {
+      dispatch({ type: "SET_AUTH", payload: false });
     },
   });
   return (

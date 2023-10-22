@@ -42,32 +42,36 @@ model User {
   rank                 String
   rowvectories         Int            @map("row_vectories")
   // rank      Rank @default(UNRANKED) @map("rank")
-  twoFactorAuth        Boolean         @default(false)
-  isCompleted          Boolean         @default(false)
+  twoFactorAuth        Boolean        @default(false)
+  isCompleted          Boolean        @default(false)
   friends              Friend[]
   messages             Message[]
   senderNotification   Notification[] @relation("sender")
   receiverNotification Notification[] @relation("receiver")
-  userGameHistory      Game[]    @relation(name: "user")
-  oppGameHistory       Game[]    @relation(name: "opponent")
+  userGameHistory      Game[]         @relation(name: "user")
+  oppGameHistory       Game[]         @relation(name: "opponent")
 
-  achievement          Achievement[]
+  achievement Achievement[]
+  avatar      Json
 
   // moderatorForChannel   Channel? @relation(name: "moderators", fields: [moderatorForChannelId], references: [id])
   // moderatorForChannelId String?  @map("moderator_for_channel") // TODO: find a name 
   // memberForChannel      Channel? @relation(name: "members", fields: [memberForChannelId], references: [id])
   // memberForChannelId    String?  @map("member_for_channel_id")
   // games Game[]
-  // log                   Log      @relation(fields: [logId], references: [id])
-  // logId                 String   @unique
+  stat   Stat   @relation(fields: [statId], references: [id])
+  statId String @unique
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  Friend    Friend[]
+  Friend    Friend[]
 
   @@map("users")
 }
 
-enum State {
+enum FriendState {
+  NONE
   BLOCKED
   PENDING
   ACCEPTED
@@ -75,14 +79,16 @@ enum State {
 }
 
 model Friend {
-  id     String @id @default(cuid())
-  state  State
-  login  String @map("login")
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+  id       String      @id @default(cuid())
+  state    FriendState
+  user     User        @relation(name: "userFriends", fields: [userId], references: [id])
+  userId   String      @map("user_id")
+  friend   User        @relation(name: "friendsOfUser", fields: [friendId], references: [id])
+  friendId String      @map("friend_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+  User      User     @relation(fields: [userId], references: [id])
 
   @@map("friends")
 }
@@ -106,12 +112,13 @@ enum NotifType {
   MESSAGE
   GAME_REQUEST
   FRIEND_REQUEST
+  FRIEND_ACCEPT
 }
 
 model Notification {
-  id        String    @id @default(cuid())
-  content   Json?
-  notifType NotifType @map("notif_type")
+  id      String    @id @default(cuid())
+  content Json?
+  type    NotifType @map("notif_type")
 
   sender     User   @relation(name: "sender", fields: [senderId], references: [id])
   senderId   String @map("sender_id")
@@ -142,22 +149,22 @@ model Game {
   opponentStatus Boolean
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
+
   @@map("games")
 }
 
-model Log {
+model Stat {
   id        String @id @unique @default(cuid())
   vectories Int
   defeats   Int
   points    Int
   rank      Rank
-
-  // user User?
+  user      User?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("logs")
+  @@map("stats")
 }
 
 enum MessageType {

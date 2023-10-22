@@ -1,4 +1,4 @@
-import { Injectable, Req, Res } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -76,12 +76,18 @@ export class AuthService {
     });
   }
 
-  // async generate2FAQR(@Req() req: Request, @Res() res: Response) {
-  //   const secret = speakeasy.generateSecret({ length: 6 }).base32;
-  //   const otpauthUrl = speakeasy.otpauthURL({
-  //     secret: secret.base32,
-  //     label: 'Transcendence',
-  //     algorithm: 'sha1',
-  //   });
-  // }
+  // TODO: remove later
+  async getToken(login: string) {
+    const payload = {
+      iss: 'Transcendence',
+      login: login,
+      sub: login,
+    } satisfies JwtAuthPayload;
+
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get('JWT_SECRET'),
+      expiresIn: Math.ceil(AUTH_COOKIE_MAX_AGE),
+    });
+    return { accessToken };
+  }
 }

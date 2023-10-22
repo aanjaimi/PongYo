@@ -38,5 +38,8 @@ export type User = {
   userGameHistory: Game[];
   createdAt: Date;
   updatedAt: Date;
-  avatar: string;
+  avatar: {
+    minio: boolean;
+    path: string;
+  };
 };
