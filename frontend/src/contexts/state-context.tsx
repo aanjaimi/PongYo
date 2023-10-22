@@ -11,7 +11,6 @@ type Action = {
   type: "SET_USER";
   payload: User | null;
 };
-
 type Dispatch = (action: Action) => void;
 const initialState: State = {
   user: null,

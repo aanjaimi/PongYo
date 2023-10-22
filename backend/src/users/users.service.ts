@@ -11,6 +11,10 @@ export class UserService {
       where: {
         OR: [{ id }, { login: id }],
       },
+      include: {
+        achievement: true,
+        userGameHistory: true,
+      },
     });
     if (!user) throw new NotFoundException();
     return user;
@@ -24,6 +28,21 @@ export class UserService {
           contains: value,
         },
       },
+    });
+    if (!users) return [];
+    return users;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    const users = await this.prismaService.user.findMany({
+      orderBy: [
+        {
+          rank: 'desc',
+        },
+        {
+          points: 'desc',
+        },
+      ],
     });
     if (!users) return [];
     return users;

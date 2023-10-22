@@ -3,7 +3,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class AchievementService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   static rankAchievements = {
     Legend: {
@@ -55,37 +55,39 @@ export class AchievementService {
 
   async updateAchievement(playerId: string, userRank: string) {
     const achievement = AchievementService.rankAchievements[userRank];
-
     if (achievement) {
-      await this.prisma.user.update({
+      const user = await this.prisma.user.findUnique({
         where: {
           id: playerId,
         },
-        data: {
+        include: {
           achievement: {
-            create: [achievement],
+            where: { name: achievement.name }, // Check if the achievement already exists
           },
         },
       });
+      if (!user.achievement || user.achievement.length === 0) {
+        await this.createAchievement(playerId, achievement.name, achievement.description, achievement.icon);
+      }
     }
   }
-	async  createAchievement(player, name, description, icon) {
-		await this.prisma.user.update({
-			where: {
-				id: player.id,
-			},
-			data: {
-				achievement: {
-					create: [
-						{
-							name,
-							description,
-							icon, // Replace "icon-url" with the actual URL of the achievement icon
-						},
-					],
-				},
-			},
-		});
-	}
+  async createAchievement(playerId, name, description, icon) {
+    await this.prisma.user.update({
+      where: {
+        id: playerId,
+      },
+      data: {
+        achievement: {
+          create: [
+            {
+              name,
+              description,
+              icon,
+            },
+          ],
+        },
+      },
+    });
+  }
 }
 

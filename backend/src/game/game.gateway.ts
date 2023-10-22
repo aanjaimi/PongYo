@@ -42,6 +42,7 @@ export class GameGateway extends WsGateway {
       if(client.user === undefined){
         return ;
       }
+      console.log('game connection');
       this.gameMap.set(client.user.id, client);
       return true;
     });
@@ -50,13 +51,11 @@ export class GameGateway extends WsGateway {
   async handleJoinQueue(client: Socket) {
 
     const user = client.user;
-    console.log('User');
     if (await this.queueService.isUserInQueue(QueueType.NORMAL, user.id)) {
       client.emit('already-in-Queue', {
         msg: 'You are already in queue',
       });
-      // this.queueService.remove(QueueType.NORMAL, client.user.id);
-      // return;
+      return;
     }
     if (await this.queueService.getLength(QueueType.NORMAL) !== 0) {
       const opponent = (await this.queueService.pop(QueueType.NORMAL)).replace(/"/g, '');
@@ -67,7 +66,7 @@ export class GameGateway extends WsGateway {
       client.emit('game-start', {
         opp: clientSocket.user,
       });
-      this.gameStarterService.startGame(client, clientSocket, true);
+      this.gameStarterService.startGame(client, clientSocket, false);
       return;
     }
     client.emit('queue-joined');
@@ -137,18 +136,13 @@ export class GameGateway extends WsGateway {
     client.join(client.user.id);
     await this.redisService.lpush(client.user.login, JSON.stringify(opponent));
     const len = await this.redisService.llen(client.user.login);
-    console.log(typeof (client.user.login));
-    console.log(len);
   }
   @SubscribeMessage('acceptInvite')
   async handleAcceptInvite(client: Socket, data: { opponent: string }) {
-    console.log('accept');
     const user = client.user;
     const opponent = data.opponent;
 
     const opponentSocket = this.gameMap.get(opponent);
-    console.log(opponent);
-    console.log(typeof (opponent));
     if (opponentSocket === undefined) {
       console.log('not online');
       return;
@@ -158,7 +152,6 @@ export class GameGateway extends WsGateway {
       console.log('not invited');
       return;
     }
-    
     if (await this.queueService.isUserInQueue(QueueType.RANKED, opponent)) {
       client.emit('already-in-Queue', {
         msg: 'You are already in queue'

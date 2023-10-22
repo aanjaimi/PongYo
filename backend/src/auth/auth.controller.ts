@@ -11,6 +11,7 @@ export class AuthController {
   @Get('42')
   @UseGuards(FortyTwoGuard)
   fortyTwoLogin() {
+    console.log('42 login');
     // ? INFO: this function will redirect to intra login page !
   }
 
@@ -19,6 +20,7 @@ export class AuthController {
   async fortyTwoCallback(@Req() req: Request, @Res() res: Response) {
     this.authService.fortyTwoCallback(req.user, res);
   }
+
   @Get('logout')
   @UseGuards(JwtAuthGuard)
   async logout(@Req() req: Request, @Res() res: Response) {

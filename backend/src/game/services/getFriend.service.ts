@@ -21,15 +21,10 @@ export class InviteService {
     if (!user) {
       throw new Error('User not found');
     }
-    console.log("freind");
-    console.log(friend);
-    console.log(user.friends);
     const isFriend = user.friends.find((f) => f.login === friend);
     if (!isFriend) {
       return undefined;
     }
-    console.log('freind found');
-    console.log(isFriend);
     return isFriend.id;
   }
 }
@@ -87,37 +82,37 @@ export class UserService {
       },
     });
     if (isFirstGame) {
-      await this.achievementService.createAchievement(player, "First Game", "Play your first game", "icon-url");
+      await this.achievementService.createAchievement(player.id, "First Game", "Play your first game", "icon-url");
     }
     if (isFirstWin) {
-      await this.achievementService.createAchievement(player, "First Win", "Win your first game", "icon-url");
+      await this.achievementService.createAchievement(player.id, "First Win", "Win your first game", "icon-url");
     }
     if (isPerfectVictory) {
-      await this.achievementService.createAchievement(player, "Perfect Victory", "Win a game with a score of 10-0", "icon-url");
+      await this.achievementService.createAchievement(player.id, "Perfect Victory", "Win a game with a score of 10-0", "icon-url");
     }
     if (isPerfectDefeat) {
-      await this.achievementService.createAchievement(player, "Perfect Defeat", "Lose a game with a score of 0-10", "icon-url");
+      await this.achievementService.createAchievement(player.id, "Perfect Defeat", "Lose a game with a score of 0-10", "icon-url");
     }
     if (user.vectories + vectories === 10) {
-      await this.achievementService.createAchievement(player, "Deca-Winner", "Achieve victory in 10 games", "icon-url");
+      await this.achievementService.createAchievement(player.id, "Deca-Winner", "Achieve victory in 10 games", "icon-url");
     }
     if (user.vectories + vectories === 20) {
-      await this.achievementService.createAchievement(player, "Gold Medalist", "Achieve victory in 20 games", "icon-url");
+      await this.achievementService.createAchievement(player.id, "Gold Medalist", "Achieve victory in 20 games", "icon-url");
     }
     if (user.vectories + vectories === 50) {
-      await this.achievementService.createAchievement(player, "Platinum Medalist", "Achieve victory in 30 games", "icon-url");
+      await this.achievementService.createAchievement(player.id, "Platinum Medalist", "Achieve victory in 30 games", "icon-url");
     }
     if (user.vectories + vectories === 100) {
-      await this.achievementService.createAchievement(player, "Legend", "Achieve victory in 100 games", "icon-url");
+      await this.achievementService.createAchievement(player.id, "Legend", "Achieve victory in 100 games", "icon-url");
     }
     if (gameInRow == 3) {
-      await this.achievementService.createAchievement(player, "Triple Kill", "Achieve 3 victories in a row", "icon-url");
+      await this.achievementService.createAchievement(player.id, "Triple Kill", "Achieve 3 victories in a row", "icon-url");
     }
     if (gameInRow == 5) {
-      await this.achievementService.createAchievement(player, "Penta Kill", "Achieve 5 victories in a row", "icon-url");
+      await this.achievementService.createAchievement(player.id, "Penta Kill", "Achieve 5 victories in a row", "icon-url");
     }
     if (gameInRow == 10) {
-      await this.achievementService.createAchievement(player, "Killer", "Achieve 10 victories in a row", "icon-url");
+      await this.achievementService.createAchievement(player.id, "Killer", "Achieve 10 victories in a row", "icon-url");
     }
     this.achievementService.updateAchievement(player.id, currentRank);
     await this.prisma.game.upsert({

@@ -16,6 +16,12 @@ export class UserController {
     return users;
   }
 
+  @Get('/all')
+  async allUsers() {
+    const users = (await this.userService.getAllUsers()) as User[];
+    return users;
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string, @CurrentUser() currentUser: User) {
     if (id === '@me') return this.userService.findOne(currentUser.id);

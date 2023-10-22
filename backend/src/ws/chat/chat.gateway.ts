@@ -7,6 +7,6 @@ export class ChatGateway extends WsGateway {
   @SubscribeMessage('channelCreated')
   channelCreated(client: Socket) {
     // ?INFO: u'll find the currentUser in client.user
-    console.log(client.user);
+    // console.log(client.user);
   }
 }

@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FortyTwoProfile } from '../interfaces/42.interface';
-
+import { Rank, UserStatus } from '@prisma/client';
 @Injectable()
 export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
   constructor(
@@ -24,19 +24,18 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     profile: FortyTwoProfile,
   ) {
 
-  console.log('user', profile);
     const user = await this.prismaService.user.upsert({
       where: { login: profile.username },
       create: {
         login: profile.username,
         displayname: profile.displayName,
         email: profile.emails[0].value,
-        // userStatus: 'OFFLINE',
+        userStatus: UserStatus.ONLINE,
         vectories: 0,
         defeats: 0,
         points: 0,
         rowvectories: 0,
-        rank: 'UNRANKED',
+        rank: Rank.UNRANKED,
       },
       update: {},
     });

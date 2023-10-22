@@ -21,35 +21,15 @@ const getCurrentUser = async () => {
 
 const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   const { gameSocket } = useSocket();
-  const { state} = useStateContext();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [showValidation, setShowValidation] = useState(false);
   const [inviteNotify, setInviteNotify] = useState(false);
   const [friend , setFriend] = useState({} as User);
   const router = useRouter();
-
-  // const userQuery = useQuery({
-  //   queryKey: ["users"],
-  //   queryFn: getCurrentUser,
-  //   onSuccess: (data) => {
-  //     dispatch({ type: "SET_USER", payload: data });
-  //     console.log("user");
-  //     console.log(state.user);
-  //     if (!gameSocket.connected) {
-  //       gameSocket.connect();
-  //     }
-  //   },
-  //   onError: (err) => {
-  //     console.log("error");
-  //     console.error(err);
-  //     dispatch({ type: "SET_USER", payload: null });
-  //   },
-  // });
- 
+  const { state,dispatch } = useStateContext(); 
   const handleStartClick = () => {
     if (selectedOption === "Normal game") {
-      console.log("Normal game clicked");
       gameSocket.emit("join-queue");
     } else if (selectedOption === "Ranked game") {
       gameSocket.emit("join-ranked-queue");
@@ -81,9 +61,11 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
 
   useEffect(() => {
     if(!state.user)
-    router.push("/").catch((err) => console.error(err));
+    router.push("/profile/@me").catch((err) => console.error(err));
+    if (!gameSocket.connected) {
+      gameSocket.connect();
+    }
     const handleAlreadyInQueue = (data:{msg:string}) => {
-      console.log(data);
       notifyError(data.msg);
     };
 
@@ -92,11 +74,10 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
     };
 
     const handleGameStart = (data:{opp:User}) => {
-      console.log("gameStart");
-      console.log(data.opp);
       setOppData(data.opp);
-      setGameStarted(true);
       setIsPopupOpen(false);
+      setInviteNotify(false);
+      setGameStarted(true);
     };
 
     gameSocket.on("already-in-Queue", handleAlreadyInQueue);
@@ -111,7 +92,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   }, []);
 
   return (
-    <div className="flex h-screen w-screen flex-col items-center justify-center">
+    <div className="flex  flex-col items-center justify-center grow">
       {inviteNotify && (
         <InvitationCard
           setInviteNotify={setInviteNotify}
@@ -173,8 +154,6 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
           </div>
         </div>
       )}
-
-      {/* Display the custom validation modal */}
       {showValidation && <CustomModal onClose={handleCloseValidation} />}
     </div>
   );

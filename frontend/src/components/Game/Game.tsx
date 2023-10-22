@@ -6,8 +6,7 @@ import ImageCard from "./imageCard";
 import type { GameProps } from "../gameTypes/types";
 
 const Game = ({oppData}:GameProps) => {
-  console.log("oppData from game");
-  console.log(oppData);
+
   const [isGameOver, setIsGameOver] = React.useState(false);
   const [myScore, setMyScore] = useState(0);
   const [oppScore, setOppScore] = useState(0);
@@ -24,7 +23,7 @@ const Game = ({oppData}:GameProps) => {
   }, [countdown]);
 
   return (
-    <div>
+    <div className="flex justify-center items-center grow">
       {countdown > 0 && (
         <div className="flex h-screen items-center justify-center">
           <div className="flex flex-col items-center justify-center">

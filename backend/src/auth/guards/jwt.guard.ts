@@ -20,9 +20,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     const accessToken = req.cookies[AUTH_COOKIE_NAME] as string | null;
 
-    const isAccessTokenMarkedAsExpired = await this.redisService.get(
-      accessToken,
-    );
+    const isAccessTokenMarkedAsExpired =
+      await this.redisService.get(accessToken);
 
     if (isAccessTokenMarkedAsExpired) throw new UnauthorizedException();
 

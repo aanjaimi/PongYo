@@ -43,8 +43,10 @@ model User {
   rowvectories         Int            @map("row_vectories")
   // rank      Rank @default(UNRANKED) @map("rank")
   // towFactorAuth Boolean         @default(false)
-  friends              Friend[]
-  messages             Message[]
+  friends              Friend[]       @relation("userFriends")
+  // users who are Friends with this User
+  myFriends            Friend[]       @relation("friendsOfUser")
+   messages             Message[]
   senderNotification   Notification[] @relation("sender")
   receiverNotification Notification[] @relation("receiver")
   userGameHistory   Game[]    @relation(name: "user")
@@ -65,24 +67,23 @@ model User {
 
   @@map("users")
 }
-
-enum State {
+enum FriendState {
+  NONE
   BLOCKED
   PENDING
   ACCEPTED
   REFUSED
 }
-
 model Friend {
-  id     String @id @default(cuid())
-  state  State
-  login  String @map("login")
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+  id       String      @id @default(cuid())
+  state    FriendState
+  user     User        @relation("userFriends", fields: [userId], references: [id])
+  userId   String      @map("user_id")
+  friend   User        @relation("friendsOfUser", fields: [friendId], references: [id])
+  friendId String      @map("friend_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-
   @@map("friends")
 }
 

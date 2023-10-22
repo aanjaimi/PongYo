@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Req, Res } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -20,6 +20,7 @@ export class AuthService {
   ) {}
 
   async fortyTwoCallback(user: User, res: Response) {
+
     const payload = {
       iss: 'Transcendence',
       login: user.login,
@@ -36,7 +37,8 @@ export class AuthService {
       path: '/',
       maxAge: Math.ceil(AUTH_COOKIE_MAX_AGE * 1e3),
     });
-    res.redirect(this.configService.get('FRONTEND_ORIGIN'));
+
+    res.redirect(this.configService.get('FRONTEND_ORIGIN_PROFILE'));
   }
 
   async logout(req: Request, res: Response) {
@@ -76,4 +78,13 @@ export class AuthService {
       });
     });
   }
+
+  // async generate2FAQR(@Req() req: Request, @Res() res: Response) {
+  //   const secret = speakeasy.generateSecret({ length: 6 }).base32;
+  //   const otpauthUrl = speakeasy.otpauthURL({
+  //     secret: secret.base32,
+  //     label: 'Transcendence',
+  //     algorithm: 'sha1',
+  //   });
+  // }
 }

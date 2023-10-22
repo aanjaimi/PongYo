@@ -15,7 +15,6 @@ const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
 
   // Handle Invite Click
   const handleInviteClick = () => {
-    console.log("event 1");
     gameSocket.emit("invite", { opponent : username });
   };
 
@@ -26,20 +25,15 @@ const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
 
   useEffect(() => {
     const invitedSuccessHandler = (data:{opp:User}) => {
-      console.log("invited success");
       setFriend(data.opp);
-      console.log(data.opp);
       setInviteNotify(true);
     };
 
     const invitedHandler = (data:{msg:string, friend:string}) => {
-      console.log("invited");
-      console.log(data);
       inviteNotify(data);
     };
 
     const invitedFailHandler = (data:{msg:string}) => {
-      console.log(data);
       notifyError(data.msg);
     };
 
@@ -65,9 +59,7 @@ const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
       progress: undefined,
       theme: "dark",
       onClick: () => {
-        console.log("Toast clicked!");
         gameSocket.emit("acceptInvite", { opponent : data.friend});
-        // setGameStarted(true);
       },
     });
   };

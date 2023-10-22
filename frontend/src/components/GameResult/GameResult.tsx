@@ -13,8 +13,6 @@ type GameResultProps = {
 const GameResult = ({myScore, oppScore, oppData}:GameResultProps) => {
   
   const { state } = useStateContext();
-  console.log(oppData);
-  console.log(state.user);
   const firstColor =
     myScore > oppScore
       ? { color: "gold", textClass: "text-yellow-300" , resoult: "Winner"}
@@ -23,8 +21,6 @@ const GameResult = ({myScore, oppScore, oppData}:GameResultProps) => {
     myScore < oppScore
       ? { color: "gold", textClass: "text-yellow-300", resoult: "Winner" }
       : { color: "silver", textClass: "text-gray-300", resoult: "Loser" };
-  console.log(firstColor);
-  console.log(secondColor);
   return (
     <div className="flex w-screen h-screen justify-center items-center">
       <div className="flex justify-around items-center text-white bg-[#ffffff33] sm:h-[230px] sm:w-[700px] text-lg rounded-lg p-4 flex-col sm:flex-row">

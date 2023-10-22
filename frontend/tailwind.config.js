@@ -1,6 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ["class"],
+  darkMode: false,
+  theme: {
+    extend: {},
+  },
+  variants: {},
+  // darkMode: ["class"],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
@@ -17,6 +22,8 @@ module.exports = {
     },
     extend: {
       colors: {
+        winGreen: '#4CAF50',
+        lossRed: '#FF0000',
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
