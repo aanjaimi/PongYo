@@ -18,21 +18,79 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { fetcher } from "@/utils/fetcher";
 import type { User } from "@/types/user";
+import { useRouter } from "next/router";
+import { useQueryClient } from "@tanstack/react-query";
 
 const Cover = () => {
+  const router = useRouter();
   const { state } = useStateContext();
   const [user, setUser] = useState<User | null>(null);
+  const [displayName, setDisplayName] = useState<string>("");
+  const [on, setOn] = useState<boolean>(false);
+  const queryClient = useQueryClient();
+  const [tfa, setTFA] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
       const resp = await fetcher.get<User>("/users/@me");
       setUser(resp.data);
+      const user:User = resp.data;
+      setTFA(user.towFactorAuth);
     })().catch((err) => console.error(err));
   }, [state.user]);
 
   const isMe = state.user?.id === user?.id;
+
+  const handleSubmit = () => {
+    if (displayName !== "" || tfa !== user?.towFactorAuth) {
+      if (displayName === "") {
+        setDisplayName(user?.displayname);
+      }
+      fetcher
+        .patch(`/users/@me/update`, {
+          displayName: displayName,
+          twoFactorAuth: tfa ? "true" : "false",
+          isComplete: "true",
+        })
+        .then((resp) => {
+          if (resp.status === 200) {
+            setOn(false);
+            router.push("/profile/@me").catch((err) => {
+              console.log(err);
+            });
+            queryClient.invalidateQueries(["users", "@me"]).catch((err) => {
+              console.log(err);
+            });
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  };
+
+  const setingTFA = (tfa: boolean) => {
+    setTFA(tfa);
+    // fetcher
+    //   .patch(`/users/@me/towFactorAuth`, {
+    //     towFactorAuth: tfa,
+    //   })
+    //   .then((resp) => {
+    //     if (resp.status === 200) {
+    //       setTFA(tfa);
+    //       queryClient.invalidateQueries(["users", "@me"]).catch((err) => {
+    //       console.log(err);
+    //       });
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
+  
+  }
 
   return (
     <div className="relative mb-[19px] mt-[36px] flex flex-col items-center justify-center">
@@ -47,14 +105,14 @@ const Cover = () => {
         />
       </div>
       <div className="h-[120px] w-[400px] rounded-b-2xl bg-[#33437D] sm:h-[120px] md:h-[78px] md:w-[600px] lg:w-[968px]">
-        <div className="mt-[60px] flex justify-between font-semibold text-black sm:mx-[5px] sm:mt-[60px] md:ml-[180px] md:mt-[10px]">
-          <div className="flex grow flex-col">
-            <p className="text-[10px] text-[#ffffff] sm:text-[10px] lg:text-[20px]">
+        <div className="mt-[50px] flex justify-between font-semibold text-black sm:mx-[5px] sm:mt-[50px] md:ml-[180px] md:mt-[10px]">
+          <div className="ml-[20px] flex grow flex-col md:ml-[2px]">
+            <span className="text-[20px] text-[#ffffff]">
               {state.user?.displayname}
-            </p>
-            <p className="sm: text-[10px] text-[#A5A3A3] sm:text-[10px] lg:text-[15px]">
+            </span>
+            <span className="text-[20px] text-[#A5A3A3]">
               @{state.user?.login}
-            </p>
+            </span>
           </div>
           {!isMe && (
             <div className="mr-[10px] flex justify-around">
@@ -82,31 +140,48 @@ const Cover = () => {
           )}
           {isMe && (
             <div className="mr-[20px] flex items-center">
-              <Button className="w-[130px] bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]">
+              <Button
+                className="w-[130px] bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
+                onClick={() => setOn(true)}
+              >
                 <Dialog>
                   <DialogTrigger>Edit profile</DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Edit profile</DialogTitle>
-                      <DialogDescription>
-                        Make changes to your profile here. Click save when
-                        you're done.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="grid w-full max-w-sm items-center gap-1.5">
-                      <Label htmlFor="email">DisplayName</Label>
-                      <Input placeholder="DisplayName" />
-                    </div>
-                    <div className="grid w-full max-w-sm items-center gap-1.5">
-                      <Label htmlFor="picturw">Avatar</Label>
-                      <Input id="picture" type="file" />
-                    </div>
-                    <div className="mt-[20px] flex justify-end">
-                      <Button className="w-[130px] bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]">
-                        Save changes
-                      </Button>
-                    </div>
-                  </DialogContent>
+                  {on && (
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Edit profile</DialogTitle>
+                        <DialogDescription>
+                          Make changes to your profile here. Click save when
+                          you're done.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid w-full max-w-sm items-center gap-1.5">
+                        <Label>DisplayName</Label>
+                        <Input
+                          id="DisplayName"
+                          placeholder="DisplayName"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                        />
+                      </div>
+                      <div className="grid w-full max-w-sm items-center gap-1.5">
+                        <Label>Avatar</Label>
+                        <Input id="avatar" type="file" />
+                      </div>
+                      <div className="grid w-full max-w-sm items-center gap-1.5">
+                        <Label>Tow Factor Authentication {tfa ? <>Enabled</> : <>Disabled</>}</Label>
+                        <Switch checked={tfa} onCheckedChange={() => {setingTFA(!tfa);}}/>
+                      </div>
+                      <div className="mt-[20px] flex justify-end">
+                        <Button
+                          className="w-[130px] bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
+                          onClick={handleSubmit}
+                        >
+                          Save changes
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  )}
                 </Dialog>
               </Button>
             </div>

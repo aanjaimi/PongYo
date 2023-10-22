@@ -1,5 +1,5 @@
-import type { Achievements } from './achievement';
-import type { Game } from './game';
+import type { Achievements } from "./achievement";
+import type { Game } from "./game";
 
 enum Rank {
   UNRANKED,
@@ -31,6 +31,12 @@ export type User = {
   vectories: number;
   defeats:   number;
   points:    number;
-  achievements: Achievements[];
-  oppositeGames: Game[];
+  rowvectories: number;
+  isCompleted: boolean;
+  twoFactorAuth: boolean;
+  achievement: Achievements[];
+  userGameHistory: Game[];
+  createdAt: Date;
+  updatedAt: Date;
+  avatar: string;
 };

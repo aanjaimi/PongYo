@@ -1,8 +1,17 @@
-import { Controller, Get, UseGuards, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  UseGuards,
+  Param,
+  Query,
+  Body,
+} from '@nestjs/common';
 import { UserService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from '@prisma/client';
 import { CurrentUser } from '@/auth/auth.decorator';
+import { UpdateUserDto } from './dto/update-user.dto';
 @Controller('/users')
 @UseGuards(JwtAuthGuard)
 export class UserController {
@@ -26,5 +35,14 @@ export class UserController {
   async findOne(@Param('id') id: string, @CurrentUser() currentUser: User) {
     if (id === '@me') return this.userService.findOne(currentUser.id);
     return this.userService.findOne(id);
+  }
+
+  @Patch(':id/update')
+  async updateDisplayName(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() currentUser: User,
+  ) {
+    return this.userService.updateUser(currentUser.id, updateUserDto);
   }
 }

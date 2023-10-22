@@ -4,8 +4,6 @@ import { useRouter } from 'next/router';
 import { Button } from './ui/button';
 
 const Card = () => {
-  // const callback_url = process.env.INTRA_CALLBACK_URL as string;
-  // console.log('callback : ', callback_url);
   const router = useRouter();
   return (
     <div className="border border-black rounded-[63px] bg-[#d9d9d933] w-[350px] h-[420px] sm:w-[541px] sm:h-[385px] flex flex-col items-center justify-center font-['outfit'] text-white">

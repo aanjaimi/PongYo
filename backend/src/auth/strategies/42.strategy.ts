@@ -23,6 +23,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
     refreshToken: string,
     profile: FortyTwoProfile,
   ) {
+
     const user = await this.prismaService.user.upsert({
       where: { login: profile.username },
       create: {
@@ -33,10 +34,14 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
         vectories: 0,
         defeats: 0,
         points: 0,
-        rank: Rank.UNRANKED,
+        rank: 'UNRANKED',
+        rowvectories: 0,
+        isCompleted: false,
+        twoFactorAuth: false,
       },
       update: {},
     });
+
     return user;
   }
 }

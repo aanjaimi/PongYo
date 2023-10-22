@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { User } from '@prisma/client';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -10,6 +11,10 @@ export class UserService {
     const user = await this.prismaService.user.findFirst({
       where: {
         OR: [{ id }, { login: id }],
+      },
+      include: {
+        achievement: true,
+        userGameHistory: true,
       },
     });
     if (!user) throw new NotFoundException();
@@ -42,5 +47,22 @@ export class UserService {
     });
     if (!users) return [];
     return users;
+  }
+
+  updateUser(id: string, updateUserDto: UpdateUserDto) {
+    console.log(updateUserDto);
+    const { displayName, twoFactorAuth, isComplete } = updateUserDto;
+    const tfa = twoFactorAuth === 'true' ? true : false;
+    const complete = isComplete === 'true' ? true : false;
+    return this.prismaService.user.update({
+      where: {
+        id,
+      },
+      data: {
+        displayname: displayName,
+        isCompleted: complete,
+        twoFactorAuth: tfa,
+      },
+    });
   }
 }

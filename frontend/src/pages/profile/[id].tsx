@@ -1,14 +1,15 @@
 import React from "react";
 import { useStateContext } from "@/contexts/state-context";
 import type { User } from "@/types/user";
-// import type { Achievements } from "@/types/achievement";
-// import type { Game } from "@/types/game";
 import { fetcher } from "@/utils/fetcher";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Body from "@/components/Body";
 import type { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
+import Editpage from "@/components/Editpage";
+import TFA from "@/components/TFA";
+import { useQueryClient } from "@tanstack/react-query";
 
 const getUser = async (login: string) => {
   const resp = await fetcher.get<User>(`/users/${login}`);
@@ -18,9 +19,7 @@ const getUser = async (login: string) => {
 export type ProfileProps = {
   id: string;
 };
-export const getServerSideProps = (
-  context: GetServerSidePropsContext
-) => {
+export const getServerSideProps = (context: GetServerSidePropsContext) => {
   const { id } = context.params as { id: string };
 
   return {
@@ -31,6 +30,7 @@ export const getServerSideProps = (
 };
 
 export default function Profile({ id }: ProfileProps) {
+  const queryClient = useQueryClient();
   const router = useRouter();
   const { dispatch } = useStateContext();
   const userQurey = useQuery({
@@ -38,9 +38,10 @@ export default function Profile({ id }: ProfileProps) {
     queryFn: ({ queryKey: [, id] }) => {
       return getUser(id!);
     },
-    retry: false,
+    // retry: true,
     onSuccess: (data) => {
       dispatch({ type: "SET_USER", payload: data });
+      queryClient.invalidateQueries(["users", "@me"]).catch(console.error);
     },
     onError: (err) => {
       console.error(err);
@@ -54,14 +55,23 @@ export default function Profile({ id }: ProfileProps) {
         Loading...
       </div>
     );
-  if (userQurey.isError)
-      router.push("/404").catch(console.error);
+  if (userQurey.isError) router.push("/").catch(console.error);
   const user = userQurey.data;
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-auto">
-      <Navbar />
-      {user && <Body />}
+      {user?.isCompleted && (
+        <>
+          {!user.twoFactorAuth && (
+            <>
+              <Navbar />
+              <Body />
+            </>
+          )}
+          {user.twoFactorAuth && <div className="w-screen h-screen flex items-center justify-center"><TFA /></div>}
+        </>
+      )}
+      {!user?.isCompleted && <Editpage />}
     </div>
   );
 }

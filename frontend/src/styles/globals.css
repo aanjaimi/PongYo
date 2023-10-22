@@ -79,16 +79,6 @@ body {
   background-color: #000355;
 }
 
-.Winner{
-  color: #ffeb3b;
-  font-weight: bold;
-}
-
-.Loser{
-  color: #e0e0e0;
-  font-weight: bold;
-}
-
 .stroke-green {
   stroke: hsl(165, 100%, 26%); /* Adjust the hue, saturation, and lightness values to achieve the desired effect */
 }

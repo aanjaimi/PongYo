@@ -12,7 +12,7 @@ export default function Home() {
           url(`https://fonts.googleapis.com/css2?family=Outfit&display=swap`);
         </style>
       </Head>
-      <Landingpage/>
+      <Landingpage />
     </>
   );
 }

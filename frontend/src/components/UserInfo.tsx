@@ -12,9 +12,7 @@ const UserInfo = () => {
 
   const { state } = useStateContext();
 
-  const [achievement, setAchievement] = useState<Achievements[] | []>(state.achievement);
-  // const [history, setHistory] = useState<Historique[] | []>([]);
-  // const [rank, setRank] = useState<Game[] | []>([]);
+  const [achievement, setAchievement] = useState<Achievements[] | undefined>(state.user?.achievement);
 
   const [achievementBool, setAchievementBool] = useState<boolean>(true);
   const [historyBool, setHistoryBool] = useState<boolean>(false);

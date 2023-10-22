@@ -2,7 +2,7 @@ import React from 'react'
 import Sidebar from '@/components/Sidebar';
 import Cover from './Cover';
 import UserInfo from './UserInfo';
-import UsreData from './UsreData';
+import UsreData from './UserData';
 import { Buttons } from '@/types/common';
 
 const Body = () => {
