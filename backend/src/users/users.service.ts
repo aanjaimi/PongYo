@@ -36,7 +36,7 @@ export class UserService {
 
   async getUser(userId: string, otherId: string) {
     if (otherId === '@me') otherId = userId;
-    const { friend: user } = await friendChecking(userId, otherId);
+    const { friend: user } = await friendChecking.bind(this)(userId, otherId);
     return user;
   }
 
