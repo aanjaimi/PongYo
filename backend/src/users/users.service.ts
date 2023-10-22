@@ -1,31 +1,64 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from '@prisma/client';
+import { UserQueryDTO, UserUpdateDTO } from './users.dto';
+import { Prisma } from '@prisma/client';
+import { buildPagination } from '@/global/global.utils';
+import { friendChecking } from '@/friends/friends.helpers';
 
 @Injectable()
 export class UserService {
   constructor(private prismaService: PrismaService) {}
 
-  async findOne(id: string) {
-    const user = await this.prismaService.user.findFirst({
-      where: {
-        OR: [{ id }, { login: id }],
-      },
-    });
-    if (!user) throw new NotFoundException();
+  async getUsers(userId: string, query: UserQueryDTO) {
+    const where = {
+      ...(query.login && {
+        OR: [
+          { login: { contains: query.login } },
+          { displayname: { contains: query.login } },
+        ],
+      }),
+    } satisfies Prisma.UserWhereInput;
+
+    const [totalCount, users] = await this.prismaService.$transaction([
+      this.prismaService.user.count({ where }),
+      this.prismaService.user.findMany({
+        where,
+        skip: query.getSkip(),
+        take: query.limit,
+        // TODO: add sorting by rank!
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      }),
+    ]);
+    return buildPagination(users, query.limit, totalCount);
+  }
+
+  async getUser(userId: string, otherId: string) {
+    if (otherId === '@me') otherId = userId;
+    const { friend: user } = await friendChecking(userId, otherId);
     return user;
   }
 
-  async getUsersContainingValue(value: string): Promise<User[]> {
-    if (!value || value === '') return [];
-    const users = await this.prismaService.user.findMany({
-      where: {
-        login: {
-          contains: value,
-        },
+  async updateUser(
+    userId: string,
+    avatar: Express.Multer.File,
+    body: UserUpdateDTO,
+  ) {
+    const path = avatar?.path;
+    const user = await this.prismaService.user.update({
+      where: { id: userId },
+      data: {
+        ...body,
+        ...(path && {
+          avatar: {
+            path,
+            minio: true,
+          },
+        }),
       },
     });
-    if (!users) return [];
-    return users;
+
+    return user;
   }
 }
