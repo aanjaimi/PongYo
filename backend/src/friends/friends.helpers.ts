@@ -50,6 +50,7 @@ export async function friendChecking(
   if (!prisma) prisma = this.prismaService;
   const friend = await prisma.user.findFirst({
     where: { ...loginOrId(friendId) },
+    include: { stat: true },
   });
   if (!friend) throw new NotFoundException();
 
@@ -76,5 +77,5 @@ export async function friendChecking(
   const friendShipStatus = getFriendShipStatus(userId, friendShip);
   if (friendShipStatus === 'BLOCKED_BY_FRIEND') throw new ForbiddenException();
 
-  return { friendShip, friendId: friend.id };
+  return { friendShip, friend, friendId };
 }
