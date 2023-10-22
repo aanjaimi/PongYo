@@ -57,7 +57,7 @@ export default function Chat({ user }: { user: User }) {
     return () => {
       chatSocket.off('message');
     };
-  }, [channels, selectedChannel, user]);
+  }, [channels, selectedChannel, user, chatSocket]);
 
   const updateChannels = (newChannels: Channel[]) => {
     setChannels(newChannels);

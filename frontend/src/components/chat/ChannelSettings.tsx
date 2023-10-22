@@ -2,17 +2,10 @@ import type { Channel } from '@/types/Channel';
 import type { User } from '@/types/User';
 import React, { useState } from 'react';
 import Image from 'next/image';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import axios from 'axios';
 import { env } from '@/env.mjs';
 import ChannelSettingsContent from './ChannelSettingsContent';
+import EditChannel from './EditChannel';
 
 interface channelSettingsProps {
   channel: Channel;
@@ -53,17 +46,13 @@ export default function ChannelSettings({
         <div className="flex items-center justify-between">
           <div>
             {user.id === channel.ownerId && (
-              <Dialog>
-                <DialogTrigger className="m-[1rem] w-[25px] hover:cursor-pointer">
-                  <Image src="/edit1.png" alt="edit" width={50} height={50} />
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Edit channel</DialogTitle>
-                    <DialogDescription></DialogDescription>
-                  </DialogHeader>
-                </DialogContent>
-              </Dialog>
+              <EditChannel 
+                channel={channel}
+                user={user}
+                channels={channels}
+                updateChannels={updateChannels}
+                updateSelectedChannel={updateSelectedChannel}
+              />
             )}
           </div>
           <button

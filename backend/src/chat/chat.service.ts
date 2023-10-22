@@ -150,7 +150,7 @@ export class ChatService {
         name,
         type,
         isDM: false,
-        password: hashedPassword,
+        password: password ? hashedPassword : null,
         owner: {
           connect: { id: user.id },
         },
@@ -463,12 +463,14 @@ export class ChatService {
         moderators: true,
         owner: true,
         ownerId: true,
+        messages: true,
+        members: true,
       },
       where: { id },
       data: {
         name,
         type,
-        password: hashedPassword,
+        password: password ? hashedPassword : null,
       },
     });
 

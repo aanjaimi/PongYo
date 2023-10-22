@@ -28,7 +28,7 @@ export default function Home() {
     });
   };
 
-  useQuery({
+  const userQuery = useQuery({
     queryKey: ['userData'],
     queryFn: async () => {
       const { data }: { data: User } = await axios.get(uri + '/chat/me', {
@@ -54,11 +54,16 @@ export default function Home() {
       if (user) {
         leaveAllChannels();
       }
-    }
-
+    };
   }, [user]);
 
-  if (!user) return <></>;
+  if (userQuery.isLoading) {
+    return <div className="h-screen w-screen">Loading...</div>;
+  }
+
+  if (userQuery.isError) {
+    return <div className="h-screen w-screen">Error</div>;
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -67,7 +72,7 @@ export default function Home() {
       <div className="flex grow flex-row">
         {/* Sidebar component */}
         <div className="w-[4rem] bg-[#252525]"></div>
-        <div className="mt-[3rem] ml-[3rem] flex grow justify-center">
+        <div className="ml-[3rem] mt-[3rem] flex grow justify-center">
           <Chat user={user} />
         </div>
       </div>

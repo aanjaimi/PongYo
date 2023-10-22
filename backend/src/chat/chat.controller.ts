@@ -48,7 +48,7 @@ export class ChatController {
     return this.chatService.create(user, createChannelDto);
   }
 
-  @Get()
+  @Get('/channels')
   findAll(@CurrentUser() user: User) {
     return this.chatService.findAll(user);
   }
