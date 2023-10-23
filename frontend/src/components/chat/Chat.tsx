@@ -25,7 +25,6 @@ export default function Chat({ user }: { user: User }) {
 
   useEffect(() => {
     chatSocket.on('message', (data: { channel: Channel } & Message) => {
-      console.log(data);
       const channel = channels.find((channel) => channel.id === data.channelId);
       if (channel && data.userId !== user.id) {
         channel.messages.push(data);
@@ -73,7 +72,7 @@ export default function Chat({ user }: { user: User }) {
   return (
     //Chat Box
 
-    <Card className="flex h-[50rem] w-[60rem] rounded-[6px] bg-[#33437D] text-white">
+    <Card className="flex h-[55rem] w-[70rem] rounded-[6px] bg-[#33437D] text-white">
       <div className="flex h-[full] w-[25%] flex-col">
         <div className="flex h-[7%] items-center pl-[2rem] text-2xl ">
           chat room

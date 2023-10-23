@@ -15,6 +15,7 @@ export default function ChannelSettingsContent({
   channel,
   user,
 }: ChannelSettingsContentProps) {
+  console.log(channel);
   const isModerator = () => {
     return channel.moderators.some((moderator) => moderator.id === user.id);
   };

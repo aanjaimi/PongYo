@@ -54,6 +54,8 @@ export default function EditChannel({
     if (channelName === '' || (isProtected && channelPassword === ''))
       return toast.error('Incomplete format', toastOptions);
     try {
+      if (channelName.length > 30)
+        return toast.error('Channel name too long', toastOptions);
       const { data }: { data: Channel } = await axios.patch(
         `${uri}/chat/Channel/${channel.id}`,
         {
@@ -63,7 +65,6 @@ export default function EditChannel({
         },
         { withCredentials: true },
       );
-      console.log(data);
       const updatedChannels = channels.map((channel) => {
         if (channel.id === data.id) return data;
         return channel;
@@ -75,7 +76,6 @@ export default function EditChannel({
       setChannelPassword('');
       setChannelType('');
       setIsProtected(false);
-      e.currentTarget.reset();
     } catch (err) {
       console.log(err);
       toast.error('Channel already exists', toastOptions);

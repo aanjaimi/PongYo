@@ -7,6 +7,23 @@ export enum ChatType {
   PROTECTED = 'PROTECTED',
 }
 
+export type ban = {
+  id: string;
+  userId: string;
+  channelId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type mute = {
+  id: string;
+  userId: string;
+  channelId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  duration?: number;
+}
+
 export type Channel = {
   id: string;
   name: string;
@@ -15,6 +32,8 @@ export type Channel = {
   moderators: User[];
   ownerId: string;
   owner: User;
+  bans: ban[];
+  mutes: mute[];
   createdAt: Date;
   updatedAt: Date;
   messages: Message[];

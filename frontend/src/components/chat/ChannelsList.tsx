@@ -3,6 +3,25 @@ import React from 'react';
 import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
 
+const displayLastMessage = (channel: Channel) => {
+  if (channel.messages.length > 0) {
+    const lastMessage = channel.messages[channel.messages.length - 1];
+    if (lastMessage)
+      return `${lastMessage.user.displayName}: ${lastMessage.content}`;
+    else return '';
+  } else {
+    return '';
+  }
+};
+
+export const displayString = (str: string, len: number) => {
+  if (str.length > len) {
+    return str.slice(0, len) + '…';
+  } else {
+    return str;
+  }
+};
+
 interface ChannelsListProps {
   channels: Channel[];
   updateSelectedChannel: (arg: Channel | undefined) => void;
@@ -15,11 +34,11 @@ export default function ChannelsList({
   selectedChannel,
 }: ChannelsListProps) {
   return (
-    <div>
+    <div className="my-[1rem]">
       <ul>
         {channels.map((channel: Channel) => (
           <div
-            className={`m-[5px] px-[1rem] flex h-[3.2rem] items-center justify-between rounded-md text-xl hover:cursor-pointer hover:bg-[#382FA3] ${
+            className={`mx-[0.5rem] my-[5px] flex h-[3.5rem] items-center rounded-md text-xl hover:cursor-pointer hover:bg-[#382FA3] ${
               selectedChannel === undefined
                 ? 'bg-[#6466F1]'
                 : selectedChannel.id === channel.id
@@ -31,20 +50,26 @@ export default function ChannelsList({
             }}
             key={channel.id}
           >
-            <div>
-              <Image 
-                src={channel.isDM ? '/direct_chat_icon.png' : '/group_chat_icon.png'}
-                alt='pic'
-                height={25}
-                width={25}
-                className="bg-white rounded-full"
+            <div className="mx-[0.5rem] w-[45px]">
+              <Image
+                src={channel.isDM ? '/avatar.png' : '/avatar.png'}
+                alt="pic"
+                height={100}
+                width={100}
+                className="rounded-full bg-white"
               />
             </div>
-            <div className="flex flex-col">
-              <div className="text-[md]">{channel.name}</div>
-              {/* <div className="text-[12px] border">qwdqwd</div> */}
+            <div className="relative flex h-[100%] grow py-[0.3rem] ">
+              <h3 className="">{displayString(channel.name, 15)}</h3>
+              <p className="absolute top-6 text-[10px] truncate max-w-[100%]">
+                {displayLastMessage(channel)}
+              </p>
             </div>
-            <div className={`w-[0.5rem] h-[0.5rem] rounded-full ${channel.msgNotification && 'bg-[#10F990] animate-ping delay-150'}`}></div>
+            <div
+              className={`mx-[0.5rem] h-[0.5rem] w-[0.5rem] rounded-full ${
+                channel.msgNotification && 'animate-ping bg-[#10F990] delay-150'
+              }`}
+            ></div>
           </div>
         ))}
       </ul>

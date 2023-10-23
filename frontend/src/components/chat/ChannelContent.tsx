@@ -61,6 +61,9 @@ export default function ChannelContent({
     }
   };
 
+  //check if user is muted
+  const isMuted = channel.mutes.find((mute) => mute.userId === user.id);
+
   return showSettings ? (
     <ChannelSettings
       channel={channel}
@@ -103,7 +106,7 @@ export default function ChannelContent({
                 {message.userId}
               </div> */}
               <div
-                className={`chat-bubble max-w-[36rem] text-white ${
+                className={`chat-bubble max-w-[36rem] break-words text-white ${
                   message.userId === user.id
                     ? 'bg-[#8d8ddab3]'
                     : 'bg-[#abd9d9b3]'
@@ -115,27 +118,30 @@ export default function ChannelContent({
           ))}
         </ScrollableFeed>
       </div>
-      <form
-        className="mx-[1rem] mt-[1rem] flex h-[2rem] rounded-full border bg-[#d9d9d933]"
-        onSubmit={(e) => sendMessage(e)}
-      >
-        <input
-          type="text"
-          placeholder="type your message here..."
-          value={message}
-          className="h-[2rem] w-[90%] rounded-l-full bg-[#00000000] px-3 pb-[5px] focus:outline-none"
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <button className="flex w-[10%] items-center justify-center rounded-full bg-[#382FA3]">
-          <Image
-            className=""
-            src={'/send_button.png'}
-            alt="image"
-            width={21}
-            height={16}
+      {
+        <form
+          className="mx-[1rem] mt-[1rem] flex h-[2rem] rounded-full border bg-[#d9d9d933]"
+          onSubmit={(e) => sendMessage(e)}
+        >
+          <input
+            type="text"
+            placeholder="type your message here..."
+            value={message}
+            className={`h-[2rem] w-[90%] rounded-l-full bg-[#00000000] px-3 pb-[5px] focus:outline-none ${isMuted ? 'hover:cursor-not-allowed' : 'hover:cursor-text'}`}
+            onChange={(e) => setMessage(e.target.value)}
+            disabled={isMuted ? true : false}
           />
-        </button>
-      </form>
+          <button className="flex w-[10%] items-center justify-center rounded-full bg-[#382FA3]">
+            <Image
+              className=""
+              src={'/send_button.png'}
+              alt="image"
+              width={21}
+              height={16}
+            />
+          </button>
+        </form>
+      }
     </div>
   );
 }
