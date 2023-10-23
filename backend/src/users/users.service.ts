@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserQueryDTO, UserUpdateDTO } from './users.dto';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import { buildPagination } from '@/global/global.utils';
 import { friendChecking } from '@/friends/friends.helpers';
+import * as speakeasy from 'speakeasy';
 
 @Injectable()
 export class UserService {
@@ -41,24 +42,35 @@ export class UserService {
   }
 
   async updateUser(
-    userId: string,
+    user: User,
     avatar: Express.Multer.File,
     body: UserUpdateDTO,
   ) {
     const path = avatar?.path;
-    const user = await this.prismaService.user.update({
-      where: { id: userId },
+    const { tfa, ...rest } = body;
+    if (tfa === true && user.totp['enabled']) throw new ConflictException();
+
+    let totp = { enabled: tfa === true };
+    if (tfa) {
+      const payload = speakeasy.generateSecret({
+        name: 'Transcendence',
+        issuer: user.login,
+      });
+      totp = Object.assign(totp, payload);
+    }
+
+    return await this.prismaService.user.update({
+      where: { id: user.id },
       data: {
-        ...body,
+        ...rest,
         ...(path && {
           avatar: {
             path,
             minio: true,
           },
         }),
+        totp,
       },
     });
-
-    return user;
   }
 }

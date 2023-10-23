@@ -1,7 +1,7 @@
 import { QuerySchemaDto } from '@/global/global.dto';
-// import { Transform } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import {
-  // IsBoolean,
+  IsBoolean,
   IsOptional,
   IsString,
   MaxLength,
@@ -21,8 +21,8 @@ export class UserUpdateDTO {
   @MaxLength(32)
   displayname: string;
 
-  // @Transform((obj) => obj.value === 'true')
-  // @IsBoolean()
-  // @IsOptional()
-  // 'two-factor-auth': boolean;
+  @Transform((obj) => obj.value === 'true')
+  @IsBoolean()
+  @IsOptional()
+  'tfa': boolean;
 }

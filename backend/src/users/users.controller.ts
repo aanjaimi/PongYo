@@ -48,6 +48,6 @@ export class UserController {
     avatar: Express.Multer.File,
     @Body() body: UserUpdateDTO,
   ) {
-    return await this.userService.updateUser(user.id, avatar, body);
+    return await this.userService.updateUser(user, avatar, body);
   }
 }
