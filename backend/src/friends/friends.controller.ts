@@ -29,14 +29,14 @@ import { FriendQueryDTO, FriendShipActionDTO } from './friends.dto';
  * - note: for each query operation, such as blocking or sending a friend request, please ensure to update the 'friend.userId' field with the user ID of the person who initiated the operation.
  * */
 
-@Controller('users')
+@Controller('friends')
 @ApiCookieAuth()
 @ApiTags('friends')
 @UseGuards(JwtAuthGuard)
 export class FriendController {
   constructor(private readonly friendService: FriendService) {}
 
-  @Get('/:id/friends')
+  @Get(':id/users')
   // TODO: get user friends functionality should be done here!
   async findAll(
     @CurrentUser() user: User,
@@ -46,13 +46,18 @@ export class FriendController {
     // should be paginated
     return await this.friendService.getUserFriends(user.id, friendId, query);
   }
-  @Post('/:id/friends')
+
+  @Get(':id')
+  async findOne(@CurrentUser() user: User, @Param('id') friendId) {
+    return await this.friendService.getUserFriendShip(user.id, friendId);
+  }
+  @Post(':id')
   // TODO: friend request functionality should be done here!
   async create(@CurrentUser() user: User, @Param('id') friendId: string) {
     return await this.friendService.sendFriendRequest(user.id, friendId);
   }
 
-  @Patch(':id/friends')
+  @Patch(':id')
   // TODO: update friendship functionality should be done here!
   async update(
     @CurrentUser() user: User,
@@ -67,7 +72,7 @@ export class FriendController {
   }
 
   // TODO: block functionality should be done here!
-  @Delete(':id/friends')
+  @Delete(':id')
   @HttpCode(204)
   async remove(@CurrentUser() user: User, @Param('id') friendId: string) {
     return await this.friendService.blockFriend(user.id, friendId);

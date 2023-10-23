@@ -41,6 +41,9 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
           minio: false,
           path: avatarPath, // ? INFO :maybe we can't rename it to link !
         },
+        totp: {
+          enabled: false,
+        },
         login: profile.username,
         displayname: profile.displayName,
         email: profile.emails[0].value,

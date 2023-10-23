@@ -37,7 +37,7 @@ model User {
   email       String     @unique
   status      UserStatus @default(OFFLINE) @map("status")
 
-  // towFactorAuth Boolean         @default(false)
+  totp Json
 
   // friends of the User
   friends              Friend[]       @relation("userFriends")
