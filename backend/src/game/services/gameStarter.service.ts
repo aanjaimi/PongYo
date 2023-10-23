@@ -56,16 +56,16 @@ export class GameStarterService {
       inertia: Infinity,
     });
    
-    const cyanball = Bodies.circle(500, 250, 15, {
+    const blueball = Bodies.circle(500, 250, 25, {
       isStatic: true,
     });
-    const magentaball = Bodies.circle(500, 550, 15, {
+    const magentaball = Bodies.circle(500, 550,25, {
       isStatic: true,
     });
-    const yellowball = Bodies.circle(150, 550, 15, {
+    const redball = Bodies.circle(150, 550, 25, {
       isStatic: true,
     });
-    const tanball = Bodies.circle(150, 250, 15, {
+    const tanball = Bodies.circle(150, 250, 25, {
       isStatic: true,
     });
     // const 
@@ -82,8 +82,8 @@ export class GameStarterService {
       createWall(325, 0, 650, 1, true),
       createWall(325, 750, 650, 1, true),
     ];
-    World.add(engine.world, [ball, playerPaddle, opponentPaddle, ...walls, cyanball, magentaball,
-       yellowball
+    World.add(engine.world, [ball, playerPaddle, opponentPaddle, ...walls, blueball, magentaball,
+       redball
       , tanball
     ]);
     const runner = Runner.create();
@@ -118,13 +118,13 @@ export class GameStarterService {
         const pairs = event.pairs;
         for (let i = 0; i < pairs.length; i++) {
           const pair = pairs[i];
-          if(pair.bodyA === cyanball || pair.bodyB === cyanball)
+          if(pair.bodyA === blueball || pair.bodyB === blueball)
           {
             player1.emit('change-color', {
-              color: "cyan",
+              color: "blue",
             });
             player2.emit('change-color', {
-              color: "cyan",
+              color: "blue",
             });
           }
           if(pair.bodyA === magentaball || pair.bodyB === magentaball)
@@ -136,13 +136,13 @@ export class GameStarterService {
               color: "magenta",
             });
           }
-          if(pair.bodyA === yellowball || pair.bodyB === yellowball)
+          if(pair.bodyA === redball || pair.bodyB === redball)
           {
             player1.emit('change-color', {
-              color: "yellow",
+              color: "red",
             });
             player2.emit('change-color', {
-              color: "yellow",
+              color: "red",
             });
           }
           if(pair.bodyA === tanball || pair.bodyB === tanball)
@@ -189,7 +189,7 @@ export class GameStarterService {
             player1.emit('update-ball-position', { x: 325, y: 375 });
             player2.emit('update-ball-position', { x: 325, y: 375 });
           }
-          if (player1Score >= 5 || player2Score >= 5) {
+          if (player1Score >= 500 || player2Score >= 500) {
             Runner.stop(runner);
             Engine.clear(engine);
             World.clear(engine.world, false);

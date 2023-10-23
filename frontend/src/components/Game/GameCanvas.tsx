@@ -18,20 +18,24 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) 
         width: 650,
         height: 750,
         wireframes: false,
-        background: "#33437D",
+        background: "white",
       },
     };
     const render = Matter.Render.create(renderOptions);
     const ball = Matter.Bodies.circle(325, 375, 10, {
       render: {
         fillStyle: "white",
+        strokeStyle: "black", // Change the border color to red
+        lineWidth: 4, // Adjust the border width
       },
     });
    
     const playerPaddle = Matter.Bodies.rectangle(325, 15, 150, 20, {
       isStatic: true,
       render: {
-        fillStyle: "#8D8DDA",
+        fillStyle: "white",
+        strokeStyle: "black",  // Border (stroke) color
+        lineWidth: 3,
       },
       chamfer: {
         radius: 10,
@@ -41,22 +45,24 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) 
     const opponentPaddle = Matter.Bodies.rectangle(325, 735, 150, 20, {
       isStatic: true,
       render: {
-        fillStyle: "#8D8DDA",
+        fillStyle: "white",
+        strokeStyle: "black",  // Border (stroke) color
+        lineWidth: 3,
       },
       chamfer: {
         radius: 10,
       },
     });
    
-    const cyanball = Matter.Bodies.circle(500, 250, 15, {
+    const blueball = Matter.Bodies.circle(500, 250, 25, {
       isStatic: true,
       render: {
         fillStyle: "transparent",
-        strokeStyle: "cyan", // Change the border color to red
+        strokeStyle: "blue", // Change the border color to red
         lineWidth: 1, // Adjust the border width
       },
     });
-    const magentaball = Matter.Bodies.circle(500, 550, 15, {
+    const magentaball = Matter.Bodies.circle(500, 550, 25, {
       isStatic: true,
       render: {
 
@@ -65,15 +71,15 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) 
         lineWidth: 1, // Adjust the border width
       },
     });
-    const yellowball = Matter.Bodies.circle(150, 550, 15, {
+    const redball = Matter.Bodies.circle(150, 550, 25, {
       isStatic: true,
       render: {
         fillStyle: "transparent", // Set to transparent to only show the border
-        strokeStyle: "yellow", // Change the border color to red
+        strokeStyle: "red", // Change the border color to red
         lineWidth: 1, // Adjust the border width
       }, // Adjust the border width
     });
-    const tanball = Matter.Bodies.circle(150, 250, 15, {
+    const tanball = Matter.Bodies.circle(150, 250, 25, {
       isStatic: true,
       render: {
         fillStyle: "transparent", // Set to transparent to only show the border
@@ -85,7 +91,7 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) 
     const net = Matter.Bodies.rectangle(325, 375, 650, 0.5, {
       isStatic: true,
       render: {
-        fillStyle: "white",
+        fillStyle: "black",
       },
     });
     Matter.World.add(engine.world, [
@@ -93,14 +99,14 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) 
       playerPaddle,
       opponentPaddle,
       net,
-      cyanball,
+      blueball,
       magentaball,
-      yellowball,
+      redball,
       tanball,
     ]);
     Matter.Render.run(render);
     gameSocket.on("change-color", (data:{color:string}) => {
-      ball.render.fillStyle = data.color;
+      ball.render.strokeStyle = data.color;
     }
     );
     gameSocket.on("update-ball-position", (data:itemPosition) => {
@@ -145,7 +151,7 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) 
   }, []);
   return (
     <div>
-      <canvas ref={canvasRef} className="h-full w-full rounded-3xl" />
+      <canvas ref={canvasRef} className="h-full w-full rounded-3xl border-4" />
     </div>
   );
 };

@@ -4,6 +4,7 @@ import GameResult from "../GameResult/GameResult";
 import { useEffect } from "react";
 import ImageCard from "./imageCard";
 import type { GameProps } from "../gameTypes/types";
+import { Card } from "@/components/ui/card";
 
 const Game = ({oppData}:GameProps) => {
 
@@ -23,12 +24,12 @@ const Game = ({oppData}:GameProps) => {
   }, [countdown]);
 
   return (
-    <div className="flex justify-center items-center grow">
+    <Card className="flex justify-center items-center grow bg-white border">
       {countdown > 0 && (
         <div className="flex h-screen items-center justify-center">
           <div className="flex flex-col items-center justify-center">
-            <h1 className="text-9xl text-white">{countdown}</h1>
-            <h1 className="text-3xl text-white">Game starts in</h1>
+            <h1 className="text-9xl text-black">{countdown}</h1>
+            <h1 className="text-3xl text-black">Game starts in</h1>
           </div>
         </div>
       )}
@@ -45,6 +46,8 @@ const Game = ({oppData}:GameProps) => {
               setIsGameOver={setIsGameOver}
               setMyScore={setMyScore}
               setOppScore={setOppScore}
+              className="border-4 border-black"
+
             />
           </div>
           <ImageCard
@@ -56,7 +59,7 @@ const Game = ({oppData}:GameProps) => {
         </div>
       )}
       {isGameOver && <GameResult myScore={myScore} oppScore={oppScore} oppData={oppData} />}
-    </div>
+    </Card>
   );
 };
 

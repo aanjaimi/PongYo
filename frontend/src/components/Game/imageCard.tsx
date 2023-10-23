@@ -20,7 +20,7 @@ export  default function ImageCard({sideclass, className, size , score}: ImagePr
             	 objectFit='cover'
             	/>
 							<div className="pt-2 w-full flex flex-col items-center justify-center ">
-								<p className="sm:text-3xl text-white font-bold"> {score}</p>
+								<p className="sm:text-3xl  font-bold"> {score}</p>
 							</div>
 						</div>
           </div>

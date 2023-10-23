@@ -3,7 +3,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSocket } from "@/contexts/socket-context";
 import type { ChangeEvent } from "react";
+import { Input } from "@/components/ui/input"
 import type { User } from "@/types/user";
+import { Button } from "@/components/ui/button"
 type InvitedButtonProps = {
   setInviteNotify: (value: boolean) => void;
   setFriend: (value: User) => void
@@ -15,6 +17,7 @@ const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
 
   // Handle Invite Click
   const handleInviteClick = () => {
+    setInviteNotify(true);
     gameSocket.emit("invite", { opponent : username });
   };
 
@@ -94,20 +97,20 @@ const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
 
   return (
     <div className="relative mx-auto flex w-[70%]">
-      <input
+      <Input
         type="text"
         placeholder="Enter username"
-        className="h-10 w-[100%] rounded-full bg-gray-500 pl-4 focus:outline-none"
+        className="h-10 w-[100%] rounded-full pl-4 focus:outline-none text-black text-xl"
         value={username}
         onChange={handleInputChange}
-        maxLength={22}
+        maxLength={23}
       />
-      <button
-        className="absolute right-0 h-10 w-[30%] rounded-full bg-blue-500 text-white"
+      <Button
+        className="absolute right-0 h-10 w-[30%] rounded-full  text-white"
         onClick={handleInviteClick}
       >
         Invite
-      </button>
+      </Button>
       <ToastContainer />
     </div>
   );

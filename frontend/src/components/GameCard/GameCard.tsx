@@ -1,7 +1,7 @@
 import React, { useState, useEffect, use } from "react";
 import InvitedButton from "./InvitedButton";
 import Divider from "./Divider";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import PopUp from "./popUp";
 import { useSocket } from "@/contexts/socket-context";
 import CustomModal from "./CustomModal";
@@ -14,6 +14,14 @@ import type { ChangeEvent } from "react";
 import type { GameCardProps } from "../gameTypes/types";
 import InvitationCard from "./inviteCard";
 import { useRouter } from "next/router";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 const getCurrentUser = async () => {
   const resp = await fetcher.get<User>("/users/@me");
   return resp.data;
@@ -92,7 +100,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   }, []);
 
   return (
-    <div className="flex  flex-col items-center justify-center grow">
+    <Card className="flex h-screen   flex-col items-center justify-center grow ">
       {inviteNotify && (
         <InvitationCard
           setInviteNotify={setInviteNotify}
@@ -107,11 +115,11 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
       )}
 
       {!isPopupOpen && !inviteNotify  && (
-        <div className="flex h-[450px] w-[500px] flex-col rounded-xl bg-[#33437D]">
+        <div className="flex h-[450px] w-[500px] flex-col rounded-xl bg-white border-4 text-black">
           <div className="pt-7">
-            <h1 className="pl-5 text-3xl text-white "> Start A Game :</h1>
+            <h1 className="pl-5 text-3xl  "> Start A Game :</h1>
           </div>
-          <div className="flex space-x-16 pl-16 pt-5 text-sm text-white">
+          <div className="flex space-x-16 pl-16 pt-5 text-sm text-black ">
             <div className="space-x-4">
               <input
                 type="radio"
@@ -137,9 +145,9 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
             </div>
           </div>
 
-          <div className="mt-8 flex w-full items-center justify-center text-xl text-white">
+          <div className="mt-8 flex w-full items-center justify-center text-xl ">
             <Button
-              className="flex h-[40px] w-[140px] rounded-full bg-blue-500 text-2xl"
+              className="flex h-[40px] w-[140px] rounded-full  text-2xl"
               onClick={handleStartClick}
             >
               Start
@@ -147,7 +155,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
           </div>
           <Divider />
           <div className="mt-10 flex">
-            <h1 className="pl-5 text-3xl text-white "> INVITE YOUR FRIEND :</h1>
+            <h1 className="pl-5 text-3xl  "> INVITE YOUR FRIEND :</h1>
           </div>
           <div className="mt-6 flex items-center pt-2 text-xl text-white">
             <InvitedButton setInviteNotify={setInviteNotify} setFriend={setFriend}/>
@@ -155,7 +163,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
         </div>
       )}
       {showValidation && <CustomModal onClose={handleCloseValidation} />}
-    </div>
+    </Card>
   );
 };
 
