@@ -225,6 +225,8 @@ model Ban {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  bannedUntil DateTime
+
   @@map("bans")
 }
 
@@ -239,7 +241,7 @@ model Mute {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  muteDuration Int? @map("mute_duration")
+  muteUntil DateTime
 
   @@map("mutes")
 }

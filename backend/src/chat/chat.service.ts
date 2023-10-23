@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Channel, User } from '@prisma/client';
 import { RoomType } from '@prisma/client';
 import { AddModeratorDto } from './dto/add-moderator.dto';
 import { BanUserDto } from './dto/ban-user.dto';
@@ -20,6 +20,28 @@ export class ChatService {
     private readonly configService: ConfigService,
   ) {}
 
+  private async updateMutesAndBans(channel: Channel) {
+    // check for every mute if it has expired
+    const mutes = await this.prismaService.mute.findMany({
+      where: { channelId: channel.id },
+    });
+    // if mute has expired, delete it
+    mutes.forEach(async (mute) => {
+      if (mute.muteUntil < new Date()) {
+        await this.prismaService.mute.delete({ where: { id: mute.id } });
+      }
+    });
+    const bans = await this.prismaService.ban.findMany({
+      where: { channelId: channel.id },
+    });
+    // if ban has expired, delete it
+    bans.forEach(async (ban) => {
+      if (ban.bannedUntil < new Date()) {
+        await this.prismaService.ban.delete({ where: { id: ban.id } });
+      }
+    });
+  }
+
   async getUser(user: User) {
     return await this.prismaService.user.findUnique({
       where: { id: user.id },
@@ -34,7 +56,13 @@ export class ChatService {
             owner: true,
             ownerId: true,
             moderators: true,
-            messages: true,
+            bans: true,
+            mutes: true,
+            messages: {
+              include: {
+                user: true,
+              },
+            },
             createdAt: true,
             updatedAt: true,
           },
@@ -66,7 +94,11 @@ export class ChatService {
         name: true,
         type: true,
         members: true,
-        messages: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
         createdAt: true,
         updatedAt: true,
       },
@@ -91,7 +123,11 @@ export class ChatService {
         ownerId: true,
         moderators: true,
         members: true,
-        messages: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
         createdAt: true,
         updatedAt: true,
       },
@@ -142,7 +178,13 @@ export class ChatService {
         ownerId: true,
         moderators: true,
         members: true,
-        messages: true,
+        mutes: true,
+        bans: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
         createdAt: true,
         updatedAt: true,
       },
@@ -173,7 +215,11 @@ export class ChatService {
         ownerId: true,
         moderators: true,
         members: true,
-        messages: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
         mutes: true,
         bans: true,
         createdAt: true,
@@ -204,7 +250,11 @@ export class ChatService {
         ownerId: true,
         bans: true,
         mutes: true,
-        messages: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
         createdAt: true,
         updatedAt: true,
       },
@@ -217,20 +267,6 @@ export class ChatService {
     // check if user is a member
     const isMember = channel.members.some((member) => member.id === user.id);
     if (!isMember) throw new HttpException('You are not a member', 403);
-
-    // check if user is owner or moderator
-    let isMod = true;
-    if (
-      channel.owner.id !== user.id &&
-      !channel.moderators.some((moderator) => moderator.id === user.id)
-    ) {
-      isMod = false;
-    }
-
-    if (!isMod) {
-      const { owner, moderators, bans, mutes, ...rest } = channel;
-      return rest;
-    }
 
     return channel;
   }
@@ -247,7 +283,11 @@ export class ChatService {
         ownerId: true,
         bans: true,
         mutes: true,
-        messages: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
         createdAt: true,
         updatedAt: true,
       },
@@ -262,20 +302,6 @@ export class ChatService {
     // const isMember = channel.members.some((member) => member.id === user.id);
     // if (!isMember) throw new HttpException('You are not a member', 403);
 
-    // check if user is owner or moderator
-    let isMod = true;
-    if (
-      channel.owner.id !== user.id &&
-      !channel.moderators.some((moderator) => moderator.id === user.id)
-    ) {
-      isMod = false;
-    }
-
-    if (!isMod) {
-      const { owner, moderators, bans, mutes, ...rest } = channel;
-      return rest;
-    }
-
     return channel;
   }
 
@@ -285,7 +311,11 @@ export class ChatService {
       where: { id },
       select: {
         members: true,
-        messages: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
       },
     });
 
@@ -312,7 +342,11 @@ export class ChatService {
       where: { id },
       select: {
         members: true,
-        messages: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
         isDM: true,
         mutes: {
           where: { id: user.id },
@@ -332,7 +366,7 @@ export class ChatService {
     }
 
     // check if user is muted
-    if (channel.mutes.length > 0) {
+    if (channel.mutes.some((mute) => mute.userId === user.id)) {
       throw new HttpException('You are muted', 403);
     }
 
@@ -349,12 +383,17 @@ export class ChatService {
             type: true,
             isDM: true,
             members: true,
-            messages: true,
+            messages: {
+              include: {
+                user: true,
+              },
+            },
             createdAt: true,
             updatedAt: true,
           },
         },
         userId: true,
+        user: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -462,8 +501,14 @@ export class ChatService {
         type: true,
         moderators: true,
         owner: true,
+        bans: true,
+        mutes: true,
         ownerId: true,
-        messages: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
         members: true,
       },
       where: { id },
@@ -525,7 +570,13 @@ export class ChatService {
         moderators: true,
         owner: true,
         ownerId: true,
-        messages: true,
+        bans: true,
+        mutes: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
         createdAt: true,
         updatedAt: true,
       },
@@ -659,7 +710,7 @@ export class ChatService {
   }
 
   async ban(user: User, id: string, banUserDto: BanUserDto) {
-    const { userId } = banUserDto;
+    const { userId, until } = banUserDto;
     const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
@@ -698,13 +749,31 @@ export class ChatService {
       where: { id },
       data: {
         bans: {
-          connect: { id: userId },
+          connect: { id: userId, bannedUntil: until },
         },
       },
     });
 
     // remove user from channel
-    await this.prismaService.channel.update({
+    const updatedChannel = await this.prismaService.channel.update({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        mutes: true,
+        bans: true,
+        moderators: true,
+        owner: true,
+        ownerId: true,
+        members: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
       where: { id },
       data: {
         members: {
@@ -712,6 +781,8 @@ export class ChatService {
         },
       },
     });
+
+    return updatedChannel;
   }
 
   async unban(user: User, id: string, banUserDto: BanUserDto) {
@@ -745,7 +816,25 @@ export class ChatService {
     }
 
     // unban user
-    await this.prismaService.channel.update({
+    const updatedChannel = await this.prismaService.channel.update({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        mutes: true,
+        bans: true,
+        moderators: true,
+        owner: true,
+        ownerId: true,
+        members: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
       where: { id },
       data: {
         bans: {
@@ -753,10 +842,12 @@ export class ChatService {
         },
       },
     });
+
+    return updatedChannel;
   }
 
   async mute(user: User, id: string, muteUserDto: MuteUserDto) {
-    const { userId, time } = muteUserDto;
+    const { userId, until } = muteUserDto;
     const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
@@ -792,11 +883,23 @@ export class ChatService {
         name: true,
         type: true,
         mutes: true,
+        bans: true,
+        moderators: true,
+        owner: true,
+        ownerId: true,
+        members: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
       },
       where: { id },
       data: {
         mutes: {
-          create: { userId, muteDuration: time },
+          create: { userId, muteUntil: until },
         },
       },
     });
@@ -835,7 +938,25 @@ export class ChatService {
     }
 
     // unmute user
-    await this.prismaService.channel.update({
+    const updatedChannel = await this.prismaService.channel.update({
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        mutes: true,
+        bans: true,
+        moderators: true,
+        owner: true,
+        ownerId: true,
+        members: true,
+        messages: {
+          include: {
+            user: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
       where: { id },
       data: {
         mutes: {
@@ -843,6 +964,8 @@ export class ChatService {
         },
       },
     });
+
+    return updatedChannel;
   }
 
   async remove(user: User, id: string) {
