@@ -8,6 +8,7 @@ const validationSchema = Joi.object({
   INTRA_CALLBACK_URL: Joi.string().uri().required(),
   FRONTEND_ORIGIN: Joi.string().uri().required(),
   JWT_SECRET: Joi.string(),
+  TOTP_JWT_SECRET: Joi.string(),
 
   // redis validation
   REDIS_HOST: Joi.string().required(),

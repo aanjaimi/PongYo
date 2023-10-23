@@ -13,6 +13,10 @@ export class MinioStorage implements StorageEngine {
     try {
       const { login } = req.user;
       const info = await this.minioService.uploadFile(login, file);
+      info._minioService = this.minioService;
+      info.deleteObject = async function () {
+        return await this._minioService.removeFile(login, this);
+      };
       callback(null, info);
     } catch (error) {
       callback(error, undefined);
@@ -25,8 +29,7 @@ export class MinioStorage implements StorageEngine {
     callback: (error: Error) => void,
   ) {
     try {
-      const { login } = req.user;
-      await this.minioService.removeFile(login, file);
+      await file.deleteObject();
       callback(null);
     } catch (err) {
       callback(err);

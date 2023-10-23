@@ -41,7 +41,10 @@ export class FriendService {
       friendId,
     );
 
-    if (userId !== _friendId && (!friendId || friendShip.state !== 'ACCEPTED'))
+    if (
+      userId !== _friendId &&
+      (!friendShip || friendShip.state !== 'ACCEPTED')
+    )
       throw new ForbiddenException(); // you can only see friends of your friends
 
     // TODO: without testing !
@@ -71,6 +74,13 @@ export class FriendService {
       }),
     ]);
     return buildPagination(users, query.limit, totalCount);
+  }
+
+  // TODO: need testing
+  async getUserFriendShip(userId: string, friendId: string) {
+    const { friendShip } = await this.friendChecking(userId, friendId);
+    if (!friendShip) throw new NotFoundException();
+    return friendShip;
   }
 
   async sendFriendRequest(userId: string, friendId: string) {

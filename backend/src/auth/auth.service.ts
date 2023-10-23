@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -7,6 +7,8 @@ import { AUTH_COOKIE_MAX_AGE, AUTH_COOKIE_NAME } from './auth.constants';
 import { JwtAuthPayload } from './interfaces/jwt.interface';
 import { RedisService } from '@/redis/redis.service';
 import { WsGateway } from '@/ws/ws.gateway';
+import { OtpCallbackDTO } from './auth.dto';
+import * as speakeasy from 'speakeasy';
 
 @Injectable()
 export class AuthService {
@@ -25,16 +27,23 @@ export class AuthService {
       login: user.login,
       sub: user.login,
     } satisfies JwtAuthPayload;
+    let accessToken = '';
 
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get('JWT_SECRET'),
-      expiresIn: Math.ceil(AUTH_COOKIE_MAX_AGE),
-    });
+    if (user.totp['enabled']) {
+      accessToken = await this.jwtService.signAsync(payload, {
+        secret: this.configService.get('TOTP_JWT_SECRET'),
+        expiresIn: 3600, // only valid for 1h
+      });
+    } else
+      accessToken = await this.jwtService.signAsync(payload, {
+        secret: this.configService.get('JWT_SECRET'),
+        expiresIn: AUTH_COOKIE_MAX_AGE,
+      });
 
     res.cookie(AUTH_COOKIE_NAME, accessToken, {
       httpOnly: true,
       path: '/',
-      maxAge: Math.ceil(AUTH_COOKIE_MAX_AGE * 1e3),
+      maxAge: (user.totp['enabled'] ? 3600 : AUTH_COOKIE_MAX_AGE) * 1e3,
     });
     res.redirect(this.configService.get('FRONTEND_ORIGIN_PROFILE'));
   }
@@ -74,6 +83,33 @@ export class AuthService {
         }
       });
     });
+  }
+
+  async otpCallback(res: Response, user: User, { token }: OtpCallbackDTO) {
+    const secret = user.totp['base32'];
+    const isValidToken = speakeasy.totp.verify({
+      secret,
+      token,
+      encoding: 'base32',
+    });
+    if (!isValidToken) throw new UnauthorizedException();
+
+    const payload = {
+      iss: 'Transcendence',
+      sub: user.login,
+      login: user.login,
+    } satisfies JwtAuthPayload;
+
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get('JWT_SECRET'),
+      expiresIn: AUTH_COOKIE_MAX_AGE,
+    });
+    res.cookie(AUTH_COOKIE_NAME, accessToken, {
+      httpOnly: true,
+      path: '/',
+      maxAge: AUTH_COOKIE_MAX_AGE,
+    });
+    res.redirect(this.configService.get('FRONTEND_ORIGIN'));
   }
 
   // TODO: remove later

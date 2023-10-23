@@ -1,67 +1,75 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from '@prisma/client';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UserQueryDTO, UserUpdateDTO } from './users.dto';
+import { Prisma, User } from '@prisma/client';
+import { buildPagination } from '@/global/global.utils';
+import { friendChecking } from '@/friends/friends.helpers';
+import * as speakeasy from 'speakeasy';
 
 @Injectable()
 export class UserService {
   constructor(private prismaService: PrismaService) {}
 
-  async findOne(id: string) {
-    const user = await this.prismaService.user.findFirst({
-      where: {
-        OR: [{ id }, { login: id }],
-      },
-      include: {
-        achievement: true,
-        userGameHistory: true,
-      },
-    });
-    if (!user) throw new NotFoundException();
+  async getUsers(userId: string, query: UserQueryDTO) {
+    const where = {
+      ...(query.login && {
+        OR: [
+          { login: { contains: query.login } },
+          { displayname: { contains: query.login } },
+        ],
+      }),
+    } satisfies Prisma.UserWhereInput;
+
+    const [totalCount, users] = await this.prismaService.$transaction([
+      this.prismaService.user.count({ where }),
+      this.prismaService.user.findMany({
+        where,
+        skip: query.getSkip(),
+        take: query.limit,
+        // TODO: add sorting by rank!
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      }),
+    ]);
+    return buildPagination(users, query.limit, totalCount);
+  }
+
+  async getUser(userId: string, otherId: string) {
+    if (otherId === '@me') otherId = userId;
+    const { friend: user } = await friendChecking.bind(this)(userId, otherId);
     return user;
   }
 
-  async getUsersContainingValue(value: string): Promise<User[]> {
-    if (!value || value === '') return [];
-    const users = await this.prismaService.user.findMany({
-      where: {
-        login: {
-          contains: value,
-        },
-      },
-    });
-    if (!users) return [];
-    return users;
-  }
+  async updateUser(
+    user: User,
+    avatar: Express.Multer.File,
+    body: UserUpdateDTO,
+  ) {
+    const path = avatar?.path;
+    const { tfa, ...rest } = body;
+    if (tfa === true && user.totp['enabled']) throw new ConflictException();
 
-  async getAllUsers(): Promise<User[]> {
-    const users = await this.prismaService.user.findMany({
-      orderBy: [
-        {
-          rank: 'desc',
-        },
-        {
-          points: 'desc',
-        },
-      ],
-    });
-    if (!users) return [];
-    return users;
-  }
+    let totp = { enabled: tfa === true };
+    if (tfa) {
+      const payload = speakeasy.generateSecret({
+        name: 'Transcendence',
+        issuer: user.login,
+      });
+      totp = Object.assign(totp, payload);
+    }
 
-  updateUser(id: string, updateUserDto: UpdateUserDto) {
-    console.log(updateUserDto);
-    const { displayName, twoFactorAuth, isComplete } = updateUserDto;
-    const tfa = twoFactorAuth === 'true' ? true : false;
-    const complete = isComplete === 'true' ? true : false;
-    return this.prismaService.user.update({
-      where: {
-        id,
-      },
+    return await this.prismaService.user.update({
+      where: { id: user.id },
       data: {
-        displayname: displayName,
-        isCompleted: complete,
-        twoFactorAuth: tfa,
+        ...rest,
+        ...(path && {
+          avatar: {
+            path,
+            minio: true,
+          },
+        }),
+        totp,
       },
     });
   }

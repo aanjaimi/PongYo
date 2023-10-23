@@ -1,8 +1,22 @@
-import { Controller, Get, UseGuards, Req, Res, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  Res,
+  Param,
+  Post,
+  Body,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
 import { FortyTwoGuard } from './guards/42.guard';
 import { JwtAuthGuard } from './guards/jwt.guard';
+import { OtpGuard } from './guards/totp.guard';
+import { CurrentUser } from './auth.decorator';
+import { User } from '@prisma/client';
+import { OtpCallbackDTO } from './auth.dto';
+import * as qrCode from 'qrcode';
 
 @Controller('auth')
 export class AuthController {
@@ -25,10 +39,32 @@ export class AuthController {
     this.authService.logout(req, res);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(OtpGuard)
+  @Post('otp')
+  async otpCallback(
+    @Res() res: Response,
+    @CurrentUser() user: User,
+    @Body() body: OtpCallbackDTO,
+  ) {
+    return this.authService.otpCallback(res, user, body);
+  }
+
+  // TODO: just for testing we'll remove later
+  // remove qrcode dependency
+  @UseGuards(OtpGuard)
   @Get('me')
-  me(@Req() req: Request) {
-    return req.user;
+  async me(@CurrentUser() user: User) {
+    const otpauthUrl = user.totp['otpauth_url'];
+    const data = await qrCode.toDataURL(otpauthUrl);
+    return `
+    <span>${user.displayname}</span>
+    <img src="${data}"/>
+
+    <form action="/auth/otp" method="POST">
+      <input type="text" name="token" placeholder="enter otp code"/>
+      <submit />
+    </form>
+    `;
   }
 
   // TODO: remove later

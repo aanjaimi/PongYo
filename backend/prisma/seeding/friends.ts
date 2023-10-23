@@ -20,6 +20,7 @@ export const getAvailableUsers = (users: _User[]) =>
             minio: false,
             path: profileUrl,
           },
+          totp: { enabled: false },
           stat: {
             create: {
               defeats: 0,

@@ -31,20 +31,19 @@ enum Rank {
 }
 
 model User {
-  id                   String         @id @default(cuid())
-  displayname          String
-  login                String         @unique
-  email                String         @unique
-  userStatus           UserStatus     @default(OFFLINE) @map("user_status")
-  vectories            Int
-  defeats              Int
-  points               Int
-  rank                 String
-  rowvectories         Int            @map("row_vectories")
-  // rank      Rank @default(UNRANKED) @map("rank")
-  twoFactorAuth        Boolean        @default(false)
+  id          String     @id @default(cuid())
+  displayname String
+  login       String     @unique
+  email       String     @unique
+  status      UserStatus @default(OFFLINE) @map("status")
+
+  totp Json
   isCompleted          Boolean        @default(false)
-  friends              Friend[]
+
+  // friends of the User
+  friends              Friend[]       @relation("userFriends")
+  // users who are Friends with this User
+  myFriends            Friend[]       @relation("friendsOfUser")
   messages             Message[]
   senderNotification   Notification[] @relation("sender")
   receiverNotification Notification[] @relation("receiver")
