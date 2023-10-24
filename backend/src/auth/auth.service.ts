@@ -27,39 +27,30 @@ export class AuthService {
       login: user.login,
       sub: user.login,
     } satisfies JwtAuthPayload;
-    let accessToken = '';
 
-    if (user.totp['enabled']) {
-      accessToken = await this.jwtService.signAsync(payload, {
-        secret: this.configService.get('TOTP_JWT_SECRET'),
-        expiresIn: 3600, // only valid for 1h
-      });
-    } else
-      accessToken = await this.jwtService.signAsync(payload, {
-        secret: this.configService.get('JWT_SECRET'),
-        expiresIn: AUTH_COOKIE_MAX_AGE,
-      });
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get('JWT_SECRET'),
+      expiresIn: user.totp['enabled'] ? 3600 : AUTH_COOKIE_MAX_AGE, // only valid for 1h
+    });
+    if (user.totp['enabled'])
+      await this.redisService.hset(`token-${accessToken}`, 'otp-needed', 1);
 
     res.cookie(AUTH_COOKIE_NAME, accessToken, {
       httpOnly: true,
       path: '/',
       maxAge: (user.totp['enabled'] ? 3600 : AUTH_COOKIE_MAX_AGE) * 1e3,
     });
-    res.redirect('http://localhost:4000/auth/me'); //this.configService.get('FRONTEND_ORIGIN'));
+    res.redirect('http://localhost:4000/users/@me'); //this.configService.get('FRONTEND_ORIGIN'));
   }
 
   async logout(req: Request, res: Response) {
     const accessToken = req.cookies[AUTH_COOKIE_NAME];
 
-    const payload = await this.jwtService.verifyAsync<JwtAuthPayload>(
-      accessToken,
-      {
-        secret: this.configService.get('JWT_SECRET'),
-      },
+    await this.redisService.hset(
+      `token-${accessToken}`,
+      'explicit-expiration',
+      1,
     );
-
-    const ex = Math.ceil(payload.exp - Date.now() / 1000);
-    await this.redisService.set(accessToken, payload.login, 'EX', ex);
     const { user: currentUser } = req;
     const allSocketIds = Object.keys(
       await this.redisService.hgetall(currentUser.id),
@@ -86,31 +77,22 @@ export class AuthService {
     });
   }
 
-  async otpCallback(res: Response, user: User, { token }: OtpCallbackDTO) {
+  async otpCallback(
+    accessToken: string,
+    user: User,
+    { token }: OtpCallbackDTO,
+  ) {
     const secret = user.totp['base32'];
+    console.log('Waiting');
     const isValidToken = speakeasy.totp.verify({
       secret,
       token,
       encoding: 'base32',
     });
-    if (!isValidToken) throw new UnauthorizedException();
-
-    const payload = {
-      iss: 'Transcendence',
-      sub: user.login,
-      login: user.login,
-    } satisfies JwtAuthPayload;
-
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: this.configService.get('JWT_SECRET'),
-      expiresIn: AUTH_COOKIE_MAX_AGE,
-    });
-    res.cookie(AUTH_COOKIE_NAME, accessToken, {
-      httpOnly: true,
-      path: '/',
-      maxAge: AUTH_COOKIE_MAX_AGE,
-    });
-    res.redirect(this.configService.get('FRONTEND_ORIGIN'));
+    console.log(accessToken);
+    if (isValidToken)
+      await this.redisService.hset(`token-${accessToken}`, 'otp-needed', 0);
+    return { valid: isValidToken };
   }
 
   // TODO: remove later
