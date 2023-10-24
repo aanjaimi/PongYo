@@ -139,7 +139,6 @@ export class ChatController {
     @Param('id') id: string,
     @Body() muteUserDto: MuteUserDto,
   ) {
-    console.log('muteUserDto', muteUserDto);
     return this.chatService.mute(user, id, muteUserDto);
   }
 
