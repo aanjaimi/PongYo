@@ -23,7 +23,7 @@ export default function ModeratorCard({
   return (
     <div className="flex grow justify-center">
       <Card
-        className="my-[0.2rem] flex w-[50%] items-center justify-between bg-[#33437D] py-[0.3rem] text-white"
+        className="my-[0.2rem] flex w-[55%] items-center justify-between bg-[#33437D] py-[0.3rem] text-white"
         onMouseEnter={(e) => setShowDetails(true)}
         onMouseLeave={(e) => setShowDetails(false)}
       >

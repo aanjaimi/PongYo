@@ -5,9 +5,13 @@ import Image from 'next/image';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { useState } from 'react';
+import axios from 'axios';
+import { env } from '@/env.mjs';
 
 interface UserCardProps {
   channel: Channel;
+  channels: Channel[];
+  updateChannels: (arg: Channel[]) => void;
   isModerator: () => boolean;
   isOwner: () => boolean;
   cardUser: User;
@@ -15,17 +19,46 @@ interface UserCardProps {
 }
 
 export default function UserCard({
+  channel,
+  channels,
+  updateChannels,
   isModerator,
   isOwner,
   cardUser,
   user,
 }: UserCardProps) {
+  const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [showDetails, setShowDetails] = useState<boolean>(false);
+
+  const isMuted = () => {
+    if (channel.mutes) {
+      const mutedUser = channel.mutes.find(
+        (mute) => mute.userId === cardUser.id,
+      );
+      if (!mutedUser) return false;
+      if (mutedUser && new Date(mutedUser.mutedUntil).getTime() > Date.now())
+        return true;
+    } else return false;
+  };
+
+  const mute = async () => {
+    try {
+      const { data } = await axios.post(
+        `${uri}/chat/channel/${channel.id}/mutes`,
+        { userId: cardUser.id },
+        { withCredentials: true },
+      );
+      channel.mutes.push(data);
+      updateChannels([...channels]);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   return (
     <div className="flex grow justify-center">
       <Card
-        className="my-[0.2rem] flex w-[50%] items-center justify-between bg-[#33437D] py-[0.3rem] text-white"
+        className="my-[0.2rem] flex w-[55%] items-center justify-between bg-[#33437D] py-[0.3rem] text-white"
         onMouseEnter={(e) => setShowDetails(true)}
         onMouseLeave={(e) => setShowDetails(false)}
       >
@@ -40,10 +73,19 @@ export default function UserCard({
             user.id !== cardUser.id &&
             (isModerator() || isOwner()) && (
               <>
-                <Button className="mr-[0.5rem] h-[1.7rem] w-[3.5rem] bg-[#1E5D6C]">
-                  Mute
+                {isMuted() ? (
+                  <Button className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#1E5D6C]">
+                    Unmute
+                  </Button>
+                ) : (
+                  <Button className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#1E5D6C]">
+                    mute
+                  </Button>
+                )}
+                <Button className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#bd6d1c]">
+                  Kick
                 </Button>
-                <Button className="h-[1.7rem] w-[3.5rem] bg-[#C83030]">
+                <Button className="h-[1.7rem] w-[3.7rem] bg-[#C83030]">
                   Ban
                 </Button>
               </>

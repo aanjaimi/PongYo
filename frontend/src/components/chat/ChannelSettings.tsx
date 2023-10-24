@@ -91,6 +91,8 @@ export default function ChannelSettings({
         </form>
         <ChannelSettingsContent
           channel={channel}
+          channels={channels}
+          updateChannels={updateChannels}
           user={user}
         />
       </div>

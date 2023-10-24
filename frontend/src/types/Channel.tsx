@@ -13,7 +13,8 @@ export type ban = {
   channelId: string;
   createdAt: Date;
   updatedAt: Date;
-};
+  bannedUntil: Date;
+}
 
 export type mute = {
   id: string;
@@ -21,7 +22,7 @@ export type mute = {
   channelId: string;
   createdAt: Date;
   updatedAt: Date;
-  duration?: number;
+  mutedUntil: Date;
 }
 
 export type Channel = {

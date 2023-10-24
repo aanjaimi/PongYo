@@ -8,11 +8,15 @@ import { ScrollArea } from '../ui/scroll-area';
 
 interface ChannelSettingsContentProps {
   channel: Channel;
+  channels: Channel[];
+  updateChannels: (arg: Channel[]) => void;
   user: User;
 }
 
 export default function ChannelSettingsContent({
   channel,
+  channels,
+  updateChannels,
   user,
 }: ChannelSettingsContentProps) {
   console.log(channel);
@@ -59,6 +63,8 @@ export default function ChannelSettingsContent({
             <UserCard
               key={member.id}
               channel={channel}
+              channels={channels}
+              updateChannels={updateChannels}
               isModerator={isModerator}
               isOwner={isOwner}
               cardUser={member}

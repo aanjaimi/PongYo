@@ -61,8 +61,14 @@ export default function ChannelContent({
     }
   };
 
-  //check if user is muted
-  const isMuted = channel.mutes.find((mute) => mute.userId === user.id);
+  const isMuted = () => {
+    if (channel.mutes) {
+      const mutedUser = channel.mutes.find((mute) => mute.userId === user.id);
+      if (!mutedUser) return false;
+      if (mutedUser && new Date(mutedUser.mutedUntil).getTime() > Date.now())
+        return true;
+    } else return false;
+  };
 
   return showSettings ? (
     <ChannelSettings
@@ -127,9 +133,11 @@ export default function ChannelContent({
             type="text"
             placeholder="type your message here..."
             value={message}
-            className={`h-[2rem] w-[90%] rounded-l-full bg-[#00000000] px-3 pb-[5px] focus:outline-none ${isMuted ? 'hover:cursor-not-allowed' : 'hover:cursor-text'}`}
+            className={`h-[2rem] w-[90%] rounded-l-full bg-[#00000000] px-3 pb-[5px] focus:outline-none ${
+              isMuted() ? 'hover:cursor-not-allowed' : 'hover:cursor-text'
+            }`}
             onChange={(e) => setMessage(e.target.value)}
-            disabled={isMuted ? true : false}
+            disabled={isMuted() ? true : false}
           />
           <button className="flex w-[10%] items-center justify-center rounded-full bg-[#382FA3]">
             <Image

@@ -27,7 +27,7 @@ export class ChatService {
     });
     // if mute has expired, delete it
     mutes.forEach(async (mute) => {
-      if (mute.muteUntil < new Date()) {
+      if (new Date(mute.mutedUntil).getTime() < Date.now()) {
         await this.prismaService.mute.delete({ where: { id: mute.id } });
       }
     });
@@ -36,7 +36,7 @@ export class ChatService {
     });
     // if ban has expired, delete it
     bans.forEach(async (ban) => {
-      if (ban.bannedUntil < new Date()) {
+      if (new Date(ban.bannedUntil).getTime() < Date.now()) {
         await this.prismaService.ban.delete({ where: { id: ban.id } });
       }
     });
@@ -899,7 +899,7 @@ export class ChatService {
       where: { id },
       data: {
         mutes: {
-          create: { userId, muteUntil: until },
+          create: { userId, mutedUntil: until },
         },
       },
     });
