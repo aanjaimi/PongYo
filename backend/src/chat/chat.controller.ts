@@ -19,6 +19,7 @@ import { MuteUserDto } from './dto/mute-user.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { AddModeratorDto } from './dto/add-moderator.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { kickUserDto } from './dto/kick-user.dto';
 
 @Controller('chat')
 @UseGuards(JwtAuthGuard)
@@ -105,7 +106,7 @@ export class ChatController {
     return this.chatService.leave(user, id);
   }
 
-  @Patch('/channel/:id/moderator')
+  @Patch('/channel/:id/moderators')
   addModerator(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -114,7 +115,7 @@ export class ChatController {
     return this.chatService.addModerator(user, id, addModeratorDto);
   }
 
-  @Delete('/channel/:id/moderator')
+  @Delete('/channel/:id/moderators')
   removeModerator(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -123,7 +124,7 @@ export class ChatController {
     return this.chatService.removeModerator(user, id, addModeratorDto);
   }
 
-  @Patch('/channel/:id/ban')
+  @Patch('/channel/:id/bans')
   ban(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -132,16 +133,17 @@ export class ChatController {
     return this.chatService.ban(user, id, banUserDto);
   }
 
-  @Patch('/channel/:id/mute')
+  @Patch('/channel/:id/mutes')
   mute(
     @CurrentUser() user: User,
     @Param('id') id: string,
     @Body() muteUserDto: MuteUserDto,
   ) {
+    console.log('muteUserDto', muteUserDto);
     return this.chatService.mute(user, id, muteUserDto);
   }
 
-  @Delete('/channel/:id/ban')
+  @Delete('/channel/:id/bans')
   unban(
     @CurrentUser() user: User,
     @Param('id') id: string,
@@ -150,13 +152,22 @@ export class ChatController {
     return this.chatService.unban(user, id, banUserDto);
   }
 
-  @Delete('/channel/:id/mute')
+  @Delete('/channel/:id/mutes')
   unmute(
     @CurrentUser() user: User,
     @Param('id') id: string,
     @Body() muteUserDto: MuteUserDto,
   ) {
     return this.chatService.unmute(user, id, muteUserDto);
+  }
+
+  @Delete('/channel/:id/kicks')
+  kick(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Query('userId') userId: string,
+  ) {
+    return this.chatService.kick(user, id, userId);
   }
 
   @Delete('/channel/:id')

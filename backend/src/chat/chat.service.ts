@@ -11,6 +11,7 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { ChatGateway } from './chat.gateway';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { kickUserDto } from './dto/kick-user.dto';
 
 @Injectable()
 export class ChatService {
@@ -847,7 +848,7 @@ export class ChatService {
   }
 
   async mute(user: User, id: string, muteUserDto: MuteUserDto) {
-    const { userId, until } = muteUserDto;
+    const { userId, muteDuration } = muteUserDto;
     const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
@@ -877,34 +878,27 @@ export class ChatService {
     }
 
     // mute user
-    const updatedChannel = await this.prismaService.channel.update({
+    const mute = await this.prismaService.mute.create({
       select: {
         id: true,
-        name: true,
-        type: true,
-        mutes: true,
-        bans: true,
-        moderators: true,
-        owner: true,
-        ownerId: true,
-        members: true,
-        messages: {
-          include: {
-            user: true,
-          },
-        },
-        createdAt: true,
+        mutedUntil: true,
+        channelId: true,
+        userId: true,
         updatedAt: true,
+        createdAt: true,
       },
-      where: { id },
       data: {
-        mutes: {
-          create: { userId, mutedUntil: until },
+        mutedUntil: new Date(Date.now() + muteDuration * 1000),
+        channel: {
+          connect: { id },
+        },
+        user: {
+          connect: { id: userId },
         },
       },
     });
 
-    return updatedChannel;
+    return mute;
   }
 
   async unmute(user: User, id: string, muteUserDto: MuteUserDto) {
@@ -938,25 +932,7 @@ export class ChatService {
     }
 
     // unmute user
-    const updatedChannel = await this.prismaService.channel.update({
-      select: {
-        id: true,
-        name: true,
-        type: true,
-        mutes: true,
-        bans: true,
-        moderators: true,
-        owner: true,
-        ownerId: true,
-        members: true,
-        messages: {
-          include: {
-            user: true,
-          },
-        },
-        createdAt: true,
-        updatedAt: true,
-      },
+    await this.prismaService.channel.update({
       where: { id },
       data: {
         mutes: {
@@ -964,8 +940,45 @@ export class ChatService {
         },
       },
     });
+  }
 
-    return updatedChannel;
+  async kick(user: User, id: string, userId: string) {
+    const channel = await this.prismaService.channel.findUnique({
+      where: { id },
+      select: {
+        owner: true,
+        moderators: true,
+        members: true,
+      },
+    });
+
+    // check if channel exists
+    if (!channel) {
+      throw new HttpException('Channel not found', 404);
+    }
+    // check if user is owner or moderator
+    if (
+      channel.owner.id !== user.id &&
+      !channel.moderators.some((moderator) => moderator.id === user.id)
+    ) {
+      throw new HttpException('You are not the owner or moderator', 403);
+    }
+
+    // check if user is not a member
+    const isMember = channel.members.some((member) => member.id === userId);
+    if (!isMember) {
+      throw new HttpException('User is not a member', 403);
+    }
+
+    // kick user
+    const updateChannel = await this.prismaService.channel.update({
+      where: { id },
+      data: {
+        members: {
+          disconnect: { id: userId },
+        },
+      },
+    });
   }
 
   async remove(user: User, id: string) {

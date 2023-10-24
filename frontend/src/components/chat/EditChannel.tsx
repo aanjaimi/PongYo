@@ -88,7 +88,7 @@ export default function EditChannel({
         className="m-[1rem] w-[25px] hover:cursor-pointer"
         onClick={() => setShowDialog(true)}
       >
-        <Image src="/edit1.png" alt="edit" width={50} height={50} />
+        <Image src="/edit.png" alt="edit" width={50} height={50} />
       </DialogTrigger>
       {showDialog && (
         <DialogContent className="sm:max-w-[425px]">

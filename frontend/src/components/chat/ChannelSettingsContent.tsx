@@ -19,7 +19,6 @@ export default function ChannelSettingsContent({
   updateChannels,
   user,
 }: ChannelSettingsContentProps) {
-  console.log(channel);
   const isModerator = () => {
     return channel.moderators.some((moderator) => moderator.id === user.id);
   };
@@ -32,13 +31,13 @@ export default function ChannelSettingsContent({
     <ScrollArea className="flex flex-col">
       <div className="grown my-[0.5rem] flex items-center px-[5rem]">
         <h2>Owner</h2>
-        <div className="mx-[1rem] h-[0] grow rounded-full border"></div>
+        <div className="mx-[1rem] h-[0] grow rounded-full border border-black"></div>
       </div>
       <OwnerCard user={channel.owner} />
       {channel.moderators.length > 0 && (
         <div className="grown my-[0.5rem] flex items-center px-[5rem]">
           <h2>Moderators</h2>
-          <div className="mx-[1rem] h-[0] grow rounded-full border"></div>
+          <div className="mx-[1rem] h-[0] grow rounded-full border border-black"></div>
         </div>
       )}
       {channel.moderators.map((moderator) => (
@@ -52,7 +51,7 @@ export default function ChannelSettingsContent({
       ))}
       <div className="grown my-[0.5rem] flex items-center px-[5rem]">
         <h2>Users</h2>
-        <div className="mx-[1rem] h-[0] grow rounded-full border"></div>
+        <div className="mx-[1rem] h-[0] grow rounded-full border border-black"></div>
       </div>
       {channel.members.map(
         (member) =>

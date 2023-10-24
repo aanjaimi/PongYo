@@ -1,4 +1,4 @@
-import type { Channel } from '@/types/Channel';
+import type { Channel, mute } from '@/types/Channel';
 import type { User } from '@/types/User';
 import React from 'react';
 import Image from 'next/image';
@@ -43,22 +43,42 @@ export default function UserCard({
 
   const mute = async () => {
     try {
-      const { data } = await axios.post(
+      const { data }: { data: mute } = await axios.patch(
         `${uri}/chat/channel/${channel.id}/mutes`,
-        { userId: cardUser.id },
+        {
+          userId: cardUser.id,
+          muteDuration: 3600000,
+        },
         { withCredentials: true },
       );
-      channel.mutes.push(data);
+      const updatedMutes = [...channel.mutes, data];
+      channel.mutes = updatedMutes;
       updateChannels([...channels]);
     } catch (err) {
       console.log(err);
     }
-  }
+  };
+
+  const kick = async () => {
+    try {
+      await axios.delete(
+        `${uri}/chat/channel/${channel.id}/kicks?userId=${cardUser.id}`,
+        { withCredentials: true },
+      );
+      const updatedMembers = channel.members.filter(
+        (member) => member.id !== cardUser.id,
+      );
+      channel.members = updatedMembers;
+      updateChannels([...channels]);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <div className="flex grow justify-center">
       <Card
-        className="my-[0.2rem] flex w-[55%] items-center justify-between bg-[#33437D] py-[0.3rem] text-white"
+        className="my-[0.2rem] flex w-[55%] items-center justify-between py-[0.3rem] hover:border-black"
         onMouseEnter={(e) => setShowDetails(true)}
         onMouseLeave={(e) => setShowDetails(false)}
       >
@@ -78,11 +98,17 @@ export default function UserCard({
                     Unmute
                   </Button>
                 ) : (
-                  <Button className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#1E5D6C]">
+                  <Button
+                    className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#1E5D6C]"
+                    onClick={() => mute()}
+                  >
                     mute
                   </Button>
                 )}
-                <Button className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#bd6d1c]">
+                <Button
+                  className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#bd6d1c]"
+                  onClick={() => kick()}
+                >
                   Kick
                 </Button>
                 <Button className="h-[1.7rem] w-[3.7rem] bg-[#C83030]">

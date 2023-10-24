@@ -72,13 +72,13 @@ export default function Chat({ user }: { user: User }) {
   return (
     //Chat Box
 
-    <Card className="flex h-[55rem] w-[70rem] rounded-[6px] bg-[#33437D] text-white">
+    <Card className="flex h-[55rem] w-[70rem] rounded-[6px] border-[2px] border-black">
       <div className="flex h-[full] w-[25%] flex-col">
         <div className="flex h-[7%] items-center pl-[2rem] text-2xl ">
           chat room
         </div>
         {/* Seperator */}
-        <div className="ml-1 rounded-l-full border"></div>
+        <div className="ml-1 rounded-l-full border border-black"></div>
         <ScrollArea className="h-[93%]">
           <ChannelsList
             channels={channels}
@@ -88,7 +88,7 @@ export default function Chat({ user }: { user: User }) {
         </ScrollArea>
       </div>
       {/* Seperator */}
-      <div className="my-1 rounded-full border"></div>
+      <div className="my-1 rounded-full border border-black"></div>
       <ChannelContent
         channel={selectedChannel}
         updateSelectedChannel={updateSelectedChannel}

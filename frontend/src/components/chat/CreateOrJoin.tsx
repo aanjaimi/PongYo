@@ -22,7 +22,7 @@ export default function CreateOrJoin({
     <div className="flex grow flex-col">
       <div className="h-[7%]"></div>
       {/* Seperator */}
-      <div className="mr-1 rounded-l-full border"></div>
+      <div className="mr-1 rounded-l-full border border-black"></div>
       <div className="flex grow flex-col items-center">
         <div className="my-[2rem] text-[40px]">
           Join or create a channel room
@@ -36,11 +36,11 @@ export default function CreateOrJoin({
         />
         {/* Or Seperator */}
         <div className="my-[2rem] flex w-full items-center">
-          <div className="ml-[1rem] h-[0] w-[45%] rounded-full border"></div>
+          <div className="ml-[1rem] h-[0] w-[45%] rounded-full border border-black"></div>
           <div className="flex w-[10%] items-center justify-center text-3xl">
             or
           </div>
-          <div className="mr-[1rem] h-[0] w-[45%] rounded-full border"></div>
+          <div className="mr-[1rem] h-[0] w-[45%] rounded-full border border-black"></div>
         </div>
         {/* create channel */}
         <CreateChannel

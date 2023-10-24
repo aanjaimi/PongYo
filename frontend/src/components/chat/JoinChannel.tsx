@@ -6,6 +6,8 @@ import { env } from '@/env.mjs';
 import { useSocket } from '@/contexts/socket-context';
 import { type ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
 interface JoinChannelProps {
   user: User;
@@ -113,7 +115,7 @@ export default function JoinChannel({
       if (!channel) return;
 
       chatSocket.emit('join-channel', { channelId: channel.id });
-      
+
       updateChannels([channel, ...channels]);
       updateSelectedChannel(channel);
     } catch (err) {
@@ -122,33 +124,31 @@ export default function JoinChannel({
   };
 
   return (
-    <div className="mt-[1rem] ml-[15%] flex flex-col items-end self-start text-[18px]">
+    <div className="ml-[15%] mt-[1rem] flex flex-col items-end self-start text-[18px]">
       <div className="my-[2rem] flex grow">
         <div className="text-xl">Direct message:</div>
         <form
-          className="ml-6 flex w-[13rem] rounded-full bg-white"
+          className="ml-6 flex w-[17rem] rounded-full bg-white"
           onSubmit={(e) => joinDirectMessage(e)}
         >
-          <input
+          <Input
             type="text"
             placeholder="username..."
-            className="w-[75%] rounded-full bg-[#00000000] px-4 text-black focus:outline-none"
+            className="mr-[1rem] border-[2px] border-black"
             value={displayName}
             onChange={(e) => setdisplayName(e.target.value)}
           />
-          <button className="flex w-[25%] items-center justify-center rounded-full border bg-[#2C9FE6]">
-            Start
-          </button>
+          <Button>start</Button>
         </form>
       </div>
       <div className="my-[2rem] flex">
         <div className="text-xl">Join a channel:</div>
         <form
-          className="ml-6 flex w-[13rem] flex-col rounded-full"
+          className="ml-6 flex w-[17rem] flex-col rounded-full"
           onSubmit={(e) => joinChannel(e)}
         >
           <div className="mb-[0.75rem] flex rounded-full bg-white">
-            <input
+            <Input
               type="text"
               placeholder="channel name..."
               value={joinChannelName}
@@ -156,20 +156,18 @@ export default function JoinChannel({
                 setJoinChannelName(e.target.value);
                 setPasswordRequired(false);
               }}
-              className="w-[75%] rounded-full bg-[#00000000] px-4 text-black focus:outline-none"
+              className="mr-[1rem] border-[2px] border-black"
             />
-            <button className="flex w-[25%] items-center justify-center rounded-full border bg-[#2C9FE6]">
-              Join
-            </button>
+            <Button>Join</Button>
           </div>
           {passwordRequired && (
-            <div className="flex flex-col">
-              <input
+            <div className="flex flex-col w-[12.5rem]">
+              <Input
                 type="password"
                 placeholder="password..."
                 value={joinChannelPassword}
                 onChange={(e) => setJoinChannelPassword(e.target.value)}
-                className="rounded-full bg-white px-4  text-black focus:outline-none"
+                className="border-[2px] border-black"
               />
             </div>
           )}

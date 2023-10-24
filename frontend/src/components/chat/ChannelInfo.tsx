@@ -1,5 +1,6 @@
 import type { Channel } from '@/types/Channel';
 import React from 'react';
+import Image from 'next/image';
 
 interface channelInfoProps {
   channel: Channel | undefined;
@@ -13,28 +14,33 @@ export default function ChannelInfo({
   setShowSettings,
 }: channelInfoProps) {
   return (
-    <div className="flex h-[7%] items-center justify-center justify-between">
+    <div className="flex h-[7%] items-center justify-between">
       {channel && (
         <>
           <div>
-            {
-              !channel.isDM &&
+            {!channel.isDM && (
+              // <button
+              //   className="ml-[1rem] flex h-6 w-6 items-center justify-center rounded-full pb-2 bg-[#000000] text-white"
+              //   onClick={() => setShowSettings(true)}
+              // >
+              //   ...
+              // </button>
               <button
-                className="ml-[1rem] flex h-6 w-6 items-center justify-center rounded-full bg-[#abd9d9b3] pb-2"
+                className="ml-[1rem] w-[2rem]"
                 onClick={() => setShowSettings(true)}
               >
-                ...
+                <Image src={'/dots.png'} alt="close" height={100} width={100} />
               </button>
-            }
+            )}
           </div>
           <div className="flex items-center justify-center">
             <h1 className="text-3xl">{channel.name}</h1>
           </div>
           <button
-            className="mr-[1rem] flex h-6 w-6 items-center justify-center rounded-full bg-[#abd9d9b3] pb-1"
+            className="mr-[1rem] w-[1.8rem]"
             onClick={() => updateSelectedChannel(undefined)}
           >
-            x
+            <Image src={'/close.png'} alt="close" height={100} width={100} />
           </button>
         </>
       )}

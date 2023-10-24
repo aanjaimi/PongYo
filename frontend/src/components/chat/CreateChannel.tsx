@@ -8,6 +8,8 @@ import type { Channel } from '@/types/Channel';
 import { env } from '@/env.mjs';
 import axios from 'axios';
 import { useSocket } from '@/contexts/socket-context';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
 
 interface CreateChannelProps {
   user: User;
@@ -61,30 +63,29 @@ export default function CreateChannel({
 
   return (
     <form
-      className="my-[1.5rem flex w-[75%] flex-col"
+      className="flex w-[75%] flex-col"
       onSubmit={(e) => createNewChannel(e)}
     >
       <div className="my-[1rem] flex">
         <div className="text-xl">Create a channel:</div>
         <div className="ml-7 flex w-[13rem] rounded-full bg-white">
-          <input
+          <Input
             type="text"
             placeholder="channel name..."
             value={channelName}
             onChange={(e) => setChannelName(e.target.value)}
-            className="w-full rounded-full bg-[#00000000] px-4 text-black focus:outline-none"
+            className="border-[2px] border-black"
           />
         </div>
       </div>
       <RadioGroup
         defaultValue=""
-        className="my-[1rem] ml-[35%] self-start text-white"
+        className="my-[1rem] ml-[35%] self-start"
       >
         <div className="flex items-center space-x-2">
           <RadioGroupItem
             value="Private"
             id="r1"
-            className="bg-white"
             onClick={() => {
               setIsProtected(false);
               setChannelType('PRIVATE');
@@ -96,7 +97,6 @@ export default function CreateChannel({
           <RadioGroupItem
             value="Public"
             id="r2"
-            className="bg-white"
             onClick={() => {
               setIsProtected(false);
               setChannelType('PUBLIC');
@@ -108,7 +108,6 @@ export default function CreateChannel({
           <RadioGroupItem
             value="Protected"
             id="r3"
-            className="bg-white"
             onClick={() => {
               setIsProtected(true);
               setChannelType('PROTECTED');
@@ -118,19 +117,19 @@ export default function CreateChannel({
         </div>
       </RadioGroup>
       {isProtected && (
-        <div className="my-[0.5rem] ml-[1rem] flex w-[13rem] self-center rounded-full bg-white">
-          <input
+        <div className="my-[0.5rem] ml-[28.5%] flex w-[12.5rem] rounded-full bg-white">
+          <Input
             type="password"
             placeholder="password..."
             value={channelPassword}
             onChange={(e) => setChannelPassword(e.target.value)}
-            className="w-full rounded-full bg-[#00000000] px-4 text-black focus:outline-none"
+            className="border-[2px] border-black"
           />
         </div>
       )}
-      <button className="mt-[1.5rem] flex h-[2rem] w-[15%] items-center justify-center self-center rounded-full bg-[#2C9FE6]">
+      <Button className="mt-[1.5rem] self-center">
         Create
-      </button>
+      </Button>
     </form>
   );
 }

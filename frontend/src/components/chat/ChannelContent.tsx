@@ -87,7 +87,7 @@ export default function ChannelContent({
         setShowSettings={setShowSettings}
       />
       {/* seperator */}
-      <div className="mr-1 rounded-r-full border"></div>
+      <div className="mr-1 rounded-r-full border border-black"></div>
       {/* channel messages container*/}
       <div className="pb-10px flex h-[86%] flex-col justify-end">
         <ScrollableFeed className="grow py-[0.5rem]">
@@ -111,13 +111,9 @@ export default function ChannelContent({
               {/* <div className="chat-header text-[#9bb3c7]">
                 {message.userId}
               </div> */}
-              <div
-                className={`chat-bubble max-w-[36rem] break-words text-white ${
-                  message.userId === user.id
-                    ? 'bg-[#8d8ddab3]'
-                    : 'bg-[#abd9d9b3]'
-                }`}
-              >
+              <div className={`chat-bubble max-w-[36rem] break-words${
+                message.userId === user.id ? 'text-white' : 'text-white'
+              }`}>
                 {message.content}
               </div>
             </div>
@@ -126,7 +122,7 @@ export default function ChannelContent({
       </div>
       {
         <form
-          className="mx-[1rem] mt-[1rem] flex h-[2rem] rounded-full border bg-[#d9d9d933]"
+          className="mx-[1rem] mt-[1rem] flex h-[2rem] rounded-full border bg-[#d9d9d933] border-black"
           onSubmit={(e) => sendMessage(e)}
         >
           <input
@@ -139,7 +135,7 @@ export default function ChannelContent({
             onChange={(e) => setMessage(e.target.value)}
             disabled={isMuted() ? true : false}
           />
-          <button className="flex w-[10%] items-center justify-center rounded-full bg-[#382FA3]">
+          <button className="flex w-[10%] items-center justify-center rounded-full border border-black">
             <Image
               className=""
               src={'/send_button.png'}

@@ -2,6 +2,7 @@ import type { Channel } from '@/types/Channel';
 import React from 'react';
 import Image from 'next/image';
 import { useQuery } from '@tanstack/react-query';
+import { Card } from '../ui/card';
 
 const displayLastMessage = (channel: Channel) => {
   if (channel.messages.length > 0) {
@@ -37,13 +38,13 @@ export default function ChannelsList({
     <div className="my-[1rem]">
       <ul>
         {channels.map((channel: Channel) => (
-          <div
-            className={`mx-[0.5rem] my-[5px] flex h-[3.5rem] items-center rounded-md text-xl hover:cursor-pointer hover:bg-[#382FA3] ${
+          <Card
+            className={`mx-[0.5rem] my-[10px] flex h-[3.5rem] items-center rounded-md text-xl hover:cursor-pointer hover:border-black ${
               selectedChannel === undefined
-                ? 'bg-[#6466F1]'
+                ? ''
                 : selectedChannel.id === channel.id
-                ? 'bg-[#382FA3]'
-                : 'bg-[#6466F1]'
+                ? 'border-[2px] border-black'
+                : ''
             }`}
             onClick={() => {
               updateSelectedChannel(channel);
@@ -70,7 +71,7 @@ export default function ChannelsList({
                 channel.msgNotification && 'animate-ping bg-[#10F990] delay-150'
               }`}
             ></div>
-          </div>
+          </Card>
         ))}
       </ul>
     </div>
