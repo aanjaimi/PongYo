@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/utils/user-utils";
 
 type State = {
   user: User | null;
-  authenicated: boolean;
+  authenicated: false | true | "otp";
 };
 
 type Action =
@@ -15,7 +15,7 @@ type Action =
     }
   | {
       type: "SET_AUTH";
-      payload: boolean;
+      payload: State["authenicated"];
     };
 
 type Dispatch = (action: Action) => void;
@@ -45,9 +45,10 @@ const StateProvider = ({ children }: StateProviderProps) => {
   const [state, dispatch] = useReducer(stateReducer, initialState);
   const value = { state, dispatch };
   useQuery({
-    queryKey: ["users"],
+    queryKey: ["users", "@me"],
+    retry: false,
     queryFn: async () => {
-      return getCurrentUser();
+      return getCurrentUser(state.authenicated);
     },
     onSuccess() {
       dispatch({ type: "SET_AUTH", payload: true });

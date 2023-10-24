@@ -36,6 +36,7 @@ model User {
   login       String     @unique
   email       String     @unique
   status      UserStatus @default(OFFLINE) @map("status")
+  firstTwoFactor      Boolean        @default(true)
 
   totp Json
   isCompleted          Boolean        @default(false)
@@ -63,8 +64,6 @@ model User {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  Friend    Friend[]
-  Friend    Friend[]
 
   @@map("users")
 }
@@ -87,7 +86,6 @@ model Friend {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
-  User      User     @relation(fields: [userId], references: [id])
 
   @@map("friends")
 }

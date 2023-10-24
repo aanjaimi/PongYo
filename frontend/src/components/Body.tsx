@@ -1,5 +1,5 @@
 import React from 'react'
-import Sidebar from '@/components/Sidebar';
+import Sidebar from '@/components/sidebar/SideBar';
 import Cover from './Cover';
 import UserInfo from './UserInfo';
 import UsreData from './UserData';

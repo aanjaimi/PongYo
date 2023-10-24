@@ -53,7 +53,7 @@ export function Notifications() {
   const notifications = notificationQuery.data.data;
 
   return (
-    <Card>
+    <Card className="flex flex-col justify-center items-center">
       <CardHeader className="pb-3">
         <CardTitle>Notifications</CardTitle>
         <CardDescription>all notifications</CardDescription>

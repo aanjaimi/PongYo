@@ -3,13 +3,10 @@ import { useStateContext } from "@/contexts/state-context";
 import type { User } from "@/types/user";
 import { fetcher } from "@/utils/fetcher";
 import { useQuery } from "@tanstack/react-query";
-import Navbar from "@/components/Navbar";
-import Body from "@/components/Body";
 import type { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
-import Editpage from "@/components/Editpage";
-import TFA from "@/components/TFA";
 import { useQueryClient } from "@tanstack/react-query";
+import ProfileContent from "@/components/Profile/ProfileContent";
 
 const getUser = async (login: string) => {
   const resp = await fetcher.get<User>(`/users/${login}`);
@@ -38,14 +35,14 @@ export default function Profile({ id }: ProfileProps) {
     queryFn: ({ queryKey: [, id] }) => {
       return getUser(id!);
     },
-    // retry: true,
+    retry: false,
     onSuccess: (data) => {
       dispatch({ type: "SET_USER", payload: data });
-      queryClient.invalidateQueries(["users", "@me"]).catch(console.error);
     },
     onError: (err) => {
       console.error(err);
       dispatch({ type: "SET_USER", payload: null });
+      dispatch({ type: "SET_AUTH", payload: false });
     },
   });
 
@@ -56,22 +53,10 @@ export default function Profile({ id }: ProfileProps) {
       </div>
     );
   if (userQurey.isError) router.push("/").catch(console.error);
-  const user = userQurey.data;
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-auto">
-      {user?.isCompleted && (
-        <>
-          {!user.twoFactorAuth && (
-            <>
-              <Navbar />
-              <Body />
-            </>
-          )}
-          {user.twoFactorAuth && <div className="w-screen h-screen flex items-center justify-center"><TFA /></div>}
-        </>
-      )}
-      {!user?.isCompleted && <Editpage />}
+      <ProfileContent user={userQurey.data}/>
     </div>
   );
 }

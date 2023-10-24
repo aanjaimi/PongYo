@@ -14,10 +14,6 @@ import type { ChangeEvent } from "react";
 import type { GameCardProps } from "../gameTypes/types";
 import InvitationCard from "./inviteCard";
 import { useRouter } from "next/router";
-const getCurrentUser = async () => {
-  const resp = await fetcher.get<User>("/users/@me");
-  return resp.data;
-};
 
 const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   const { gameSocket } = useSocket();

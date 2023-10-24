@@ -16,7 +16,7 @@ import { OtpGuard } from './guards/totp.guard';
 import { CurrentUser } from './auth.decorator';
 import { User } from '@prisma/client';
 import { OtpCallbackDTO } from './auth.dto';
-import * as qrCode from 'qrcode';
+// import * as qrCode from 'qrcode';
 
 @Controller('auth')
 export class AuthController {
@@ -48,23 +48,10 @@ export class AuthController {
   ) {
     return this.authService.otpCallback(res, user, body);
   }
-
-  // TODO: just for testing we'll remove later
-  // remove qrcode dependency
   @UseGuards(OtpGuard)
-  @Get('me')
+  @Get('@me')
   async me(@CurrentUser() user: User) {
-    const otpauthUrl = user.totp['otpauth_url'];
-    const data = await qrCode.toDataURL(otpauthUrl);
-    return `
-    <span>${user.displayname}</span>
-    <img src="${data}"/>
-
-    <form action="/auth/otp" method="POST">
-      <input type="text" name="token" placeholder="enter otp code"/>
-      <submit />
-    </form>
-    `;
+    return user;
   }
 
   // TODO: remove later

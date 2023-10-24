@@ -21,7 +21,7 @@ export class UserUpdateDTO {
   @MaxLength(32)
   displayname: string;
 
-  @Transform((obj) => obj.value === 'true')
+  @Transform((obj) => obj.value === 'true' || obj.value === true)
   @IsBoolean()
   @IsOptional()
   'tfa': boolean;

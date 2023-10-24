@@ -30,6 +30,7 @@ export class AuthService {
     let accessToken = '';
 
     if (user.totp['enabled']) {
+      // console.log('TOTP enabled');
       accessToken = await this.jwtService.signAsync(payload, {
         secret: this.configService.get('TOTP_JWT_SECRET'),
         expiresIn: 3600, // only valid for 1h
@@ -109,7 +110,7 @@ export class AuthService {
       path: '/',
       maxAge: AUTH_COOKIE_MAX_AGE,
     });
-    res.redirect(this.configService.get('FRONTEND_ORIGIN'));
+    res.redirect(this.configService.get('FRONTEND_ORIGIN_PROFILE'));
   }
 
   // TODO: remove later

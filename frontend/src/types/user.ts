@@ -1,7 +1,7 @@
 import type { Achievements } from "./achievement";
 import type { Game } from "./game";
 
-enum Rank {
+export enum Rank {
   UNRANKED,
   BRONZE,
   SILVER,
@@ -15,10 +15,16 @@ enum Rank {
   CHAMPION,
 }
 
-enum UserStatus {
+export enum UserStatus {
   ONLINE,
   OFFLINE,
   IN_GAME,
+}
+
+export enum TwoFactorStatus {
+  ENABLED,
+  DISABLED,
+  NOT_SET,
 }
 
 export type User = {
@@ -29,13 +35,18 @@ export type User = {
   rank: Rank;
   userStatus: UserStatus;
   vectories: number;
-  defeats:   number;
-  points:    number;
+  defeats: number;
+  points: number;
   rowvectories: number;
   isCompleted: boolean;
-  twoFactorAuth: boolean;
   achievement: Achievements[];
   userGameHistory: Game[];
+  totp: {
+    enabled: boolean;
+  } & {
+    enabled: true;
+    otpauth_url: string;
+  };
   createdAt: Date;
   updatedAt: Date;
   avatar: {

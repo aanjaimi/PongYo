@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from './users/users.module';
 import { RedisModule } from './redis/redis.module';
-import { GameModule } from './game/game.module';
+// import { GameModule } from './game/game.module';
 import { WsModule } from './ws/ws.module';
 import { MinioModule } from './minio/minio.module';
 import { FriendModule } from './friends/friends.module';
@@ -34,7 +34,7 @@ import { NotificationsModule } from './notifications/notifications.module';
         };
       },
     }),
-    GameModule,
+    // GameModule,
     WsModule,
     EventEmitterModule.forRoot({ global: true }),
     MinioModule.forRootAsync({

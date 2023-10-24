@@ -69,7 +69,8 @@ export class UserService {
             minio: true,
           },
         }),
-        totp,
+        ...(tfa !== undefined && { totp }), // TODO: check this !
+        isCompleted: true,
       },
     });
   }
