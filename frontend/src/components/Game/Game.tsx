@@ -3,10 +3,14 @@ import GameCanvas from "./GameCanvas";
 import GameResult from "../GameResult/GameResult";
 import { useEffect } from "react";
 import ImageCard from "./imageCard";
-import type { GameProps } from "../gameTypes/types";
 import { Card } from "@/components/ui/card";
+import type { User } from "@/types/user";
 
-const Game = ({oppData}:GameProps) => {
+type GameProps = {
+  oppData: User;
+  isRanked: boolean;
+};
+const Game = ({oppData, isRanked}:GameProps) => {
 
   const [isGameOver, setIsGameOver] = React.useState(false);
   const [myScore, setMyScore] = useState(0);
@@ -36,25 +40,22 @@ const Game = ({oppData}:GameProps) => {
       {!isGameOver && countdown <=0 && (
         <div className="flex h-screen w-screen flex-col items-center justify-start sm:flex-row sm:justify-center">
           <ImageCard
-            sideclass="h-full flex-col justify-start sm:w-auto w-full  sm:flex"
-            className="mx-8 flex h-full flex-col items-end justify-end sm:h-[50%] sm:justify-center"
+            sideclass="h-full flex-col justify-start sm:w-auto w-full sm:flex  "
+            className="mx-8 flex flex-col  justify-end items-end sm:justify-center  h-full sm:h-[50%] "
             score={myScore}
-            size={75}
           />
           <div className="flex items-center justify-center px-2 py-3 sm:py-20">
             <GameCanvas
               setIsGameOver={setIsGameOver}
               setMyScore={setMyScore}
               setOppScore={setOppScore}
-              className="border-4 border-black"
-
+              isRanked={isRanked}
             />
           </div>
           <ImageCard
             sideclass="h-full flex-col justify-end sm:w-auto w-full sm:flex"
             className="mx-8 flex flex-col items-start justify-center sm:h-[50%]"
             score={oppScore}
-            size={75}
           />
         </div>
       )}

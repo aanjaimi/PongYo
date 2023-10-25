@@ -1,7 +1,8 @@
 import React from "react";
-import type { CustomModalProps } from "../gameTypes/types";
 import { Button } from "@/components/ui/button"
-
+type CustomModalProps = {
+  onClose: () => void;
+};
 const CustomModal = ({ onClose }: CustomModalProps) => {
   return (
     <div className="fixed flex items-center justify-center ">

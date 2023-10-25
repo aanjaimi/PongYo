@@ -6,36 +6,34 @@ import PopUp from "./popUp";
 import { useSocket } from "@/contexts/socket-context";
 import CustomModal from "./CustomModal";
 import { fetcher } from "@/utils/fetcher";
-import { useQuery } from "@tanstack/react-query";
 import { useStateContext } from "@/contexts/state-context";
 import { toast } from "react-toastify";
 import type { User } from "@/types/user";
 import type { ChangeEvent } from "react";
-import type { GameCardProps } from "../gameTypes/types";
 import InvitationCard from "./inviteCard";
 import { useRouter } from "next/router";
 import {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
+import { set } from "zod";
 const getCurrentUser = async () => {
   const resp = await fetcher.get<User>("/users/@me");
   return resp.data;
 };
-
-const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
+type GameCardProps = {
+  setGameStarted: React.Dispatch<React.SetStateAction<boolean>>;
+  setOppData: React.Dispatch<React.SetStateAction<User>>;
+  setIsRanked: React.Dispatch<React.SetStateAction<boolean>>;
+};
+const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) => {
   const { gameSocket } = useSocket();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [showValidation, setShowValidation] = useState(false);
   const [inviteNotify, setInviteNotify] = useState(false);
-  const [friend , setFriend] = useState({} as User);
+  const [friend, setFriend] = useState({} as User);
   const router = useRouter();
-  const { state,dispatch } = useStateContext(); 
+  const { state, dispatch } = useStateContext();
   const handleStartClick = () => {
     if (selectedOption === "Normal game") {
       gameSocket.emit("join-queue");
@@ -54,7 +52,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
     setSelectedOption(e.target.value);
   };
 
-  const notifyError = (message:string) => {
+  const notifyError = (message: string) => {
     toast.error(message, {
       position: "top-right",
       autoClose: 5000,
@@ -68,12 +66,12 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
   };
 
   useEffect(() => {
-    if(!state.user)
-    router.push("/profile/@me").catch((err) => console.error(err));
+    if (!state.user)
+      router.push("/profile/@me").catch((err) => console.error(err));
     if (!gameSocket.connected) {
       gameSocket.connect();
     }
-    const handleAlreadyInQueue = (data:{msg:string}) => {
+    const handleAlreadyInQueue = (data: { msg: string }) => {
       notifyError(data.msg);
     };
 
@@ -81,13 +79,13 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
       setIsPopupOpen(true);
     };
 
-    const handleGameStart = (data:{opp:User}) => {
+    const handleGameStart = (data: { opp: User , isRanked:boolean }) => {
+      setIsRanked(data.isRanked);
       setOppData(data.opp);
       setIsPopupOpen(false);
       setInviteNotify(false);
       setGameStarted(true);
     };
-
     gameSocket.on("already-in-Queue", handleAlreadyInQueue);
     gameSocket.on("queue-joined", handleQueueJoined);
     gameSocket.on("game-start", handleGameStart);
@@ -114,7 +112,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
         />
       )}
 
-      {!isPopupOpen && !inviteNotify  && (
+      {!isPopupOpen && !inviteNotify && (
         <div className="flex h-[450px] w-[500px] flex-col rounded-xl bg-white border-4 text-black">
           <div className="pt-7">
             <h1 className="pl-5 text-3xl  "> Start A Game :</h1>
@@ -158,7 +156,7 @@ const GameCard = ({ setGameStarted,setOppData }: GameCardProps) => {
             <h1 className="pl-5 text-3xl  "> INVITE YOUR FRIEND :</h1>
           </div>
           <div className="mt-6 flex items-center pt-2 text-xl text-white">
-            <InvitedButton setInviteNotify={setInviteNotify} setFriend={setFriend}/>
+            <InvitedButton setInviteNotify={setInviteNotify} setFriend={setFriend} />
           </div>
         </div>
       )}

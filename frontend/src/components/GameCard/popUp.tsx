@@ -3,9 +3,12 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useSocket } from "@/contexts/socket-context";
 import { useStateContext } from "@/contexts/state-context";
-import type { PopUpProps } from "../gameTypes/types";
 import { Card } from "@nextui-org/react";
 
+export type PopUpProps = {
+  setIsPopupOpen: (value: boolean) => void;
+  selectedOption: string;
+};
 const PopUp = ({ setIsPopupOpen, selectedOption }:PopUpProps) => {
   const { gameSocket } = useSocket();
   const { state } = useStateContext();

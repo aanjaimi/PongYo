@@ -52,15 +52,17 @@ export class UserService {
     const isPerfectDefeat = player.score === 0 && opp.score === 10;
     const newPoints = Math.max(user.points + player.points, 0);
     const rankScores: Record<string, number> = {
-      "Bronze": 0,
-      "Silver": 25,
-      "Gold": 50,
-      "Platinum": 75,
-      "Diamond": 100,
-      "Master": 125,
-      "Grandmaster": 150,
-      "Legend": 175,
-      "Champion": 200,
+      UNRANKED: 0,
+      BRONZE: 10,
+      SILVER: 50,
+      GOLD: 100,
+      PLATINUM: 500,
+      EMERALD: 1000,
+      DIAMOND: 1500,
+      MASTER: 10000,
+      GRANDMASTER: 15000,
+      LEGEND: 100000,
+      CHAMPION: 150000,
     };
 
     let currentRank = "Bronze";
@@ -152,4 +154,3 @@ export class UserService {
     });
   }
 }
-

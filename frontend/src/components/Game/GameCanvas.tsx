@@ -3,8 +3,15 @@ import Matter from "matter-js";
 import { useSocket } from "@/contexts/socket-context";
 import { useStateContext } from "@/contexts/state-context";
 import type { User } from "@/types/user";
-import type { itemPosition,GameCanvasProps } from "../gameTypes/types";
-const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) => {
+import type { itemPosition } from "../gameTypes/types";
+
+export type GameCanvasProps = {
+  setIsGameOver: (value: boolean) => void;
+  setMyScore: (value: number) => void;
+  setOppScore: (value: number) => void;
+  isRanked: boolean;
+};
+const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore, isRanked }: GameCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null); // Specify the type for canvasRef
   const { gameSocket } = useSocket();
   const { dispatch } = useStateContext();
@@ -29,7 +36,7 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) 
         lineWidth: 4, // Adjust the border width
       },
     });
-   
+
     const playerPaddle = Matter.Bodies.rectangle(325, 15, 150, 20, {
       isStatic: true,
       render: {
@@ -53,8 +60,8 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) 
         radius: 10,
       },
     });
-   
-    const blueball = Matter.Bodies.circle(500, 250, 25, {
+
+    const blueball = Matter.Bodies.circle(500, 200, 25, {
       isStatic: true,
       render: {
         fillStyle: "transparent",
@@ -79,7 +86,7 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) 
         lineWidth: 1, // Adjust the border width
       }, // Adjust the border width
     });
-    const tanball = Matter.Bodies.circle(150, 250, 25, {
+    const tanball = Matter.Bodies.circle(150, 200, 25, {
       isStatic: true,
       render: {
         fillStyle: "transparent", // Set to transparent to only show the border
@@ -98,40 +105,46 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore }:GameCanvasProps) 
       ball,
       playerPaddle,
       opponentPaddle,
-      net,
-      blueball,
-      magentaball,
-      redball,
-      tanball,
+      net
     ]);
+    if(isRanked){
+      Matter.World.add(engine.world, [
+        blueball,
+        magentaball,
+        redball,
+        tanball
+      ]);
+    }
     Matter.Render.run(render);
-    gameSocket.on("change-color", (data:{color:string}) => {
+    gameSocket.on("change-color", (data: { color: string }) => {
       ball.render.strokeStyle = data.color;
     }
     );
-    gameSocket.on("update-ball-position", (data:itemPosition) => {
+    gameSocket.on("update-ball-position", (data: itemPosition) => {
       Matter.Body.setPosition(ball, { x: data.x, y: data.y });
     });
-    gameSocket.on("update-player-position", (data:itemPosition) => {
+    gameSocket.on("update-player-position", (data: itemPosition) => {
       Matter.Body.setPosition(playerPaddle, { x: data.x, y: data.y });
     });
-    gameSocket.on("update-opponent-position", (data:itemPosition) => {
+    gameSocket.on("update-opponent-position", (data: itemPosition) => {
       Matter.Body.setPosition(opponentPaddle, { x: data.x, y: data.y });
     });
-    gameSocket.on("update-score", (data:{myScore:number,oppScore:number}) => {
+    gameSocket.on("update-score", (data: { myScore: number, oppScore: number }) => {
       setMyScore(data.myScore);
       setOppScore(data.oppScore);
     });
-    gameSocket.on("game-over", (data:{user:User}) => {
+    gameSocket.on("game-over", (data: { user: User }) => {
       Matter.Engine.clear(engine);
       Matter.Render.stop(render);
-      // dispatch({ type: "SET_OPP", payload: data.opp });
       dispatch({ type: "SET_USER", payload: data.user });
       setIsGameOver(true);
     });
-    const handleMousemove = (event:MouseEvent) => {
-      if(canvas === undefined) return;
-      const mouseX = event.clientX - canvas.getBoundingClientRect().left;
+    const handleMousemove = (event: MouseEvent) => {
+      if (canvas === undefined) return;
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      let mouseX = (event.clientX - rect.left) * scaleX;
+      mouseX = Math.min(Math.max(mouseX, 75), 575);
       gameSocket.emit("update-player-position", {
         x: mouseX,
         y: playerPaddle.position.y,
