@@ -32,9 +32,9 @@ export class AuthController {
   async fortyTwoCallback(@Req() req: Request, @Res() res: Response) {
     this.authService.fortyTwoCallback(req.user, res);
   }
-  @Get('logout')
   @UseGuards(JwtAuthGuard)
-  async logout(req: Request, @Res() res: Response) {
+  @Get('logout')
+  async logout(@Req() req: Request, @Res() res: Response) {
     this.authService.logout(req, res);
   }
 
