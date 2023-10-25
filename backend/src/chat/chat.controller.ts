@@ -19,7 +19,6 @@ import { MuteUserDto } from './dto/mute-user.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { AddModeratorDto } from './dto/add-moderator.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
-import { kickUserDto } from './dto/kick-user.dto';
 
 @Controller('chat')
 @UseGuards(JwtAuthGuard)

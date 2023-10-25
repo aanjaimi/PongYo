@@ -51,6 +51,15 @@ export default function UserCard({
         },
         { withCredentials: true },
       );
+      const oldMute = channel.mutes.find(
+        (mute) => mute.userId === cardUser.id,
+      );
+      if (oldMute) {
+        const updatedMutes = channel.mutes.filter(
+          (mute) => mute.userId !== cardUser.id,
+        );
+        channel.mutes = updatedMutes;
+      }
       const updatedMutes = [...channel.mutes, data];
       channel.mutes = updatedMutes;
       updateChannels([...channels]);

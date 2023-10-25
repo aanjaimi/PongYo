@@ -11,7 +11,6 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { ChatGateway } from './chat.gateway';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
-import { kickUserDto } from './dto/kick-user.dto';
 
 @Injectable()
 export class ChatService {
@@ -871,10 +870,26 @@ export class ChatService {
       throw new HttpException('You are not the owner or moderator', 403);
     }
 
-    // check if user is already muted
-    const isMuted = channel.mutes.some((mute) => mute.id === userId);
+    // check if user is already muted update mute
+    const isMuted = channel.mutes.some((mute) => mute.userId === userId);
+    const oldMute = channel.mutes.find((mute) => mute.userId === userId);
     if (isMuted) {
-      throw new HttpException('User is already muted', 403);
+      const mute = await this.prismaService.mute.update({
+        select: {
+          id: true,
+          mutedUntil: true,
+          channelId: true,
+          userId: true,
+          updatedAt: true,
+          createdAt: true,
+        },
+        where: { id: oldMute.id },
+        data: {
+          mutedUntil: new Date(Date.now() + muteDuration * 1000),
+        },
+      });
+
+      return mute;
     }
 
     // mute user
