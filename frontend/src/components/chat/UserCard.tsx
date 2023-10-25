@@ -51,9 +51,7 @@ export default function UserCard({
         },
         { withCredentials: true },
       );
-      const oldMute = channel.mutes.find(
-        (mute) => mute.userId === cardUser.id,
-      );
+      const oldMute = channel.mutes.find((mute) => mute.userId === cardUser.id);
       if (oldMute) {
         const updatedMutes = channel.mutes.filter(
           (mute) => mute.userId !== cardUser.id,
@@ -62,6 +60,42 @@ export default function UserCard({
       }
       const updatedMutes = [...channel.mutes, data];
       channel.mutes = updatedMutes;
+      updateChannels([...channels]);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const unMute = async () => {
+    try {
+      await axios.delete(
+        `${uri}/chat/channel/${channel.id}/mutes?userId=${cardUser.id}`,
+        { withCredentials: true },
+      );
+      const updatedMutes = channel.mutes.filter(
+        (mute) => mute.userId !== cardUser.id,
+      );
+      channel.mutes = updatedMutes;
+      updateChannels([...channels]);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const ban = async () => {
+    try {
+      await axios.patch(
+        `${uri}/chat/channel/${channel.id}/bans`,
+        {
+          userId: cardUser.id,
+          banDuration: 3600000,
+        },
+        { withCredentials: true },
+      );
+      const updatedMembers = channel.members.filter(
+        (member) => member.id !== cardUser.id,
+      );
+      channel.members = updatedMembers;
       updateChannels([...channels]);
     } catch (err) {
       console.log(err);
@@ -103,7 +137,10 @@ export default function UserCard({
             (isModerator() || isOwner()) && (
               <>
                 {isMuted() ? (
-                  <Button className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#1E5D6C]">
+                  <Button
+                    className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#1E5D6C]"
+                    onClick={() => unMute()}
+                  >
                     Unmute
                   </Button>
                 ) : (
@@ -120,7 +157,10 @@ export default function UserCard({
                 >
                   Kick
                 </Button>
-                <Button className="h-[1.7rem] w-[3.7rem] bg-[#C83030]">
+                <Button
+                  className="h-[1.7rem] w-[3.7rem] bg-[#C83030]"
+                  onClick={() => ban()}
+                >
                   Ban
                 </Button>
               </>

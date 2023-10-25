@@ -64,7 +64,7 @@ export default function ChannelSettings({
             x
           </button> */}
           <button
-            className="mr-[1rem] w-[1.8rem]"
+            className="m-[1rem] w-[1.8rem]"
             onClick={() => setShowSettings(false)}
           >
             <Image src={'/close.png'} alt="close" height={100} width={100} />

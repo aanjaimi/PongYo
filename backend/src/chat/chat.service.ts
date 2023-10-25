@@ -366,7 +366,8 @@ export class ChatService {
     }
 
     // check if user is muted
-    if (channel.mutes.some((mute) => mute.userId === user.id)) {
+    const isMuted = channel.mutes.some((mute) => mute.userId === user.id);
+    if (isMuted) {
       throw new HttpException('You are muted', 403);
     }
 
@@ -530,9 +531,7 @@ export class ChatService {
         type: true,
         members: true,
         password: true,
-        bans: {
-          where: { id: user.id },
-        },
+        bans: true,
       },
     });
 
@@ -550,7 +549,8 @@ export class ChatService {
     }
 
     // check if user is banned
-    if (channel.bans.length > 0) {
+    const isBanned = channel.bans.some((ban) => ban.userId === user.id);
+    if (isBanned) {
       throw new HttpException('You are banned', 403);
     }
 
@@ -587,6 +587,11 @@ export class ChatService {
         },
       },
     });
+
+    this.chatGateway
+      .io()
+      .to(`channel-${id}`)
+      .emit('join', { user, channelId: id });
 
     return updatedChannel;
   }
@@ -710,7 +715,7 @@ export class ChatService {
   }
 
   async ban(user: User, id: string, banUserDto: BanUserDto) {
-    const { userId, until } = banUserDto;
+    const { userId, banDuration } = banUserDto;
     const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
@@ -739,50 +744,26 @@ export class ChatService {
     }
 
     // check if user is already banned
-    const isBanned = channel.bans.some((ban) => ban.id === userId);
+    const isBanned = channel.bans.some((ban) => ban.userId === userId);
     if (isBanned) {
       throw new HttpException('User is already banned', 403);
     }
 
     // ban user
-    await this.prismaService.channel.update({
-      where: { id },
+    await this.prismaService.ban.create({
       data: {
-        bans: {
-          connect: { id: userId, bannedUntil: until },
+        bannedUntil: new Date(Date.now() + banDuration * 1000),
+        channel: {
+          connect: { id },
+        },
+        user: {
+          connect: { id: userId },
         },
       },
     });
 
     // remove user from channel
-    const updatedChannel = await this.prismaService.channel.update({
-      select: {
-        id: true,
-        name: true,
-        type: true,
-        mutes: true,
-        bans: true,
-        moderators: true,
-        owner: true,
-        ownerId: true,
-        members: true,
-        messages: {
-          include: {
-            user: true,
-          },
-        },
-        createdAt: true,
-        updatedAt: true,
-      },
-      where: { id },
-      data: {
-        members: {
-          disconnect: { id: userId },
-        },
-      },
-    });
-
-    return updatedChannel;
+    this.kick(user, id, userId);
   }
 
   async unban(user: User, id: string, banUserDto: BanUserDto) {
@@ -810,7 +791,7 @@ export class ChatService {
     }
 
     // check if user is not banned
-    const isBanned = channel.bans.some((ban) => ban.id === userId);
+    const isBanned = channel.bans.some((ban) => ban.userId === userId);
     if (!isBanned) {
       throw new HttpException('User is not banned', 403);
     }
@@ -889,6 +870,8 @@ export class ChatService {
         },
       });
 
+      this.chatGateway.io().to(`channel-${id}`).emit('mute', mute);
+
       return mute;
     }
 
@@ -913,11 +896,12 @@ export class ChatService {
       },
     });
 
+    this.chatGateway.io().to(`channel-${id}`).emit('mute', mute);
+
     return mute;
   }
 
-  async unmute(user: User, id: string, muteUserDto: MuteUserDto) {
-    const { userId } = muteUserDto;
+  async unmute(user: User, id: string, userId: string) {
     const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
@@ -941,20 +925,17 @@ export class ChatService {
     }
 
     // check if user is not muted
-    const isMuted = channel.mutes.some((mute) => mute.id === userId);
+    const isMuted = channel.mutes.find((mute) => mute.userId === userId);
     if (!isMuted) {
       throw new HttpException('User is not muted', 403);
     }
 
     // unmute user
-    await this.prismaService.channel.update({
-      where: { id },
-      data: {
-        mutes: {
-          delete: { id: userId },
-        },
-      },
+    await this.prismaService.mute.delete({
+      where: { id: isMuted.id },
     });
+
+    this.chatGateway.io().to(`channel-${id}`).emit('unmute', isMuted);
   }
 
   async kick(user: User, id: string, userId: string) {
@@ -986,7 +967,7 @@ export class ChatService {
     }
 
     // kick user
-    const updateChannel = await this.prismaService.channel.update({
+    await this.prismaService.channel.update({
       where: { id },
       data: {
         members: {
@@ -994,6 +975,11 @@ export class ChatService {
         },
       },
     });
+
+    this.chatGateway
+      .io()
+      .to(`channel-${id}`)
+      .emit('kick', { userId, channelId: id });
   }
 
   async remove(user: User, id: string) {

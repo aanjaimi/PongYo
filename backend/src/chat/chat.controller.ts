@@ -154,9 +154,9 @@ export class ChatController {
   unmute(
     @CurrentUser() user: User,
     @Param('id') id: string,
-    @Body() muteUserDto: MuteUserDto,
+    @Query('userId') userId: string,
   ) {
-    return this.chatService.unmute(user, id, muteUserDto);
+    return this.chatService.unmute(user, id, userId);
   }
 
   @Delete('/channel/:id/kicks')
