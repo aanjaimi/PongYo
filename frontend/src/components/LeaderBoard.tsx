@@ -13,19 +13,16 @@ import {
 const getUsersWithRank = async (
   setUsers: React.Dispatch<React.SetStateAction<User[]>>
 ) => {
-  // const route = "/users/rank?rank=" + state.user?.rank;
-  const route = "/users/all";
-  const resp = await fetcher.get<User[]>(route);
+  const resp = await fetcher.get<User[]>(`/users`);
   setUsers(resp.data);
   return resp.data;
 };
 
 const LeaderBoard = () => {
-  // const { state } = useStateContext();
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
-    getUsersWithRank(setUsers);
+    void getUsersWithRank(setUsers);
   }, []);
 
   return (

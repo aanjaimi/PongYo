@@ -1,26 +1,25 @@
-import React from "react";
+import React, { useState } from "react";
 import { useStateContext } from "@/contexts/state-context";
 import type { User } from "@/types/user";
-// import type { Achievements } from "@/types/achievement";
-// import type { Game } from "@/types/game";
 import { fetcher } from "@/utils/fetcher";
 import { useQuery } from "@tanstack/react-query";
-import Navbar from "@/components/Navbar";
-import Body from "@/components/Body";
 import type { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
+import ProfileContent from "@/components/Profile/ProfileContent";
 
-const getUser = async (login: string) => {
+const getUser = async (
+  login: string,
+  setIsEdited: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   const resp = await fetcher.get<User>(`/users/${login}`);
+  setIsEdited(resp.data.isCompleted);
   return resp.data;
 };
 
 export type ProfileProps = {
   id: string;
 };
-export const getServerSideProps = (
-  context: GetServerSidePropsContext
-) => {
+export const getServerSideProps = (context: GetServerSidePropsContext) => {
   const { id } = context.params as { id: string };
 
   return {
@@ -32,11 +31,12 @@ export const getServerSideProps = (
 
 export default function Profile({ id }: ProfileProps) {
   const router = useRouter();
+  const [isEdited, setIsEdited] = useState(false);
   const { dispatch } = useStateContext();
   const userQurey = useQuery({
     queryKey: ["users", id],
     queryFn: ({ queryKey: [, id] }) => {
-      return getUser(id!);
+      return getUser(id!, setIsEdited);
     },
     retry: false,
     onSuccess: (data) => {
@@ -45,6 +45,7 @@ export default function Profile({ id }: ProfileProps) {
     onError: (err) => {
       console.error(err);
       dispatch({ type: "SET_USER", payload: null });
+      dispatch({ type: "SET_AUTH", payload: false });
     },
   });
 
@@ -54,14 +55,15 @@ export default function Profile({ id }: ProfileProps) {
         Loading...
       </div>
     );
-  if (userQurey.isError)
-      router.push("/404").catch(console.error);
-  const user = userQurey.data;
+  if (userQurey.isError) router.push("/").catch(console.error);
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-auto">
-      <Navbar />
-      {user && <Body />}
+      <ProfileContent
+        user={userQurey.data!}
+        isEdited={isEdited}
+        setIsEdited={setIsEdited}
+      />
     </div>
   );
 }

@@ -3,4 +3,9 @@ export interface FortyTwoProfile {
   displayName: string;
   image: { link: { value: string } };
   emails: { value: string }[];
+  _json: {
+    image: {
+      link: string;
+    };
+  };
 }

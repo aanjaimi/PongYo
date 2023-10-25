@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import PopUp from "./popUp";
 import { useSocket } from "@/contexts/socket-context";
 import CustomModal from "./CustomModal";
-import { fetcher } from "@/utils/fetcher";
 import { useStateContext } from "@/contexts/state-context";
 import { toast } from "react-toastify";
 import type { User } from "@/types/user";
@@ -15,11 +14,8 @@ import { useRouter } from "next/router";
 import {
   Card,
 } from "@/components/ui/card"
-import { set } from "zod";
-const getCurrentUser = async () => {
-  const resp = await fetcher.get<User>("/users/@me");
-  return resp.data;
-};
+
+
 type GameCardProps = {
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>;
   setOppData: React.Dispatch<React.SetStateAction<User>>;
@@ -33,7 +29,7 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
   const [inviteNotify, setInviteNotify] = useState(false);
   const [friend, setFriend] = useState({} as User);
   const router = useRouter();
-  const { state, dispatch } = useStateContext();
+  const { state } = useStateContext();
   const handleStartClick = () => {
     if (selectedOption === "Normal game") {
       gameSocket.emit("join-queue");

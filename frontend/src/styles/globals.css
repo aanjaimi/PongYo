@@ -28,7 +28,7 @@
   }
  
   .dark {
-    --background: 240 10% 3.9%; 
+    --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -48,33 +48,6 @@
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
   }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
-
-body {
-  background-color: #000355;
-}
-
-.Winner{
-  color: #ffeb3b;
-  font-weight: bold;
-}
-
-.Loser{
-  color: #e0e0e0;
-  font-weight: bold;
-}
-
-.stroke-green {
-  stroke: hsl(165, 100%, 26%); /* Adjust the hue, saturation, and lightness values to achieve the desired effect */
 }
 
 @keyframes rotation {

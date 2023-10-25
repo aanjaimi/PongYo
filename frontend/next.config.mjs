@@ -17,6 +17,9 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    domains: ["cdn.intra.42.fr", "localhost"],
+  },
 };
 
 export default config;

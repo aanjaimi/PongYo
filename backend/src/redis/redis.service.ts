@@ -11,4 +11,8 @@ export class RedisService extends Redis {
   ) {
     super(redisOptions);
   }
+
+  async getUserSockets(userId: string) {
+    return Object.keys((await this.hgetall(userId)) || {});
+  }
 }

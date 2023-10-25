@@ -6,8 +6,12 @@ import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from './users/users.module';
 import { RedisModule } from './redis/redis.module';
-import { GameModule } from './game/game.module';
+// import { GameModule } from './game/game.module';
 import { WsModule } from './ws/ws.module';
+import { MinioModule } from './minio/minio.module';
+import { FriendModule } from './friends/friends.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -30,8 +34,23 @@ import { WsModule } from './ws/ws.module';
         };
       },
     }),
-    GameModule,
+    // GameModule,
     WsModule,
+    EventEmitterModule.forRoot({ global: true }),
+    MinioModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory(configService: ConfigService) {
+        return {
+          endPoint: configService.get('MINIO_ENDPOINT'),
+          port: 9000,
+          useSSL: false,
+          accessKey: configService.get('MINIO_ACCESS_KEY'),
+          secretKey: configService.get('MINIO_SECRET_KEY'),
+        };
+      },
+    }),
+    FriendModule,
+    NotificationsModule,
   ],
   controllers: [],
   providers: [],
