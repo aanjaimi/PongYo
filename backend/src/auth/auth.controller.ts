@@ -48,6 +48,12 @@ export class AuthController {
     return this.authService.otpCallback(accessToken, user, body);
   }
 
+  @UseGuards(OptAuthGuard)
+  @Get('@me')
+  async getCurrentUser(@CurrentUser() user: User) {
+    return user;
+  }
+
   // TODO: just for testing we'll remove later
   // remove qrcode dependency
   @UseGuards(OptAuthGuard)

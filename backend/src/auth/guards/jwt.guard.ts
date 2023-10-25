@@ -24,12 +24,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       `token-${accessToken}`,
       'explicit-expiration',
     );
-    const otpNeed = await this.redisService.hget(
+    const otpNeeded = await this.redisService.hget(
       `token-${accessToken}`,
       'otp-needed',
     );
 
-    if (explicitExpiration == '1' || otpNeed == '1')
+    if (explicitExpiration == '1' || otpNeeded == '1')
       throw new UnauthorizedException();
 
     return true;
