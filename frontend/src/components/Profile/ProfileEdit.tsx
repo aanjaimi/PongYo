@@ -7,7 +7,7 @@ type ProfileEditProps = {
 };
 
 const ProfileEdit = ({ isEdited, setIsEdited }: ProfileEditProps) => {
-  const [on, setOn] = useState(true);
+  const [, setOn] = useState(true);
 
   return (
     <>

@@ -5,7 +5,6 @@ import { fetcher } from "@/utils/fetcher";
 import { useQuery } from "@tanstack/react-query";
 import type { GetServerSidePropsContext } from "next";
 import { useRouter } from "next/router";
-import { useQueryClient } from "@tanstack/react-query";
 import ProfileContent from "@/components/Profile/ProfileContent";
 
 const getUser = async (
@@ -31,7 +30,6 @@ export const getServerSideProps = (context: GetServerSidePropsContext) => {
 };
 
 export default function Profile({ id }: ProfileProps) {
-  const queryClient = useQueryClient();
   const router = useRouter();
   const [isEdited, setIsEdited] = useState(false);
   const { dispatch } = useStateContext();

@@ -16,7 +16,6 @@ import { QueryClient, useMutation } from "@tanstack/react-query";
 import QRCode from "react-qr-code";
 import { fetcher } from "@/utils/fetcher";
 import { useRouter } from "next/router";
-import { stat } from "fs";
 
 export const updateProfile = async (payload: FormData) => {
   return (await fetcher.patch<User>(`/users`, payload)).data;

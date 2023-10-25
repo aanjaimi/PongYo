@@ -48,7 +48,7 @@ const StateProvider = ({ children }: StateProviderProps) => {
     queryKey: ["users", "@me"],
     retry: false,
     queryFn: async () => {
-      return getCurrentUser(state.authenicated);
+      return getCurrentUser();
     },
     onSuccess(user) {
       dispatch({

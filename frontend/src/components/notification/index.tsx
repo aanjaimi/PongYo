@@ -39,7 +39,7 @@ export function Notifications() {
     return () => {
       socket.off("notification");
     };
-  }, []);
+  });
 
   const notifTypeMessages: Record<NotifType, string> = {
     FRIEND_REQUEST: "sends a friend request",
@@ -53,7 +53,7 @@ export function Notifications() {
   const notifications = notificationQuery.data.data;
 
   return (
-    <Card className="flex flex-col justify-center items-center">
+    <Card className="flex flex-col items-center justify-center">
       <CardHeader className="pb-3">
         <CardTitle>Notifications</CardTitle>
         <CardDescription>all notifications</CardDescription>
