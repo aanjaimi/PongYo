@@ -1,9 +1,9 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { CurrentUser } from '@/auth/auth.decorator';
 import { User } from '@prisma/client';
 import { NotificationQueryDTO } from './notifications.dto';
 import { JwtAuthGuard } from '@/auth/guards/jwt.guard';
+import { CurrentUser } from '@/global/global.decorators';
 
 @Controller('notifications')
 @UseGuards(JwtAuthGuard)

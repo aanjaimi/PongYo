@@ -9,7 +9,7 @@ import { Request } from 'express';
 import { AUTH_COOKIE_NAME } from '../auth.constants';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class OptAuthGuard extends AuthGuard('jwt') {
   constructor(private redisService: RedisService) {
     super();
   }
@@ -20,17 +20,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
     const accessToken = req.cookies[AUTH_COOKIE_NAME] as string | null;
 
-    const explicitExpiration = await this.redisService.hget(
-      `token-${accessToken}`,
-      'explicit-expiration',
-    );
     const otpNeed = await this.redisService.hget(
       `token-${accessToken}`,
       'otp-needed',
     );
 
-    if (explicitExpiration == '1' || otpNeed == '1')
-      throw new UnauthorizedException();
+    if (!otpNeed || otpNeed === '0') throw new UnauthorizedException();
 
     return true;
   }

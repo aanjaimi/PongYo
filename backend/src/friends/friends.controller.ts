@@ -11,10 +11,10 @@ import {
 } from '@nestjs/common';
 import { FriendService } from './friends.service';
 import { User } from '@prisma/client';
-import { CurrentUser } from '@/auth/auth.decorator';
 import { ApiCookieAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '@/auth/guards/jwt.guard';
 import { FriendQueryDTO, FriendShipActionDTO } from './friends.dto';
+import { CurrentUser } from '@/global/global.decorators';
 
 // TODO: for @omoussao
 /**

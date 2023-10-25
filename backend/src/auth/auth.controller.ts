@@ -12,11 +12,10 @@ import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
 import { FortyTwoGuard } from './guards/42.guard';
 import { JwtAuthGuard } from './guards/jwt.guard';
-import { OtpGuard } from './guards/totp.guard';
-import { CurrentUser } from './auth.decorator';
 import { User } from '@prisma/client';
 import { OtpCallbackDTO } from './auth.dto';
-// import * as qrCode from 'qrcode';
+import { AccessToken, CurrentUser } from '@/global/global.decorators';
+import { OptAuthGuard } from './guards/otp.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -39,17 +38,20 @@ export class AuthController {
     this.authService.logout(req, res);
   }
 
-  @UseGuards(OtpGuard)
+  @UseGuards(OptAuthGuard)
   @Post('otp')
   async otpCallback(
-    @Res() res: Response,
+    @AccessToken() accessToken: string,
     @CurrentUser() user: User,
     @Body() body: OtpCallbackDTO,
   ) {
-    return this.authService.otpCallback(res, user, body);
+    return this.authService.otpCallback(accessToken, user, body);
   }
-  @UseGuards(OtpGuard)
-  @Get('@me')
+
+  // TODO: just for testing we'll remove later
+  // remove qrcode dependency
+  @UseGuards(OptAuthGuard)
+  @Get('me')
   async me(@CurrentUser() user: User) {
     return user;
   }

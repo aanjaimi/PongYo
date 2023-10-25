@@ -14,9 +14,9 @@ import {
 import { UserService } from './users.service';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { User } from '@prisma/client';
-import { CurrentUser } from '@/auth/auth.decorator';
 import { UserQueryDTO, UserUpdateDTO } from './users.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { CurrentUser } from '@/global/global.decorators';
 @Controller('/users')
 @UseGuards(JwtAuthGuard)
 export class UserController {

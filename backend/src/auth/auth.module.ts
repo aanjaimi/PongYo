@@ -5,7 +5,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { FortyTwoStrategy } from './strategies/42.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { PassportModule } from '@nestjs/passport';
-import { OtpStrategy } from './strategies/totp.strategy';
 
 @Module({
   imports: [
@@ -17,6 +16,6 @@ import { OtpStrategy } from './strategies/totp.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [OtpStrategy, FortyTwoStrategy, JwtStrategy, AuthService],
+  providers: [FortyTwoStrategy, JwtStrategy, AuthService],
 })
 export class AuthModule {}
