@@ -2,7 +2,7 @@ import React from "react";
 import NavBar from "./navbar/NavBar";
 import SideBar from "./sidebar/SideBar";
 import { useStateContext } from "@/contexts/state-context";
-import TFA from "./TFA";
+import Otp from "./Otp";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -26,11 +26,7 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       )}
       {authenicated === false && <>{children}</>}
-      {authenicated === "otp" && (
-        <>
-          <TFA />
-        </>
-      )}
+      {authenicated === "otp" && <Otp />}
     </>
   );
 }

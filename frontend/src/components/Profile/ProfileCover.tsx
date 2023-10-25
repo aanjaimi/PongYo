@@ -4,6 +4,8 @@ import { useStateContext } from "@/contexts/state-context";
 import { Button } from "@/components/ui/button";
 import type { User } from "@/types/user";
 import ProfileCompletion from "./ProfileCompletion";
+import { LogOut } from "lucide-react";
+import { env } from "@/env.mjs";
 
 type ProfileCoverProps = {
   isEdited: boolean;
@@ -59,13 +61,28 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
                 </div>
               )}
               {isOwner && (
-                <div className="mr-[20px] flex items-center">
+                <div className="mr-[20px] flex items-center gap-2">
                   <Button
                     className="w-[130px] bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
                     onClick={() => setOn(true)}
                   >
-                    Edit profile{on && <ProfileCompletion setOn={setOn} setIsEdited={setIsEdited} inProfileEdit={true} /*profileEdit={profileEdit} setProfileEdit={setProfileEdit}*//>}
+                    Edit profile
+                    {on && (
+                      <ProfileCompletion
+                        setOn={setOn}
+                        setIsEdited={setIsEdited}
+                        inProfileEdit={
+                          true
+                        } /*profileEdit={profileEdit} setProfileEdit={setProfileEdit}*/
+                      />
+                    )}
                   </Button>
+                  <a
+                    href={env.NEXT_PUBLIC_BACKEND_ORIGIN + "/auth/logout"}
+                    className="cursor-pointer"
+                  >
+                    <LogOut />
+                  </a>
                 </div>
               )}
             </div>

@@ -16,12 +16,7 @@ import { QueryClient, useMutation } from "@tanstack/react-query";
 import QRCode from "react-qr-code";
 import { fetcher } from "@/utils/fetcher";
 import { useRouter } from "next/router";
-
-type FormData = {
-  displayname?: string;
-  avatar?: string;
-  tfa?: boolean;
-};
+import { stat } from "fs";
 
 export const updateProfile = async (payload: FormData) => {
   return (await fetcher.patch<User>(`/users`, payload)).data;
@@ -37,11 +32,12 @@ const ProfileCompletion = ({
   setOn,
   setIsEdited,
   inProfileEdit,
-}:
-ProfileCompletionProps) => {
+}: ProfileCompletionProps) => {
   const { state, dispatch } = useStateContext();
   const [openDialog, setOpenDialog] = useState(true);
-  const [displayName, setDisplayName] = useState("");
+  const [displayName, setDisplayName] = useState(
+    () => state.user?.displayname ?? ""
+  );
   const avatarRef = useRef<HTMLInputElement | null>(null);
   const queryClient = new QueryClient();
   const router = useRouter();
@@ -49,10 +45,12 @@ ProfileCompletionProps) => {
     if (state.user?.totp.enabled) return state.user.totp.otpauth_url;
     return "";
   });
+
   const [otp, setOtp] = useState(() => {
     if (state.user?.totp.enabled) return state.user.totp.enabled;
     return false;
   });
+
   const userMutation = useMutation({
     mutationKey: ["users", "@me"],
     mutationFn: updateProfile,
@@ -62,7 +60,7 @@ ProfileCompletionProps) => {
     },
   });
 
-    const toggleOtp = async () => {
+  const toggleOtp = async () => {
     setOtp(!otp);
     const payload = new FormData();
     payload.append("tfa", !otp ? "true" : "false");
@@ -71,39 +69,13 @@ ProfileCompletionProps) => {
   };
 
   const handleSubmit = async () => {
-    console.log("submit");
-    console.log("displayname: ", displayName, displayName.length);
     const payload = new FormData();
-    if (displayName.length != 0) {
-      console.log("payload1: ", payload);
-      payload.append("displayname", displayName);
-    }
-    console.log("payload2: ", payload);
+    if (displayName.length != 0) payload.append("displayname", displayName);
     if (avatarRef.current?.files?.[0])
       payload.append("avatar", avatarRef.current?.files?.[0] as Blob);
-    console.log("payload3: ", payload);
-    await userMutation.mutateAsync(payload).then((resp) => {
-      setIsEdited(true);
-      setOn(false);
-      setOpenDialog(false);
-      queryClient.invalidateQueries(["users", "@me"]).catch((err) => {
-        console.log(err);
-        router.push("/profile/@me").catch((err) => {
-          console.log(err);
-        });
-      });
-    }
-    ).catch((err) => {
-      console.log(err);
-    });
-    console.log("payload4: ", payload);
-    await queryClient.invalidateQueries(["users", "@me"]);
-  };
-
-  const handleSkip = async () => {
-    const resp = await userMutation
-      .mutateAsync({})
-      .then((resp) => {
+    await userMutation
+      .mutateAsync(payload)
+      .then(() => {
         setIsEdited(true);
         setOn(false);
         setOpenDialog(false);
@@ -115,16 +87,29 @@ ProfileCompletionProps) => {
         });
       })
       .catch((err) => {
-        console.log("error: ", err);
+        console.log(err);
       });
+    console.log("payload4: ", payload);
+    await queryClient.invalidateQueries(["users", "@me"]);
+  };
+
+  const handleSkip = async () => {
+    const payload = new FormData();
+    payload.append("displayname", displayName);
+    await userMutation.mutateAsync(payload);
+    setIsEdited(true);
+    setOn(false);
+    setOpenDialog(false);
+    await queryClient.invalidateQueries(["users", "@me"]);
+    await router.push("/profile/@me");
   };
   return (
-    <Dialog open={openDialog}>
+    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit profile</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when you're done.
+            Make changes to your profile here. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
         <div className="mb-[5px] mt-[10px] grid w-full max-w-sm items-center gap-1.5">

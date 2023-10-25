@@ -47,6 +47,7 @@ export type User = {
     enabled: true;
     otpauth_url: string;
   };
+  otpNeeded?: boolean;
   createdAt: Date;
   updatedAt: Date;
   avatar: {

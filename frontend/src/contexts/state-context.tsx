@@ -21,7 +21,7 @@ type Action =
 type Dispatch = (action: Action) => void;
 const initialState: State = {
   user: null,
-  authenicated: false,
+  authenicated: 'otp',
 };
 
 const StateContext = createContext<
@@ -50,8 +50,11 @@ const StateProvider = ({ children }: StateProviderProps) => {
     queryFn: async () => {
       return getCurrentUser(state.authenicated);
     },
-    onSuccess() {
-      dispatch({ type: "SET_AUTH", payload: true });
+    onSuccess(user) {
+      dispatch({
+        type: "SET_AUTH",
+        payload: user.totp.enabled && user.otpNeeded ? "otp" : true,
+      });
     },
     onError() {
       dispatch({ type: "SET_AUTH", payload: false });

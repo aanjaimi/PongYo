@@ -62,7 +62,7 @@ export default function Profile({ id }: ProfileProps) {
   return (
     <div className="flex h-screen w-screen flex-col overflow-auto">
       <ProfileContent
-        user={userQurey.data}
+        user={userQurey.data!}
         isEdited={isEdited}
         setIsEdited={setIsEdited}
       />
