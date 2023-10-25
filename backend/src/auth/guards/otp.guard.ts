@@ -7,6 +7,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { AUTH_COOKIE_NAME } from '../auth.constants';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class OptAuthGuard extends AuthGuard('jwt') {
@@ -20,12 +21,14 @@ export class OptAuthGuard extends AuthGuard('jwt') {
 
     const accessToken = req.cookies[AUTH_COOKIE_NAME] as string | null;
 
-    const otpNeed = await this.redisService.hget(
+    const otpNeeded = await this.redisService.hget(
       `token-${accessToken}`,
       'otp-needed',
     );
 
-    if (!otpNeed || otpNeed === '0') throw new UnauthorizedException();
+    if (!otpNeeded || otpNeeded === '0') throw new UnauthorizedException();
+
+    (<User & { otpNeeded?: boolean }>req.user).otpNeeded = otpNeeded === '1';
 
     return true;
   }
