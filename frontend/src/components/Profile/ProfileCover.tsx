@@ -1,85 +1,28 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useStateContext } from "@/contexts/state-context";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import type { User } from "@/types/user";
-import { QueryClient, useMutation } from "@tanstack/react-query";
-import QRCode from "react-qr-code";
-import { fetcher } from "@/utils/fetcher";
+import ProfileCompletion from "./ProfileCompletion";
 
 type ProfileCoverProps = {
+  isEdited: boolean;
+  setIsEdited: React.Dispatch<React.SetStateAction<boolean>>;
   user: User;
 };
 
-async function updateProfile(payload: FormData) {
-  return (await fetcher.patch<User>(`/users`, payload)).data;
-}
-const ProfileCover = ({ user }: ProfileCoverProps) => {
-  const { state, dispatch } = useStateContext();
-  // TODO: use must move the edit logic to component called ProfileEdit
-  // name exists profileEdit to ProfileCompletion
-  
-  if (state.user?.id === user.id)
-    user = state.user;
+const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
+  const { state } = useStateContext();
   const [on, setOn] = useState(false);
-  const [displayName, setDisplayName] = useState("");
-  const avatarRef = useRef<HTMLInputElement | null>(null);
-  const queryClient = new QueryClient();
-  const [qrCodeData, setQrCodeData] = useState(() => {
-    if (user.totp.enabled) return user.totp.otpauth_url;
-    return "";
-  });
   const [isOwner, setIsOwner] = useState(false);
-  const [otp, setOtp] = useState(() => {
-    if (user.totp.enabled) return user.totp.enabled;
-    return false;
-  });
-
-  const userMutation = useMutation({
-    mutationKey: ["users", "@me"],
-    mutationFn: updateProfile,
-    onSuccess: async (data) => {
-      dispatch({ type: "SET_USER", payload: data });
-      await queryClient.invalidateQueries(["users", "@me"]);
-    },
-  });
 
   useEffect(() => {
     setIsOwner(state.user?.id === user.id);
   }, [state.user?.id, user.id]);
 
-  const toggleOtp = async () => {
-    setOtp(!otp);
-    const payload = new FormData();
-    payload.append("tfa", !otp ? "true" : "false");
-    const user = await userMutation.mutateAsync(payload);
-    if (user.totp.enabled) setQrCodeData(user.totp.otpauth_url);
-  };
-
-  const handleSubmit = async () => {
-    const payload = new FormData();
-    if (displayName.length) payload.append("displayname", displayName);
-    if (avatarRef.current?.files?.[0])
-      payload.append("avatar", avatarRef.current?.files?.[0] as Blob);
-    await userMutation.mutateAsync(payload);
-    await queryClient.invalidateQueries(["users", "@me"]);
-    setOn(false);
-  };
-
   return (
     <>
-      {user.isCompleted && (
+      {isEdited && (
         <div className="relative mb-[19px] mt-[36px] flex flex-col items-center justify-center">
           {/* Cover  */}
           <div className="h-[100px] w-[400px] rounded-t-2xl md:h-[150px] md:w-[600px] lg:h-[242px] lg:w-[968px]">
@@ -121,60 +64,7 @@ const ProfileCover = ({ user }: ProfileCoverProps) => {
                     className="w-[130px] bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
                     onClick={() => setOn(true)}
                   >
-                    <Dialog>
-                      <DialogTrigger>Edit profile</DialogTrigger>
-                      {on && (
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Edit profile</DialogTitle>
-                            <DialogDescription>
-                              Make changes to your profile here. Click save when
-                              you're done.
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="grid w-full max-w-sm items-center gap-1.5">
-                            <Label>DisplayName</Label>
-                            <Input
-                              id="DisplayName"
-                              placeholder="DisplayName"
-                              value={displayName}
-                              onChange={(e) => setDisplayName(e.target.value)}
-                            />
-                          </div>
-                          <div className="grid w-full max-w-sm items-center gap-1.5">
-                            <Label>Avatar</Label>
-                            <Input id="avatar" type="file" ref={avatarRef} />
-                          </div>
-                          <div className="grid w-full max-w-sm items-center gap-1.5">
-                            <Label className="mb-[5px] mt-[10px] w-[400px]">
-                              Two Factor Authentication is{" "}
-                              {otp ? <>Enabled</> : <>Disabled</>} now switch to{" "}
-                              {otp ? <>Disable</> : <>Enable</>}
-                            </Label>
-                            <Switch
-                              checked={otp}
-                              onCheckedChange={() => void toggleOtp()}
-                            />
-                          </div>
-                          {otp && (
-                            <div className="grid w-full max-w-sm items-center gap-1.5">
-                              <h1>Generate QR Code</h1>
-
-                              <QRCode value={qrCodeData} />
-                            </div>
-                          )}
-                          <div className="mt-[20px] flex justify-end">
-                            <Button
-                              disabled={userMutation.isLoading}
-                              className="w-[130px] bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
-                              onClick={() => void handleSubmit()}
-                            >
-                              Save changes
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      )}
-                    </Dialog>
+                    Edit profile{on && <ProfileCompletion setOn={setOn} setIsEdited={setIsEdited} inProfileEdit={true} /*profileEdit={profileEdit} setProfileEdit={setProfileEdit}*//>}
                   </Button>
                 </div>
               )}

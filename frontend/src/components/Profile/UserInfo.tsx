@@ -1,24 +1,16 @@
 import React, { useState } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Achievement from "../Achievement";
 import History from "../History";
 import Rank from "../LeaderBoard";
-import { ALLbuttons } from "../../types/common";
-import type { Achievements } from "@/types/achievement";
-import { useStateContext } from "@/contexts/state-context";
 import type { User } from "@/types/user";
 
 type UserInfoProps = {
+  isEdited: boolean;
   user: User;
 };
 
-const UserInfo = ({ user }: UserInfoProps) => {
-  const { state } = useStateContext();
-
-  const [achievement, setAchievement] = useState<Achievements[] | undefined>(
-    state.user?.achievement
-  );
+const UserInfo = ({ user, isEdited }: UserInfoProps) => {
 
   const [achievementBool, setAchievementBool] = useState<boolean>(true);
   const [historyBool, setHistoryBool] = useState<boolean>(false);
@@ -44,7 +36,7 @@ const UserInfo = ({ user }: UserInfoProps) => {
 
   return (
     <>
-      {user.isCompleted && (
+      {isEdited && (
         <div className="border mb-[3rem] mt-[36px] flex h-[419px] w-[413px] flex-col rounded-2xl md:w-[613px] lg:w-[968px]">
           <div className="ml-[6px] mr-[6px] flex h-[60px] w-[400px] items-center justify-center border-b-[2px] md:w-[600px] lg:w-[955px]">
             <div className="flex h-[51px] w-[322px] items-center justify-center border-r-[2px]">
@@ -64,8 +56,8 @@ const UserInfo = ({ user }: UserInfoProps) => {
             </div>
           </div>
           <div className="flex grow">
-            {achievementBool && <Achievement />}
-            {historyBool && <History />}
+            {achievementBool && <Achievement user={user}/>}
+            {historyBool && <History user={user}/>}
             {rankBool && <Rank />}
           </div>
         </div>

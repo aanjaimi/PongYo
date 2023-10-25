@@ -1,25 +1,26 @@
 import React, { useState, useEffect } from 'react'
 import Image from 'next/image';
-import { useStateContext } from '@/contexts/state-context';
 import { fetcher } from '@/utils/fetcher';
 import type { User } from '@/types/user';
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card"
-
 
 const getOpponent = async (id: string) => {
   const userOpponent = await fetcher.get<User | null>("/users/" + id);
   return userOpponent.data;
 };
 
-const History = () => {
+type HistoryProps = {
+	user: User;
+};
 
-	const { state } = useStateContext();
+const History = ({ user }: HistoryProps) => {
+
 	const [opponents, setOpponents] = useState<Array<User | null>>([]);
 
   useEffect(() => {
     const fetchOpponents = async () => {
 			try {
-      	const opponentPromises = state.user?.userGameHistory?.map((gam) => getOpponent(gam.opponentId)) || [];
+      	const opponentPromises = user?.userGameHistory?.map((gam) => getOpponent(gam.opponentId)) || [];
       	const resolvedOpponents = await Promise.all(opponentPromises);
       	setOpponents(resolvedOpponents);
 			} catch (error) {
@@ -27,13 +28,13 @@ const History = () => {
 			}
     };
 
-    fetchOpponents();
-  }, [state.user?.userGameHistory]);
+    void fetchOpponents();
+  }, [user?.userGameHistory]);
 
 	return (
 		<div style={{overflow: 'auto', maxHeight: '359px' }} className="grow mt-[10px]">
 			<h1 className="my-[10px] flex items-center justify-center font-bold">Match histories</h1>
-			{state.user?.userGameHistory?.map((gam, index) => (
+			{user?.userGameHistory?.map((gam, index) => (
 				<div key={gam.id} className="flex justify-center mb-[20px]">
 					<HoverCard>
 						<HoverCardTrigger className="container bg-[#2B3954] border rounded-[15px] relative flex justify-between items-center w-[70%] md:w-[60%] lg:w-[50%] h-[70px]">
@@ -56,7 +57,7 @@ const History = () => {
 								</div>
 							</div>
 							<div className="flex justify-around items-center">
-								<p className="text-black font-bold mt-[5px]">{state.user?.login}</p>
+								<p className="text-black font-bold mt-[5px]">{user?.login}</p>
 								<div></div>
 								<div></div>
 								<div></div>

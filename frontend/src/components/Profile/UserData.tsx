@@ -1,22 +1,20 @@
-import React, { useEffect } from "react";
-import { useStateContext } from "@/contexts/state-context";
-import { CircularProgress } from "@nextui-org/react";
+import React from "react";
 import { type User } from "@/types/user";
 
 type UserDataProps = {
+  isEdited: boolean;
   user: User;
 };
 
-const UserData = ({ user }: UserDataProps) => {
-  const { state } = useStateContext();
+const UserData = ({ user, isEdited }: UserDataProps) => {
 
-  const vectories = state.user?.vectories == null ? 0 : state.user.vectories;
-  const defeats = state.user?.defeats == null ? 0 : state.user.defeats;
-  const points = state.user?.points == null ? 0 : state.user.points;
+  const vectories = user?.vectories == null ? 0 : user.vectories;
+  const defeats = user?.defeats == null ? 0 : user.defeats;
+  const points = user?.points == null ? 0 : user.points;
 
   return (
     <>
-      {user.isCompleted && (
+      {isEdited && (
         <div className="border flex h-[80px] w-[400px] items-center justify-between rounded-2xl md:h-[150px] md:w-[600px] lg:h-[180px] lg:w-[968px]">
           <div className="ml-[10px] font-semibold text-black lg:text-xl">
           </div>

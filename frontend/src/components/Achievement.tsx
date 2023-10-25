@@ -1,10 +1,13 @@
 import React from 'react'
 import Image from 'next/image';
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
-import { useStateContext } from "@/contexts/state-context";
+import type { User } from "@/types/user";
 
-const Achievement = () => {
-	const { state } = useStateContext();
+type AchievementProps = {
+	user: User;
+};
+
+const Achievement = ({ user }: AchievementProps) => {
 
 	return (
 		<div style={{overflow: 'auto', maxHeight: '359px' }} className="grow font-bold">
@@ -12,7 +15,7 @@ const Achievement = () => {
 			<Table>
 				<TableBody className="flex flex-col justify-center items-center mt-[20px]">
 					{/* map through achievements */}
-					{state.user?.achievement?.map((ach) => (
+					{user?.achievement?.map((ach) => (
 						<TableRow key={ach.id} className="bg-[#2B3954] border rounded-[15px] flex justify-center items-center mb-[20px] w-[90%]">
 							<TableCell className="w-[127px] md:w-[194px] lg:w-[312px]"><Image alt="" src="/achievements/1.png" width={25} height={25}/></TableCell>
 							<TableCell className="w-[127px] md:w-[194px] lg:w-[312px]">{ach?.name}</TableCell>

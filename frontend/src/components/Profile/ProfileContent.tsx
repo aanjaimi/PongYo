@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import UserInfo from "./UserInfo";
 import UserData from "./UserData";
 import { type User } from "@/types/user";
@@ -7,15 +7,16 @@ import ProfileCover from "./ProfileCover";
 
 type ProfileContentProps = {
   user: User;
+  isEdited: boolean;
+  setIsEdited: React.Dispatch<React.SetStateAction<boolean>>;
 };
-const ProfileContent = ({ user }: ProfileContentProps) => {
-  const [profileEditOn, setProfileEditOn] = useState(false);
+const ProfileContent = ({ user, isEdited, setIsEdited }: ProfileContentProps) => {
   return (
     <div className="flex grow flex-col items-center justify-start">
-      <ProfileCover user={user} />
-      <UserData user={user} />
-      <UserInfo user={user} />
-      <ProfileEdit state={profileEditOn} setState={setProfileEditOn} />
+      <ProfileCover user={user} isEdited={isEdited} setIsEdited={setIsEdited}/>
+      <UserData user={user} isEdited={isEdited}/>
+      <UserInfo user={user} isEdited={isEdited}/>
+      <ProfileEdit isEdited={isEdited} setIsEdited={setIsEdited} />
     </div>
   );
 };

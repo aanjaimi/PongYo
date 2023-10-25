@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useStateContext } from "@/contexts/state-context";
 import type { User } from "@/types/user";
 import { fetcher } from "@/utils/fetcher";
@@ -8,8 +8,12 @@ import { useRouter } from "next/router";
 import { useQueryClient } from "@tanstack/react-query";
 import ProfileContent from "@/components/Profile/ProfileContent";
 
-const getUser = async (login: string) => {
+const getUser = async (
+  login: string,
+  setIsEdited: React.Dispatch<React.SetStateAction<boolean>>
+) => {
   const resp = await fetcher.get<User>(`/users/${login}`);
+  setIsEdited(resp.data.isCompleted);
   return resp.data;
 };
 
@@ -29,11 +33,12 @@ export const getServerSideProps = (context: GetServerSidePropsContext) => {
 export default function Profile({ id }: ProfileProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const [isEdited, setIsEdited] = useState(false);
   const { dispatch } = useStateContext();
   const userQurey = useQuery({
     queryKey: ["users", id],
     queryFn: ({ queryKey: [, id] }) => {
-      return getUser(id!);
+      return getUser(id!, setIsEdited);
     },
     retry: false,
     onSuccess: (data) => {
@@ -56,7 +61,11 @@ export default function Profile({ id }: ProfileProps) {
 
   return (
     <div className="flex h-screen w-screen flex-col overflow-auto">
-      <ProfileContent user={userQurey.data}/>
+      <ProfileContent
+        user={userQurey.data}
+        isEdited={isEdited}
+        setIsEdited={setIsEdited}
+      />
     </div>
   );
 }
