@@ -92,6 +92,7 @@ export class ChatService {
       select: {
         id: true,
         name: true,
+        isDM: true,
         type: true,
         members: true,
         messages: {
@@ -119,9 +120,7 @@ export class ChatService {
         id: true,
         name: true,
         type: true,
-        owner: true,
-        ownerId: true,
-        moderators: true,
+        isDM: true,
         members: true,
         messages: {
           include: {
@@ -520,6 +519,8 @@ export class ChatService {
       },
     });
 
+    this.chatGateway.io().to(`channel-${id}`).emit('update', updatedChannel);
+
     return updatedChannel;
   }
 
@@ -835,12 +836,18 @@ export class ChatService {
         owner: true,
         mutes: true,
         moderators: true,
+        isDM: true,
       },
     });
 
     // check if channel exists
     if (!channel) {
       throw new HttpException('Channel not found', 404);
+    }
+
+    // check if channel is a dm
+    if (channel.isDM) {
+      throw new HttpException('Cannot mute in DM', 403);
     }
 
     // check if user is owner or moderator
@@ -908,12 +915,18 @@ export class ChatService {
         owner: true,
         mutes: true,
         moderators: true,
+        isDM: true,
       },
     });
 
     // check if channel exists
     if (!channel) {
       throw new HttpException('Channel not found', 404);
+    }
+
+    // check if channel is a dm
+    if (channel.isDM) {
+      throw new HttpException('Cannot unmute in DM', 403);
     }
 
     // check if user is owner or moderator
@@ -952,6 +965,12 @@ export class ChatService {
     if (!channel) {
       throw new HttpException('Channel not found', 404);
     }
+
+    // check if channel is dm
+    if (channel.members.length === 2) {
+      throw new HttpException('Cannot kick in DM', 403);
+    }
+
     // check if user is owner or moderator
     if (
       channel.owner.id !== user.id &&

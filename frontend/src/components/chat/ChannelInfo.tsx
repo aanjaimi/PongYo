@@ -19,12 +19,6 @@ export default function ChannelInfo({
         <>
           <div>
             {!channel.isDM && (
-              // <button
-              //   className="ml-[1rem] flex h-6 w-6 items-center justify-center rounded-full pb-2 bg-[#000000] text-white"
-              //   onClick={() => setShowSettings(true)}
-              // >
-              //   ...
-              // </button>
               <button
                 className="ml-[1rem] w-[2rem]"
                 onClick={() => setShowSettings(true)}

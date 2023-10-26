@@ -57,12 +57,6 @@ export default function ChannelSettings({
               />
             )}
           </div>
-          {/* <button
-            className="m-[1rem] flex h-6 w-6 items-center justify-center rounded-full pb-1 bg-[#000000] text-white"
-            onClick={() => setShowSettings(false)}
-          >
-            x
-          </button> */}
           <button
             className="m-[1rem] w-[1.8rem]"
             onClick={() => setShowSettings(false)}

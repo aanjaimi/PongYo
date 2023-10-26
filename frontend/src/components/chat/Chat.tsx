@@ -133,6 +133,18 @@ export default function Chat({ user }: { user: User }) {
       setChannels([...channels]);
     });
 
+    chatSocket.on('update', (data: Channel) => {
+      const updatedChannels = channels.map((channel) => {
+        if (channel.id === data.id) return data;
+        return channel;
+      }
+      );
+      setChannels(updatedChannels);
+      if (selectedChannel?.id === data.id) {
+        setSelectedChannel(data);
+      }
+    });
+
     return () => {
       chatSocket.off('message');
       chatSocket.off('mute');
@@ -141,6 +153,7 @@ export default function Chat({ user }: { user: User }) {
       chatSocket.off('unban');
       chatSocket.off('kick');
       chatSocket.off('join');
+      chatSocket.off('update');
     };
   }, [channels, selectedChannel, user, chatSocket]);
 
