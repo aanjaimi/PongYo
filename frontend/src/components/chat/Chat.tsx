@@ -6,15 +6,7 @@ import ChannelsList from './ChannelsList';
 import ChannelContent from './ChannelContent';
 import { ScrollArea } from '../ui/scroll-area';
 import { useSocket } from '@/contexts/socket-context';
-import {
-  Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { Card } from '@/components/ui/card';
 
 export default function Chat({ user }: { user: User }) {
   const { chatSocket } = useSocket();
@@ -137,8 +129,7 @@ export default function Chat({ user }: { user: User }) {
       const updatedChannels = channels.map((channel) => {
         if (channel.id === data.id) return data;
         return channel;
-      }
-      );
+      });
       setChannels(updatedChannels);
       if (selectedChannel?.id === data.id) {
         setSelectedChannel(data);
