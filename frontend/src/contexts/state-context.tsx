@@ -51,6 +51,7 @@ const StateProvider = ({ children }: StateProviderProps) => {
       return getCurrentUser();
     },
     onSuccess(user) {
+      dispatch({ type: "SET_USER", payload: user });
       dispatch({
         type: "SET_AUTH",
         payload: user.totp.enabled && user.otpNeeded ? "otp" : true,
@@ -58,6 +59,7 @@ const StateProvider = ({ children }: StateProviderProps) => {
     },
     onError() {
       dispatch({ type: "SET_AUTH", payload: false });
+      dispatch({ type: "SET_USER", payload: null });
     },
   });
   return (

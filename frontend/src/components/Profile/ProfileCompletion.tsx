@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useStateContext } from "@/contexts/state-context";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,9 +34,7 @@ const ProfileCompletion = ({
 }: ProfileCompletionProps) => {
   const { state, dispatch } = useStateContext();
   const [openDialog, setOpenDialog] = useState(true);
-  const [displayName, setDisplayName] = useState(
-    () => state.user?.displayname ?? ""
-  );
+  const [displayName, setDisplayName] = useState(state.user?.displayname);
   const avatarRef = useRef<HTMLInputElement | null>(null);
   const queryClient = new QueryClient();
   const router = useRouter();
@@ -44,6 +42,11 @@ const ProfileCompletion = ({
     if (state.user?.totp.enabled) return state.user.totp.otpauth_url;
     return "";
   });
+
+  useEffect(() => {
+    if (state)
+      setDisplayName(state.user?.displayname);
+  }, [state]);
 
   const [otp, setOtp] = useState(() => {
     if (state.user?.totp.enabled) return state.user.totp.enabled;
@@ -69,7 +72,7 @@ const ProfileCompletion = ({
 
   const handleSubmit = async () => {
     const payload = new FormData();
-    if (displayName.length != 0) payload.append("displayname", displayName);
+    if (displayName!.length != 0) payload.append("displayname", displayName!);
     if (avatarRef.current?.files?.[0])
       payload.append("avatar", avatarRef.current?.files?.[0] as Blob);
     await userMutation
@@ -88,13 +91,12 @@ const ProfileCompletion = ({
       .catch((err) => {
         console.log(err);
       });
-    console.log("payload4: ", payload);
     await queryClient.invalidateQueries(["users", "@me"]);
   };
 
   const handleSkip = async () => {
     const payload = new FormData();
-    payload.append("displayname", displayName);
+    payload.append("displayname", displayName!);
     await userMutation.mutateAsync(payload);
     setIsEdited(true);
     setOn(false);

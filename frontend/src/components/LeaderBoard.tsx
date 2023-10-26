@@ -46,9 +46,9 @@ const LeaderBoard = () => {
               <TableRow className="bg-[#D9D9D94D]">
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{user.displayname}</TableCell>
-                <TableCell>{user.vectories}/{user.defeats}</TableCell>
-                <TableCell>{user.rank}</TableCell>
-                <TableCell>{user.points}</TableCell>
+                <TableCell>{user.stat.vectories}/{user.stat.defeats}</TableCell>
+                <TableCell>{user.stat.rank}</TableCell>
+                <TableCell>{user.stat.points}</TableCell>
               </TableRow>
             </TableBody>
           );

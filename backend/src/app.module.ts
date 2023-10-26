@@ -12,6 +12,7 @@ import { MinioModule } from './minio/minio.module';
 import { FriendModule } from './friends/friends.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationsModule } from './notifications/notifications.module';
+import { AchievementModule } from './achievement/achievement.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     }),
     FriendModule,
     NotificationsModule,
+    AchievementModule,
   ],
   controllers: [],
   providers: [],

@@ -8,9 +8,9 @@ type UserDataProps = {
 
 const UserData = ({ user, isEdited }: UserDataProps) => {
 
-  const vectories = user?.vectories == null ? 0 : user.vectories;
-  const defeats = user?.defeats == null ? 0 : user.defeats;
-  const points = user?.points == null ? 0 : user.points;
+  const vectories = user?.stat?.vectories == null ? 0 : user?.stat.vectories;
+  const defeats = user?.stat?.defeats == null ? 0 : user?.stat.defeats;
+  const points = user?.stat?.points == null ? 0 : user?.stat.points;
 
   return (
     <>

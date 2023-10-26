@@ -5,7 +5,7 @@ module.exports = {
     extend: {},
   },
   variants: {},
-  // darkMode: ["class"],
+  darkMode: ["class"],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',

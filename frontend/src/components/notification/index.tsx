@@ -16,7 +16,7 @@ import type { NotifType, Notification } from "@/types/notification";
 import type { ApiResponse } from "@/types/common";
 import { EmptyView } from "../empty";
 
-const getNotifications = async (page = 1) => {
+const getNotifications = async (page = 0) => {
   return (
     await fetcher.get<ApiResponse<Notification[]>>(`/notifications`, {
       params: { page },

@@ -35,7 +35,6 @@ const Otp = () => {
   });
 
   const handleSubmit = async () => {
-    console.log(otp);
     if (otp.length !== 6) return;
     await otpMutation.mutateAsync(otp);
   };

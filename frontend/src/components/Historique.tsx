@@ -13,7 +13,7 @@ type HistoryProps = {
 	user: User;
 };
 
-const History = ({ user }: HistoryProps) => {
+const Historique = ({ user }: HistoryProps) => {
 
 	const [opponents, setOpponents] = useState<Array<User | null>>([]);
 
@@ -71,4 +71,4 @@ const History = ({ user }: HistoryProps) => {
 	)
 }
 
-export default History;
+export default Historique;

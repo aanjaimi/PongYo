@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Achievement from "../Achievement";
-import History from "../History";
+import Historique from "../Historique";
 import Rank from "../LeaderBoard";
 import type { User } from "@/types/user";
+import { Medal, History, BarChart } from 'lucide-react';
 
 type UserInfoProps = {
   isEdited: boolean;
@@ -41,23 +42,23 @@ const UserInfo = ({ user, isEdited }: UserInfoProps) => {
           <div className="ml-[6px] mr-[6px] flex h-[60px] w-[400px] items-center justify-center border-b-[2px] md:w-[600px] lg:w-[955px]">
             <div className="flex h-[51px] w-[322px] items-center justify-center border-r-[2px]">
               <Button variant="ghost" onClick={setAchievements}>
-                <i data-lucide="medal"></i>
+                <Medal />
               </Button>
             </div>
             <div className="flex h-[51px] w-[322px] items-center justify-center border-r-[2px]">
               <Button variant="ghost" onClick={setHistories}>
-                <i data-lucide="medal"></i>
+                <History />
               </Button>
             </div>
             <div className="flex h-[51px] w-[322px] items-center justify-center">
               <Button variant="ghost" onClick={setRanks}>
-                <i data-lucide="medal"></i>
+                <BarChart />
               </Button>
             </div>
           </div>
           <div className="flex grow">
             {achievementBool && <Achievement user={user}/>}
-            {historyBool && <History user={user}/>}
+            {historyBool && <Historique user={user}/>}
             {rankBool && <Rank />}
           </div>
         </div>
