@@ -169,8 +169,6 @@ export class FriendService {
 
     if (userId === _friendId) throw new ConflictException();
     if (!friendShip) throw new NotFoundException();
-    const friendShipStatus = getFriendShipStatus(userId, friendShip);
-    if (friendShipStatus === 'PENDING_BY_USER') throw new ForbiddenException();
 
     const oldFriendStatus: Record<any, FriendState> = {
       [FriendShipAction.CANCEL]: 'PENDING',
@@ -178,7 +176,7 @@ export class FriendService {
       [FriendShipAction.UNBLOCK]: 'BLOCKED',
     };
     const newFriendStatus: Record<any, FriendState> = {
-      [FriendShipAction.CANCEL]: 'REFUSED',
+      [FriendShipAction.CANCEL]: 'NONE',
       [FriendShipAction.ACCEPT]: 'ACCEPTED',
       [FriendShipAction.UNBLOCK]: 'NONE',
     };

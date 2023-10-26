@@ -42,6 +42,7 @@ export const getFriendShipStatus = (
   }
   return friendShip.state;
 };
+
 export async function friendChecking(
   userId: string,
   friendId: string,
@@ -50,7 +51,13 @@ export async function friendChecking(
   if (!prisma) prisma = this.prismaService;
   const friend = await prisma.user.findFirst({
     where: { ...loginOrId(friendId) },
-    include: { stat: true },
+    include: {
+      stat: true,
+      achievement: true,
+      userGameHistory: true,
+      friends: true,
+      myFriends: true,
+    },
   });
   if (!friend) throw new NotFoundException();
 

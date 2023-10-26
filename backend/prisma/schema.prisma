@@ -31,15 +31,15 @@ enum Rank {
 }
 
 model User {
-  id          String     @id @default(cuid())
-  displayname String
-  login       String     @unique
-  email       String     @unique
-  status      UserStatus @default(OFFLINE) @map("status")
-  firstTwoFactor      Boolean        @default(true)
+  id             String     @id @default(cuid())
+  displayname    String
+  login          String     @unique
+  email          String     @unique
+  status         UserStatus @default(OFFLINE) @map("status")
+  firstTwoFactor Boolean    @default(true)
 
-  totp Json
-  isCompleted          Boolean        @default(false)
+  totp        Json
+  isCompleted Boolean @default(false)
 
   // friends of the User
   friends              Friend[]       @relation("userFriends")
@@ -73,7 +73,6 @@ enum FriendState {
   BLOCKED
   PENDING
   ACCEPTED
-  REFUSED
 }
 
 model Friend {
