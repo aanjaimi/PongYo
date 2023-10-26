@@ -73,7 +73,6 @@ export class FriendController {
 
   // TODO: block functionality should be done here!
   @Delete(':id')
-  @HttpCode(204)
   async remove(@CurrentUser() user: User, @Param('id') friendId: string) {
     return await this.friendService.blockFriend(user.id, friendId);
   }
