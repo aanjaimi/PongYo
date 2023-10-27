@@ -154,66 +154,70 @@ export class FriendService {
     );
 
     if (userId === _friendId) throw new ConflictException();
-    if (!friendShip) throw new NotFoundException();
 
-    const oldFriendStatus: Record<any, FriendState> = {
+    if (!friendShip) throw new ForbiddenException();
+
+    const oldFriendStatus: Record<FriendShipAction, FriendState> = {
       [FriendShipAction.CANCEL]: 'PENDING',
       [FriendShipAction.ACCEPT]: 'PENDING',
       [FriendShipAction.UNBLOCK]: 'BLOCKED',
       [FriendShipAction.UNFRIEND]: 'ACCEPTED',
     };
-    const newFriendStatus: Record<any, FriendState> = {
+    const newFriendStatus: Record<FriendShipAction, FriendState> = {
       [FriendShipAction.CANCEL]: 'NONE',
       [FriendShipAction.ACCEPT]: 'ACCEPTED',
       [FriendShipAction.UNBLOCK]: 'NONE',
       [FriendShipAction.UNFRIEND]: 'NONE',
     };
 
-    if (friendShipAction.action) {
-      try {
-        const updatedFriendShip = await this.prismaService.friend.update({
-          where: {
-            id: friendShip.id,
-            state: oldFriendStatus[friendShipAction.action],
-          },
-          data: {
-            state: newFriendStatus[friendShipAction.action],
-            ...swapUsers(userId, _friendId), // just in case friendId used as login !
-          },
-        });
+    const { action } = friendShipAction;
 
-        if (
-          friendShip.state === 'PENDING' &&
-          updatedFriendShip.state === 'ACCEPTED'
-        ) {
-          const { sender, receiver } =
-            await this.prismaService.notification.create({
-              data: {
-                type: 'FRIEND_ACCEPT',
-                senderId: userId,
-                receiverId: _friendId,
-                content: {}, // ?INFO: add some details
-              },
-              include: {
-                receiver: true,
-                sender: true,
-              },
-            });
+    const isOwner = userId === friendShip.userId;
 
-          this.eventEmitter.emit('chat.send-notification', {
-            sender,
-            receiver,
-            type: 'FRIEND_ACCEPT',
-          } satisfies SendNotificationPayload);
-        }
+    if ((action === 'ACCEPT' && isOwner) || (action === 'UNBLOCK' && !isOwner))
+      throw new ForbiddenException();
 
-        return updatedFriendShip;
-      } catch (err) {
-        return friendShip;
+    try {
+      const updatedFriendShip = await this.prismaService.friend.update({
+        where: {
+          id: friendShip.id,
+          state: oldFriendStatus[action],
+        },
+        data: {
+          state: newFriendStatus[action],
+          ...swapUsers(userId, _friendId), // just in case friendId used as login !
+        },
+      });
+
+      if (
+        friendShip.state === 'PENDING' &&
+        updatedFriendShip.state === 'ACCEPTED'
+      ) {
+        const { sender, receiver } =
+          await this.prismaService.notification.create({
+            data: {
+              type: 'FRIEND_ACCEPT',
+              senderId: userId,
+              receiverId: _friendId,
+              content: {}, // ?INFO: add some details
+            },
+            include: {
+              receiver: true,
+              sender: true,
+            },
+          });
+
+        this.eventEmitter.emit('chat.send-notification', {
+          sender,
+          receiver,
+          type: 'FRIEND_ACCEPT',
+        } satisfies SendNotificationPayload);
       }
-    }
 
-    return { friendShip };
+      return updatedFriendShip;
+    } catch {
+      throw new ForbiddenException();
+    }
   }
 
   async blockFriend(userId: string, friendId: string) {
