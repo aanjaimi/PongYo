@@ -43,7 +43,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const isIn = ['@me', req.user.login, req.user.id].includes(
       req.params['id'],
     );
-    if (otpNeeded && otpIgnored && isIn) {
+    if (otpNeeded === '1' && otpIgnored && isIn) {
       (<User & { otpNeeded?: boolean }>req.user).otpNeeded = true;
       otpNeeded = '0';
     }

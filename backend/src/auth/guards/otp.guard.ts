@@ -25,7 +25,7 @@ export class OptAuthGuard extends AuthGuard('jwt') {
       'otp-needed',
     );
 
-    if (!otpNeeded || otpNeeded === '0') throw new UnauthorizedException();
+    if (otpNeeded === '0') throw new UnauthorizedException();
 
     return true;
   }
