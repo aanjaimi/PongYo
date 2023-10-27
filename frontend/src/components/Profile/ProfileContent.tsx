@@ -12,7 +12,7 @@ type ProfileContentProps = {
 };
 const ProfileContent = ({ user, isEdited, setIsEdited }: ProfileContentProps) => {
   return (
-    <div className="flex grow flex-col items-center justify-start">
+    <div className="flex w-full h-full flex-col items-center justify-start">
       <ProfileCover user={user} isEdited={isEdited} setIsEdited={setIsEdited}/>
       <UserData user={user} isEdited={isEdited}/>
       <UserInfo user={user} isEdited={isEdited}/>

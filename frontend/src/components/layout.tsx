@@ -13,20 +13,18 @@ export default function Layout({ children }: LayoutProps) {
     state: { authenicated },
   } = useStateContext();
   return (
-    <>
+    <div className="flex flex-col w-screen h-screen">
       {authenicated === true && (
-        <div className="flex h-screen w-screen flex-col">
+        <div className="flex h-full w-full flex-col">
           <NavBar />
-          <div className="flex overflow-auto">
-            <div className="hidden sm:block">
-              <SideBar />
-            </div>
-            <div className="overflow-hidden">{children}</div>
+          <div className="flex h-full w-full">
+            <SideBar />
+            <div className="h-full w-full">{children}</div>
           </div>
         </div>
       )}
       {authenicated === false && <>{children}</>}
       {authenicated === "otp" && <Otp />}
-    </>
+    </div>
   );
 }

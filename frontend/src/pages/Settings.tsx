@@ -10,7 +10,7 @@ import { QrCode } from "lucide-react";
 
 const Settings = () => {
   return (
-    <div className="flex h-screen w-screen items-center justify-center">
+    <div className="flex h-full w-full items-center justify-center">
       <Card className="w-[400px] h-[500px] flex flex-col">
         <CardHeader className="flex justify-center items-center">
           <CardTitle>otp settings</CardTitle>

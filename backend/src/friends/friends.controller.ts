@@ -7,7 +7,6 @@ import {
   Delete,
   UseGuards,
   Query,
-  HttpCode,
 } from '@nestjs/common';
 import { FriendService } from './friends.service';
 import { User } from '@prisma/client';
