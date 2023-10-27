@@ -226,23 +226,24 @@ export class FriendService {
       friendId,
     );
     if (userId === _friendId) throw new ConflictException();
-    if (!friendShip) throw new NotFoundException();
+    // if (!friendShip) throw new NotFoundException();
 
-    try {
-      return await this.prismaService.friend.update({
-        where: {
-          id: friendShip.id,
-          NOT: {
-            state: 'BLOCKED',
-          },
-        },
-        data: {
+    return await this.prismaService.friend.upsert({
+      where: {
+        id: friendShip?.id ?? '',
+        NOT: {
           state: 'BLOCKED',
-          ...swapUsers(userId, _friendId),
         },
-      });
-    } catch (err) {
-      return friendShip;
-    }
+      },
+      update: {
+        state: 'BLOCKED',
+        ...swapUsers(userId, _friendId),
+      },
+      create: {
+        state: 'BLOCKED',
+        userId,
+        friendId: _friendId,
+      },
+    });
   }
 }
