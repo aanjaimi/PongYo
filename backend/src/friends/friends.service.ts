@@ -96,7 +96,7 @@ export class FriendService {
   async getUserFriendShip(userId: string, friendId: string) {
     const { friendShip } = await this.friendChecking(userId, friendId);
     if (!friendShip) throw new NotFoundException();
-    return friendShip;
+    return { ...friendShip, isOwner: userId === friendShip.userId };
   }
 
   async sendFriendRequest(userId: string, friendId: string) {
