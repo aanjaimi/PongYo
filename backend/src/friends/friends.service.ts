@@ -57,18 +57,39 @@ export class FriendService {
     return where;
   }
 
+  async getUserFriends(userId: string, query: FriendQueryDTO) {
+    const where = this.getFriendsWhere(userId, query.state);
+    const select = {
+      displayname: true,
+      login: true,
+      id: true,
+      avatar: true,
+    } satisfies Prisma.UserSelect;
+
     const [totalCount, users] = await this.prismaService.$transaction([
-      this.prismaService.user.count({ where }),
-      this.prismaService.user.findMany({
+      this.prismaService.friend.count({ where }),
+      this.prismaService.friend.findMany({
         where,
         skip: query.getSkip(),
         take: query.limit,
-        orderBy: {
-          updatedAt: 'desc',
+        orderBy: { updatedAt: 'desc' },
+        include: {
+          user: { select },
+          friend: { select },
         },
       }),
     ]);
-    return buildPagination(users, query.limit, totalCount);
+
+    return buildPagination(
+      users.map((friendShip) => ({
+        state: friendShip.state,
+        ...(userId === friendShip.user.id
+          ? friendShip.friend
+          : friendShip.user),
+      })),
+      query.limit,
+      totalCount,
+    );
   }
 
   // TODO: need testing
