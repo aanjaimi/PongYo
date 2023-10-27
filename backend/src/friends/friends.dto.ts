@@ -1,21 +1,28 @@
 import { QuerySchemaDto } from '@/global/global.dto';
-import { FriendState } from '@prisma/client';
 import { IsEnum, IsOptional } from 'class-validator';
+
+export enum FriendStateQuery {
+  BLOCKED = 'BLOCKED',
+  PENDING = 'PENDING',
+  REQUESTED = 'REQUESTED',
+  ACCEPTED = 'ACCEPTED',
+}
 
 export class FriendQueryDTO extends QuerySchemaDto {
   @IsOptional()
-  @IsEnum(FriendState, { each: true })
-  state: FriendState;
+  @IsEnum(FriendStateQuery)
+  state: FriendStateQuery;
 }
 
 export enum FriendShipAction {
   ACCEPT = 'ACCEPT',
   CANCEL = 'CANCEL',
   UNBLOCK = 'UNBLOCK',
+  UNFRIEND = 'UNFRIEND',
 }
 
 export class FriendShipActionDTO {
   @IsOptional()
-  @IsEnum(FriendShipAction, { each: true })
+  @IsEnum(FriendShipAction)
   action?: FriendShipAction;
 }

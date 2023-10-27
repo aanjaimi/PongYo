@@ -35,9 +35,12 @@ export class UserService {
     return buildPagination(users, query.limit, totalCount);
   }
 
-  async getUser(userId: string, otherId: string) {
-    if (otherId === '@me') otherId = userId;
-    const { friend: user } = await friendChecking.bind(this)(userId, otherId);
+  async getUser(currUser: User, otherId: string) {
+    if (['@me', currUser.id, currUser.login].includes(otherId)) return currUser;
+    const { friend: user } = await friendChecking.bind(this)(
+      currUser.id,
+      otherId,
+    );
     return user;
   }
 

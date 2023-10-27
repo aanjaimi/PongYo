@@ -12,7 +12,7 @@ const ProfileEdit = ({ isEdited, setIsEdited }: ProfileEditProps) => {
   return (
     <>
       {!isEdited && (
-        <div className="flex h-screen w-screen items-center justify-center">
+        <div className="flex h-full w-full items-center justify-center">
           <ProfileCompletion setOn={setOn} inProfileEdit={false} setIsEdited={setIsEdited} />
         </div>
       )}

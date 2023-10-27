@@ -13,7 +13,7 @@ import { FriendModule } from './friends/friends.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationsModule } from './notifications/notifications.module';
 import { GameModule } from './game/game.module';
- 
+import { AchievementModule } from './achievement/achievement.module';
 
 @Module({
   imports: [
@@ -54,6 +54,7 @@ import { GameModule } from './game/game.module';
     }),
     FriendModule,
     NotificationsModule,
+    AchievementModule,
   ],
   controllers: [],
   providers: [],

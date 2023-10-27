@@ -7,7 +7,6 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { AUTH_COOKIE_NAME } from '../auth.constants';
-import { User } from '@prisma/client';
 
 @Injectable()
 export class OptAuthGuard extends AuthGuard('jwt') {
@@ -26,9 +25,7 @@ export class OptAuthGuard extends AuthGuard('jwt') {
       'otp-needed',
     );
 
-    if (!otpNeeded || otpNeeded === '0') throw new UnauthorizedException();
-
-    (<User & { otpNeeded?: boolean }>req.user).otpNeeded = otpNeeded === '1';
+    if (otpNeeded === '0') throw new UnauthorizedException();
 
     return true;
   }

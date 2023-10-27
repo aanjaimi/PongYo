@@ -6,7 +6,7 @@ import React from "react";
 
 const NavBar = () => {
   return (
-    <div className="flex h-16 items-center justify-between border-b p-4">
+    <div className="flex h-16 w-full items-center justify-between border-b p-4">
       <Link href="/profile/@me">
         <Rocket />
       </Link>

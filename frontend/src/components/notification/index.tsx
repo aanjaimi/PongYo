@@ -16,7 +16,7 @@ import type { NotifType, Notification } from "@/types/notification";
 import type { ApiResponse } from "@/types/common";
 import { EmptyView } from "../empty";
 
-const getNotifications = async (page = 1) => {
+const getNotifications = async (page = 0) => {
   return (
     await fetcher.get<ApiResponse<Notification[]>>(`/notifications`, {
       params: { page },
@@ -53,12 +53,12 @@ export function Notifications() {
   const notifications = notificationQuery.data.data;
 
   return (
-    <Card className="flex flex-col items-center justify-center">
+    <Card className="flex flex-col items-center justify-center border border-red-700">
       <CardHeader className="pb-3">
         <CardTitle>Notifications</CardTitle>
         <CardDescription>all notifications</CardDescription>
       </CardHeader>
-      <CardContent className="grid w-[400px] gap-1 overflow-auto">
+      <CardContent className="grid sm:w-[400px] w-[200px] gap-1 overflow-auto">
         {!notifications.length && (
           <EmptyView
             title="No notifications"

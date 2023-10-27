@@ -30,7 +30,7 @@ export class AuthService {
 
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get('JWT_SECRET'),
-      expiresIn: user.totp['enabled'] ? 3600 : AUTH_COOKIE_MAX_AGE, // only valid for 1h
+      expiresIn: AUTH_COOKIE_MAX_AGE,
     });
     if (user.totp['enabled'])
       await this.redisService.hset(`token-${accessToken}`, 'otp-needed', 1);
@@ -38,7 +38,7 @@ export class AuthService {
     res.cookie(AUTH_COOKIE_NAME, accessToken, {
       httpOnly: true,
       path: '/',
-      maxAge: (user.totp['enabled'] ? 3600 : AUTH_COOKIE_MAX_AGE) * 1e3,
+      maxAge: AUTH_COOKIE_MAX_AGE * 1e3,
     });
 
     res.redirect(this.configService.get('FRONTEND_ORIGIN_PROFILE'));

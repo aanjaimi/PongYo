@@ -73,7 +73,6 @@ enum FriendState {
   BLOCKED
   PENDING
   ACCEPTED
-  REFUSED
 }
 
 model Friend {

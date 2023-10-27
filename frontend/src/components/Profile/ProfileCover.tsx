@@ -1,11 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { useStateContext } from "@/contexts/state-context";
 import { Button } from "@/components/ui/button";
 import type { User } from "@/types/user";
-import ProfileCompletion from "./ProfileCompletion";
 import { LogOut } from "lucide-react";
 import { env } from "@/env.mjs";
+import FriendshipStat from "@/components/friend/FriendshipStat";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import QRCode from "react-qr-code";
+import { Switch } from "@/components/ui/switch";
+import { useMutation, QueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/router";
+import { updateProfile } from "@/components/Profile/ProfileCompletion";
 
 type ProfileCoverProps = {
   isEdited: boolean;
@@ -14,13 +29,63 @@ type ProfileCoverProps = {
 };
 
 const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
-  const { state } = useStateContext();
-  const [on, setOn] = useState(false);
+  const { state, dispatch } = useStateContext();
+  const queryClient = new QueryClient();
+  const router = useRouter();
+  const [dialogOn, setDialogOn] = useState(false);
+  const [displayName, setDisplayName] = useState(state.user?.displayname);
+  const avatarRef = useRef<HTMLInputElement | null>(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [qrCodeData, setQrCodeData] = useState(() => {
+    if (state.user?.totp.enabled) return state.user.totp.otpauth_url;
+    return "";
+  });
 
   useEffect(() => {
     setIsOwner(state.user?.id === user.id);
-  }, [state.user?.id, user.id]);
+    if (state) setDisplayName(state.user?.displayname);
+  }, [state, user.id]);
+
+  const [otp, setOtp] = useState(() => {
+    if (state.user?.totp.enabled) return state.user.totp.enabled;
+    return false;
+  });
+
+  const userMutation = useMutation({
+    mutationKey: ["users", "@me"],
+    mutationFn: updateProfile,
+    onSuccess: async (data) => {
+      dispatch({ type: "SET_USER", payload: data });
+      await queryClient.invalidateQueries(["users", "@me"]);
+    },
+  });
+
+  const toggleOtp = async () => {
+    setOtp(!otp);
+    const payload = new FormData();
+    payload.append("tfa", !otp ? "true" : "false");
+    const user = await userMutation.mutateAsync(payload);
+    if (user.totp.enabled) setQrCodeData(user.totp.otpauth_url);
+  };
+
+  const handleSubmit = async () => {
+    const payload = new FormData();
+    if (displayName!.length != 0) payload.append("displayname", displayName!);
+    if (avatarRef.current?.files?.[0])
+      payload.append("avatar", avatarRef.current?.files?.[0] as Blob);
+    await userMutation
+      .mutateAsync(payload)
+      .then(() => {
+        setIsEdited(true);
+        setDialogOn(false);
+        void queryClient.invalidateQueries(["users", "@me"]);
+        void router.push("/profile/@me");
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+    await queryClient.invalidateQueries(["users", "@me"]);
+  };
 
   return (
     <>
@@ -39,50 +104,85 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
           <div className="h-[120px] w-[400px] rounded-b-2xl border sm:h-[120px] md:h-[78px] md:w-[600px] lg:w-[968px]">
             <div className="mt-[50px] flex justify-between font-semibold text-black sm:mx-[5px] sm:mt-[50px] md:ml-[180px] md:mt-[10px]">
               <div className="ml-[20px] flex grow flex-col md:ml-[2px]">
-                <span className="text-[20px] text-black">
-                  {state.user?.displayname}
+                <span className="text-[15px] text-black">
+                  {user.displayname}
                 </span>
-                <span className="text-[20px] text-[#A5A3A3]">
-                  @{state.user?.login}
+                <span className="text-[15px] text-[#A5A3A3]">
+                  @{user.login}
                 </span>
               </div>
-              {!isOwner && (
-                <div className="mr-[10px] flex justify-around">
-                  <div className="ml-[15px] flex items-center">
-                    <Button className="bg-gradient-to-r from-[#8d8dda80] to-[#ABD9D980]">
-                      Add friend
-                    </Button>
-                  </div>
-                  <div className="ml-[15px] flex items-center">
-                    <Button className="bg-gradient-to-r from-[#8d8dda80] to-[#ABD9D980]">
-                      Block
-                    </Button>
-                  </div>
-                </div>
-              )}
+              {!isOwner && <FriendshipStat user={user} />}
               {isOwner && (
                 <div className="mr-[20px] flex items-center gap-2">
-                  <Button
-                    className="w-[130px] bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
-                    onClick={() => setOn(true)}
-                  >
-                    Edit profile
-                    {on && (
-                      <ProfileCompletion
-                        setOn={setOn}
-                        setIsEdited={setIsEdited}
-                        inProfileEdit={
-                          true
-                        } /*profileEdit={profileEdit} setProfileEdit={setProfileEdit}*/
-                      />
+                  <Dialog>
+                    <DialogTrigger>
+                      <Button
+                        className="w-[130px] bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
+                        onClick={() => setDialogOn(true)}
+                      >
+                        Edit profile
+                      </Button>
+                    </DialogTrigger>
+                    {dialogOn && (
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Edit profile</DialogTitle>
+                          <DialogDescription>
+                            Make changes to your profile here. Click save when
+                            you&apos;re done.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="mb-[5px] mt-[10px] grid w-full max-w-sm items-center gap-1.5">
+                          <Label>DisplayName</Label>
+                          <Input
+                            id="DisplayName"
+                            placeholder="DisplayName"
+                            value={displayName}
+                            onChange={(e) => setDisplayName(e.target.value)}
+                          />
+                        </div>
+                        <div className="mb-[5px] mt-[10px] grid w-full max-w-sm items-center gap-1.5">
+                          <Label>Avatar</Label>
+                          <Input id="avatar" type="file" ref={avatarRef} />
+                        </div>
+                        <div className="grid w-full max-w-sm items-center gap-1.5">
+                          <Label className="mb-[5px] mt-[10px] w-[400px]">
+                            Two Factor Authentication is{" "}
+                            {otp ? <>Enabled</> : <>Disabled</>} now switch to{" "}
+                            {otp ? <>Disable</> : <>Enable</>}
+                          </Label>
+                          <Switch
+                            checked={otp}
+                            onCheckedChange={() => void toggleOtp()}
+                          />
+                        </div>
+                        {otp && (
+                          <div className="grid w-full max-w-sm items-center gap-1.5">
+                            <h1>Generate QR Code</h1>
+
+                            <QRCode value={qrCodeData} />
+                          </div>
+                        )}
+                        <div className="flex justify-between">
+                          <div className="mt-[20px] flex grow justify-end">
+                            <Button
+                              disabled={userMutation.isLoading}
+                              className="bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
+                              onClick={() => void handleSubmit()}
+                            >
+                              <>Save changes</>
+                            </Button>
+                          </div>
+                        </div>
+                      </DialogContent>
                     )}
-                  </Button>
-                  <a
-                    href={env.NEXT_PUBLIC_BACKEND_ORIGIN + "/auth/logout"}
-                    className="cursor-pointer"
-                  >
-                    <LogOut />
-                  </a>
+                    <a
+                      href={env.NEXT_PUBLIC_BACKEND_ORIGIN + "/auth/logout"}
+                      className="cursor-pointer"
+                    >
+                      <LogOut />
+                    </a>
+                  </Dialog>
                 </div>
               )}
             </div>

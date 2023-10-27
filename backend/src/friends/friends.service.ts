@@ -10,15 +10,12 @@ import {
   FriendQueryDTO,
   FriendShipAction,
   FriendShipActionDTO,
+  FriendStateQuery,
 } from './friends.dto';
 import { buildPagination } from '@/global/global.utils';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SendNotificationPayload } from '@/ws/chat/chat.interface';
-import {
-  friendChecking,
-  getFriendShipStatus,
-  swapUsers,
-} from './friends.helpers';
+import { friendChecking, swapUsers } from './friends.helpers';
 
 @Injectable()
 export class FriendService {
@@ -27,56 +24,73 @@ export class FriendService {
     private eventEmitter: EventEmitter2,
   ) {}
 
-  async friendChecking(userId: string, friendId: string) {
+  private async friendChecking(userId: string, friendId: string) {
     return await friendChecking.bind(this)(userId, friendId);
   }
 
-  async getUserFriends(
-    userId: string,
-    friendId: string,
-    query: FriendQueryDTO,
-  ) {
-    const { friendId: _friendId, friendShip } = await this.friendChecking(
-      userId,
-      friendId,
-    );
+  private getFriendsWhere(userId: string, state: FriendStateQuery) {
+    const owner =
+      !state || ['BLOCKED', 'REQUESTED', 'ACCEPTED'].includes(state);
+    const reciever = !state || !owner || state === 'ACCEPTED';
 
-    if (
-      userId !== _friendId &&
-      (!friendShip || friendShip.state !== 'ACCEPTED')
-    )
-      throw new ForbiddenException(); // you can only see friends of your friends
+    if (state === 'REQUESTED') state = FriendStateQuery.PENDING;
 
-    // TODO: without testing !
+    let side: unknown = owner ? { userId } : { friendId: userId };
+    if (owner && reciever) {
+      side = {
+        OR: [{ userId }, { friendId: userId }],
+      };
+    }
 
-    const where = {
-      OR: [
-        {
-          myFriends: {
-            some: { userId: _friendId, state: query.state },
-          },
-        },
-        {
-          friends: { some: { userId: _friendId, state: query.state } },
-        },
-      ],
-    } satisfies Prisma.UserWhereInput;
+    const where: unknown = { AND: [side, { state }] };
+
+    if (!state) {
+      where['NOT'] = {
+        OR: [
+          { AND: [{ friendId: userId }, { state: FriendState.BLOCKED }] },
+          { state: FriendState.NONE },
+        ],
+      };
+    }
+
+    return where;
+  }
+
+  async getUserFriends(userId: string, query: FriendQueryDTO) {
+    const where = this.getFriendsWhere(userId, query.state);
+    const select = {
+      displayname: true,
+      login: true,
+      id: true,
+      avatar: true,
+    } satisfies Prisma.UserSelect;
 
     const [totalCount, users] = await this.prismaService.$transaction([
-      this.prismaService.user.count({ where }),
-      this.prismaService.user.findMany({
+      this.prismaService.friend.count({ where }),
+      this.prismaService.friend.findMany({
         where,
         skip: query.getSkip(),
         take: query.limit,
-        orderBy: {
-          updatedAt: 'desc',
+        orderBy: { updatedAt: 'desc' },
+        include: {
+          user: { select },
+          friend: { select },
         },
       }),
     ]);
-    return buildPagination(users, query.limit, totalCount);
+
+    return buildPagination(
+      users.map((friendShip) => ({
+        state: friendShip.state,
+        ...(userId === friendShip.user.id
+          ? friendShip.friend
+          : friendShip.user),
+      })),
+      query.limit,
+      totalCount,
+    );
   }
 
-  // TODO: need testing
   async getUserFriendShip(userId: string, friendId: string) {
     const { friendShip } = await this.friendChecking(userId, friendId);
     if (!friendShip) throw new NotFoundException();
@@ -105,56 +119,26 @@ export class FriendService {
       },
     });
 
-    if (!friendShip || friendShip.state === 'NONE') {
-      const { sender, receiver } = await this.prismaService.notification.create(
-        {
-          data: {
-            type: 'FRIEND_REQUEST',
-            senderId: userId,
-            receiverId: _friendId,
-            content: {}, // ?INFO: add some details
-          },
-          include: {
-            receiver: true,
-            sender: true,
-          },
-        },
-      );
-
-      this.eventEmitter.emit('chat.send-notification', {
-        sender,
-        receiver,
+    const { sender, receiver } = await this.prismaService.notification.create({
+      data: {
         type: 'FRIEND_REQUEST',
-      } satisfies SendNotificationPayload);
-    }
+        senderId: userId,
+        receiverId: _friendId,
+        content: {}, // ?INFO: add some details
+      },
+      include: {
+        receiver: true,
+        sender: true,
+      },
+    });
+
+    this.eventEmitter.emit('chat.send-notification', {
+      sender,
+      receiver,
+      type: 'FRIEND_REQUEST',
+    } satisfies SendNotificationPayload);
 
     return newFriendShip;
-  }
-
-  async blockFriend(userId: string, friendId: string) {
-    const { friendShip, friendId: _friendId } = await this.friendChecking(
-      userId,
-      friendId,
-    );
-    if (userId === _friendId) throw new ConflictException();
-    if (!friendShip) throw new NotFoundException();
-
-    try {
-      return await this.prismaService.friend.update({
-        where: {
-          id: friendShip.id,
-          NOT: {
-            state: 'BLOCKED',
-          },
-        },
-        data: {
-          state: 'BLOCKED',
-          ...swapUsers(userId, _friendId),
-        },
-      });
-    } catch (err) {
-      return friendShip;
-    }
   }
 
   async updateFriendShip(
@@ -169,18 +153,18 @@ export class FriendService {
 
     if (userId === _friendId) throw new ConflictException();
     if (!friendShip) throw new NotFoundException();
-    const friendShipStatus = getFriendShipStatus(userId, friendShip);
-    if (friendShipStatus === 'PENDING_BY_USER') throw new ForbiddenException();
 
     const oldFriendStatus: Record<any, FriendState> = {
       [FriendShipAction.CANCEL]: 'PENDING',
       [FriendShipAction.ACCEPT]: 'PENDING',
       [FriendShipAction.UNBLOCK]: 'BLOCKED',
+      [FriendShipAction.UNFRIEND]: 'ACCEPTED',
     };
     const newFriendStatus: Record<any, FriendState> = {
-      [FriendShipAction.CANCEL]: 'REFUSED',
+      [FriendShipAction.CANCEL]: 'NONE',
       [FriendShipAction.ACCEPT]: 'ACCEPTED',
       [FriendShipAction.UNBLOCK]: 'NONE',
+      [FriendShipAction.UNFRIEND]: 'NONE',
     };
 
     if (friendShipAction.action) {
@@ -228,5 +212,31 @@ export class FriendService {
     }
 
     return { friendShip };
+  }
+
+  async blockFriend(userId: string, friendId: string) {
+    const { friendShip, friendId: _friendId } = await this.friendChecking(
+      userId,
+      friendId,
+    );
+    if (userId === _friendId) throw new ConflictException();
+    if (!friendShip) throw new NotFoundException();
+
+    try {
+      return await this.prismaService.friend.update({
+        where: {
+          id: friendShip.id,
+          NOT: {
+            state: 'BLOCKED',
+          },
+        },
+        data: {
+          state: 'BLOCKED',
+          ...swapUsers(userId, _friendId),
+        },
+      });
+    } catch (err) {
+      return friendShip;
+    }
   }
 }
