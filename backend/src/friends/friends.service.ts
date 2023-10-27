@@ -50,7 +50,10 @@ export class FriendService {
 
     if (!state) {
       where['NOT'] = {
-        AND: [{ friendId: userId }, { state: FriendState.BLOCKED }],
+        OR: [
+          { AND: [{ friendId: userId }, { state: FriendState.BLOCKED }] },
+          { state: FriendState.NONE },
+        ],
       };
     }
 
