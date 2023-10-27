@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import type { FriendShip, FriendShipState } from "@/types/friend";
+import {
+  type FriendShip,
+  FriendShipStatus,
+  FriendShipStatusEnum,
+} from "@/types/friend";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { fetcher } from "@/utils/fetcher";
 import type { User } from "@/types/user";
 import { type AxiosError } from "axios";
 import { useStateContext } from "@/contexts/state-context";
-import { get } from "http";
 import { useSocket } from "@/contexts/socket-context";
+import { set } from "zod";
 
 // import { useRouter } from "next/router";
 
@@ -21,32 +25,26 @@ import { useSocket } from "@/contexts/socket-context";
  * - block friend: [DELETE]/friends/:id
  */
 
-enum FriendShipStatusEnum {
-  NONE,
-  BLOCKED_BY_FRIEND, // howa li 3ml block
-  BLOCKED_BY_USER, // ana li 3mlt block
-  PENDING_BY_FRIEND, // howa li 3ml add
-  PENDING_BY_USER, // ana li 3mlt add
-  ACCEPTED,
-}
-
-export type FriendShipStatus = keyof typeof FriendShipStatusEnum;
-
 export const getFriendShipStatus = (
   userId: string,
   friendShip: FriendShip
-): FriendShipStatus => {
-  if (!friendShip || friendShip.state === "NONE") return "NONE";
+): FriendShipStatusEnum => {
+  if (!friendShip || friendShip.state === FriendShipStatus.NONE)
+    return FriendShipStatusEnum.NONE;
 
   const userSide = userId === friendShip.userId;
 
   switch (friendShip.state) {
-    case "BLOCKED":
-      return userSide ? "BLOCKED_BY_USER" : "BLOCKED_BY_FRIEND";
-    case "PENDING":
-      return userSide ? "PENDING_BY_USER" : "PENDING_BY_FRIEND";
+    case FriendShipStatus.BLOCKED:
+      return userSide
+        ? FriendShipStatusEnum.BLOCKED_BY_USER
+        : FriendShipStatusEnum.BLOCKED_BY_FRIEND;
+    case FriendShipStatus.PENDING:
+      return userSide
+        ? FriendShipStatusEnum.PENDING_BY_USER
+        : FriendShipStatusEnum.PENDING_BY_FRIEND;
   }
-  return friendShip.state;
+  return FriendShipStatusEnum.ACCEPTED;
 };
 
 type FriendshipStatProps = {
@@ -83,41 +81,44 @@ export const blockFriend = async (id: string) => {
 };
 
 const updateFriendShip = async (
-  userId: string,
+  friendShipStatus: FriendShipStatusEnum,
   id: string,
-  friendShip: FriendShip,
-  fromBlock: boolean
-) => {
-  const dp: Record<
-    Exclude<FriendShipStatus, "BLOCKED_BY_FRIEND">,
-    (id: string) => Promise<FriendShip>
-  > = {
-    NONE: fromBlock ? blockFriend : sentFriendRequest,
-    PENDING_BY_FRIEND: acceptFriendRequest,
-    PENDING_BY_USER: cancelFriendRequest,
-    BLOCKED_BY_USER: unblockFriend,
-    ACCEPTED: fromBlock ? blockFriend : removeFriend,
-  };
-
-  const status = getFriendShipStatus(userId, friendShip) as Exclude<
-    FriendShipStatus,
-    "BLOCKED_BY_FRIEND"
-  >;
-
-  return await dp[status](id);
+  setFriendShipStatus: React.Dispatch<React.SetStateAction<FriendShipStatusEnum>>
+): Promise<FriendShip> => {
+  console.log('friendShipStatusss1: ', friendShipStatus);
+  if (friendShipStatus === FriendShipStatusEnum.NONE) {
+    setFriendShipStatus(FriendShipStatusEnum.PENDING_BY_USER);
+    console.log('friendShipStatusss2: ', friendShipStatus);
+    return await sentFriendRequest(id);
+  }
+  if (friendShipStatus === FriendShipStatusEnum.BLOCKED_BY_USER) {
+    setFriendShipStatus(FriendShipStatusEnum.NONE);
+    return await unblockFriend(id);
+  }
+  if (friendShipStatus === FriendShipStatusEnum.PENDING_BY_USER) {
+    setFriendShipStatus(FriendShipStatusEnum.NONE);
+    return await cancelFriendRequest(id);
+  }
+  if (friendShipStatus === FriendShipStatusEnum.PENDING_BY_FRIEND) {
+    setFriendShipStatus(FriendShipStatusEnum.ACCEPTED);
+    return await acceptFriendRequest(id);
+  }
+  if (friendShipStatus === FriendShipStatusEnum.ACCEPTED) {
+    setFriendShipStatus(FriendShipStatusEnum.NONE);
+    return await removeFriend(id);
+  }
+  setFriendShipStatus(FriendShipStatusEnum.BLOCKED_BY_USER);
+  return await blockFriend(id);
 };
 
 const FriendshipStat = ({ user }: FriendshipStatProps) => {
   const { state } = useStateContext();
   const { chatSocket } = useSocket();
-  const [friendShip, setFriendShip] = useState<FriendShip>(() => ({
-    id: "",
-    state: "NONE",
-    userId: state.user!.id,
-    friendId: user.id,
-    user: state.user!,
-    friend: user,
-  }));
+  const [friendShip, setFriendShip] = useState<FriendShip | undefined>(
+    undefined
+  );
+  const [friendShipStatus, setFriendShipStatus] =
+    useState<FriendShipStatusEnum>(FriendShipStatusEnum.NONE);
 
   const friendQeury = useQuery({
     queryKey: ["friends", user.id],
@@ -128,29 +129,23 @@ const FriendshipStat = ({ user }: FriendshipStatProps) => {
     },
     onSuccess: (data) => {
       setFriendShip(data);
+      setFriendShipStatus(getFriendShipStatus(user.id, data));
     },
   });
 
   const friendMutation = useMutation({
     mutationKey: ["friends", user.id],
-    mutationFn: async (fromBlock: boolean) =>
-      updateFriendShip(state.user!.id, user.id, friendShip, fromBlock),
+    mutationFn: () => updateFriendShip(friendShipStatus, user.id, setFriendShipStatus),
     onSuccess: (data) => {
+      console.log('data: ', data);
       setFriendShip(data);
+      console.log('friendShipStatus: ', getFriendShipStatus(user.id, data));
+      setFriendShipStatus(getFriendShipStatus(user.id, data));
     },
     onError: (err) => {
       console.log(err);
     },
   });
-
-  const actionContnet: Record<FriendShipStatus, string> = {
-    NONE: "Add Friend",
-    PENDING_BY_FRIEND: "Accept Request",
-    PENDING_BY_USER: "Cancel Request",
-    BLOCKED_BY_FRIEND: "Unblock",
-    BLOCKED_BY_USER: "Unblock",
-    ACCEPTED: "Remove Friend",
-  };
 
   useEffect(() => {
     chatSocket.on("notifications", async () => {
@@ -164,22 +159,24 @@ const FriendshipStat = ({ user }: FriendshipStatProps) => {
 
   return (
     <div className="mr-[10px] flex justify-around">
-      {friendShip.state !== "BLOCKED" && (
+      {friendShipStatus !== FriendShipStatusEnum.BLOCKED_BY_USER && (
         <div className="ml-[15px] flex items-center">
           <Button
             className="bg-gradient-to-r from-[#8d8dda80] to-[#ABD9D980]"
-            onClick={() => void friendMutation.mutateAsync(false)}
+            onClick={() => void friendMutation.mutateAsync()}
           >
-            {actionContnet[getFriendShipStatus(state.user!.id, friendShip)]}
+            {friendShipStatus === FriendShipStatusEnum.NONE && <>Add Friend</>}
+            {friendShipStatus === FriendShipStatusEnum.PENDING_BY_FRIEND && <>Accept Request</>}
+            {friendShipStatus === FriendShipStatusEnum.ACCEPTED && <>Remove Friend</>}
+            {friendShipStatus === FriendShipStatusEnum.PENDING_BY_USER && <>Cancel Request</>}
           </Button>
         </div>
       )}
-      {getFriendShipStatus(state.user!.id, friendShip) ===
-        "PENDING_BY_FRIEND" && (
+      {friendShipStatus === FriendShipStatusEnum.PENDING_BY_USER && (
         <div className="ml-[15px] flex items-center">
           <Button
             className="bg-gradient-to-r from-[#8d8dda80] to-[#ABD9D980]"
-            onClick={() => void friendMutation.mutateAsync(true)}
+            onClick={() => void friendMutation.mutateAsync()}
           >
             <>Cancel Request</>
           </Button>
@@ -188,10 +185,9 @@ const FriendshipStat = ({ user }: FriendshipStatProps) => {
       <div className="ml-[15px] flex items-center">
         <Button
           className="bg-gradient-to-r from-[#8d8dda80] to-[#ABD9D980]"
-          onClick={() => void friendMutation.mutateAsync(true)}
+          onClick={() => void friendMutation.mutateAsync()}
         >
-          {getFriendShipStatus(state.user!.id, friendShip) ===
-          "BLOCKED_BY_USER" ? (
+          {friendShipStatus === FriendShipStatusEnum.BLOCKED_BY_USER ? (
             <>Unblock</>
           ) : (
             <>Block</>

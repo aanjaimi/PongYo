@@ -3,7 +3,7 @@ import {CircularProgress} from "@nextui-org/react";
 
 const Loading = () => {
   return (
-    <div className="border flex w-screen h-screen items-center justify-center">
+    <div className="border flex w-full h-full items-center justify-center">
       <CircularProgress className="border w-64 h-64" color="primary" aria-label="Loading..." />
     </div>
   )

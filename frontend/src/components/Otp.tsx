@@ -11,6 +11,7 @@ import { useStateContext } from "@/contexts/state-context";
 import { useRouter } from "next/router";
 
 async function verifyOtp(token: string) {
+  console.log(token);
   return (await fetcher.post<{ valid: boolean }>("/auth/otp", { token })).data;
 }
 
@@ -40,7 +41,7 @@ const Otp = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen items-center justify-center">
+    <div className="flex h-full w-full items-center justify-center">
       <Card className="flex h-[420px] w-[350px] flex-col items-center justify-center rounded-[63px] border border-black font-['outfit'] text-black sm:h-[385px] sm:w-[541px]">
         <div className="mb-[20px] flex h-[84px] w-[65px] justify-center">
           <Image src={"/logo.png"} alt="image" width={500} height={500} />
