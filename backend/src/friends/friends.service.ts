@@ -15,11 +15,7 @@ import {
 import { buildPagination } from '@/global/global.utils';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { SendNotificationPayload } from '@/ws/chat/chat.interface';
-import {
-  friendChecking,
-  getFriendShipStatus,
-  swapUsers,
-} from './friends.helpers';
+import { friendChecking, swapUsers } from './friends.helpers';
 
 @Injectable()
 export class FriendService {
@@ -28,7 +24,7 @@ export class FriendService {
     private eventEmitter: EventEmitter2,
   ) {}
 
-  async friendChecking(userId: string, friendId: string) {
+  private async friendChecking(userId: string, friendId: string) {
     return await friendChecking.bind(this)(userId, friendId);
   }
 
@@ -50,7 +46,10 @@ export class FriendService {
 
     if (!state) {
       where['NOT'] = {
-        AND: [{ friendId: userId }, { state: FriendState.BLOCKED }],
+        OR: [
+          { AND: [{ friendId: userId }, { state: FriendState.BLOCKED }] },
+          { state: FriendState.NONE },
+        ],
       };
     }
 
@@ -92,7 +91,6 @@ export class FriendService {
     );
   }
 
-  // TODO: need testing
   async getUserFriendShip(userId: string, friendId: string) {
     const { friendShip } = await this.friendChecking(userId, friendId);
     if (!friendShip) throw new NotFoundException();
@@ -121,56 +119,26 @@ export class FriendService {
       },
     });
 
-    if (!friendShip || friendShip.state === 'NONE') {
-      const { sender, receiver } = await this.prismaService.notification.create(
-        {
-          data: {
-            type: 'FRIEND_REQUEST',
-            senderId: userId,
-            receiverId: _friendId,
-            content: {}, // ?INFO: add some details
-          },
-          include: {
-            receiver: true,
-            sender: true,
-          },
-        },
-      );
-
-      this.eventEmitter.emit('chat.send-notification', {
-        sender,
-        receiver,
+    const { sender, receiver } = await this.prismaService.notification.create({
+      data: {
         type: 'FRIEND_REQUEST',
-      } satisfies SendNotificationPayload);
-    }
+        senderId: userId,
+        receiverId: _friendId,
+        content: {}, // ?INFO: add some details
+      },
+      include: {
+        receiver: true,
+        sender: true,
+      },
+    });
+
+    this.eventEmitter.emit('chat.send-notification', {
+      sender,
+      receiver,
+      type: 'FRIEND_REQUEST',
+    } satisfies SendNotificationPayload);
 
     return newFriendShip;
-  }
-
-  async blockFriend(userId: string, friendId: string) {
-    const { friendShip, friendId: _friendId } = await this.friendChecking(
-      userId,
-      friendId,
-    );
-    if (userId === _friendId) throw new ConflictException();
-    if (!friendShip) throw new NotFoundException();
-
-    try {
-      return await this.prismaService.friend.update({
-        where: {
-          id: friendShip.id,
-          NOT: {
-            state: 'BLOCKED',
-          },
-        },
-        data: {
-          state: 'BLOCKED',
-          ...swapUsers(userId, _friendId),
-        },
-      });
-    } catch (err) {
-      return friendShip;
-    }
   }
 
   async updateFriendShip(
@@ -190,11 +158,13 @@ export class FriendService {
       [FriendShipAction.CANCEL]: 'PENDING',
       [FriendShipAction.ACCEPT]: 'PENDING',
       [FriendShipAction.UNBLOCK]: 'BLOCKED',
+      [FriendShipAction.UNFRIEND]: 'ACCEPTED',
     };
     const newFriendStatus: Record<any, FriendState> = {
       [FriendShipAction.CANCEL]: 'NONE',
       [FriendShipAction.ACCEPT]: 'ACCEPTED',
       [FriendShipAction.UNBLOCK]: 'NONE',
+      [FriendShipAction.UNFRIEND]: 'NONE',
     };
 
     if (friendShipAction.action) {
@@ -242,5 +212,31 @@ export class FriendService {
     }
 
     return { friendShip };
+  }
+
+  async blockFriend(userId: string, friendId: string) {
+    const { friendShip, friendId: _friendId } = await this.friendChecking(
+      userId,
+      friendId,
+    );
+    if (userId === _friendId) throw new ConflictException();
+    if (!friendShip) throw new NotFoundException();
+
+    try {
+      return await this.prismaService.friend.update({
+        where: {
+          id: friendShip.id,
+          NOT: {
+            state: 'BLOCKED',
+          },
+        },
+        data: {
+          state: 'BLOCKED',
+          ...swapUsers(userId, _friendId),
+        },
+      });
+    } catch (err) {
+      return friendShip;
+    }
   }
 }
