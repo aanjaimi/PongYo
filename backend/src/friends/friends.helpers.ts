@@ -50,7 +50,7 @@ export async function friendChecking(
   if (!prisma) prisma = this.prismaService;
   const friend = await prisma.user.findFirst({
     where: { ...loginOrId(friendId) },
-    include: { stat: true },
+    include: { stat: true, achievement: true, userGameHistory: true },
   });
   if (!friend) throw new NotFoundException();
 

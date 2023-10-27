@@ -3,13 +3,16 @@ import Matter from "matter-js";
 import { useSocket } from "@/contexts/socket-context";
 import { useStateContext } from "@/contexts/state-context";
 import type { User } from "@/types/user";
-import type { itemPosition } from "../gameTypes/types";
 
 export type GameCanvasProps = {
   setIsGameOver: (value: boolean) => void;
   setMyScore: (value: number) => void;
   setOppScore: (value: number) => void;
   isRanked: boolean;
+};
+type itemPosition = {
+  x: number;
+  y: number;
 };
 const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore, isRanked }: GameCanvasProps) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null); // Specify the type for canvasRef

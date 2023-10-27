@@ -53,6 +53,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
             defeats: 0,
             points: 0,
             rank: 'UNRANKED',
+            rowVectories: 0,
           },
         },
       },

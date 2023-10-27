@@ -8,7 +8,7 @@ type AchievementProps = {
 };
 
 const Achievement = ({ user }: AchievementProps) => {
-
+	console.log(user);
 	return (
 		<div style={{overflow: 'auto', maxHeight: '359px' }} className="grow font-bold">
 			<h1 className="mt-[10px] flex items-center justify-center">List of ahievements</h1>

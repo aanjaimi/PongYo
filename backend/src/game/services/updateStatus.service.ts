@@ -1,27 +1,34 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@/prisma/prisma.service';
-import { UserStatus } from '@prisma/client';
-import { Player } from '@/game/interfaces/Player.interface';
+import { Rank, UserStatus } from '@prisma/client';
 import { Mode } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { AchievementService } from './achievements.service';
 
 @Injectable()
 export class InviteService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
   async handleInvite(userId: string, friend: string) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
       },
       select: {
-        friends: true,
+        friends: {
+          include: {
+            friend: true,
+          },
+        },
       },
     });
     if (!user) {
       throw new Error('User not found');
     }
-    const isFriend = user.friends.find((f) => f.state === friend);
+    console.log("list of logged user's friends");
+    user.friends.forEach((f) => {
+      console.log(f.friend.login);
+    });
+    const isFriend = user.friends.find((f) => f.friend.login === friend);
     if (!isFriend) {
       return undefined;
     }
@@ -30,12 +37,18 @@ export class InviteService {
 }
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService, private achievementService: AchievementService) { }
+  constructor(
+    private readonly prisma: PrismaService,
+    private achievementService: AchievementService,
+  ) {}
 
-  async updateUserRankStats(player: Player, opp: Player, mode: Mode) {
+  async updateUserRankStats(player: any, opp: any, mode: Mode) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: player.id,
+      },
+      include: {
+        stat: true,
       },
     });
 
@@ -45,12 +58,12 @@ export class UserService {
       throw new Error(`User with ID ${player.id} not found.`);
     }
     const vectories = player.userStatus ? 1 : 0;
-    const gameInRow = vectories ? user.rowvectories + 1 : 0;
-    const isFirstGame = user.vectories + user.defeats === 0;
-    const isFirstWin = user.vectories === 0 && vectories === 1;
+    const gameInRow = vectories ? user.stat.rowVectories + 1 : 0;
+    const isFirstGame = user.stat.vectories + user.stat.defeats === 0;
+    const isFirstWin = user.stat.vectories === 0 && vectories === 1;
     const isPerfectVictory = player.score === 10 && opp.score === 0;
     const isPerfectDefeat = player.score === 0 && opp.score === 10;
-    const newPoints = Math.max(user.points + player.points, 0);
+    const newPoints = Math.max(user.stat.points + player.points, 0);
     const rankScores: Record<string, number> = {
       UNRANKED: 0,
       BRONZE: 10,
@@ -65,7 +78,7 @@ export class UserService {
       CHAMPION: 150000,
     };
 
-    let currentRank = "Bronze";
+    let currentRank = 'Bronze';
     for (const rank in rankScores) {
       if (newPoints >= rankScores[rank]) {
         currentRank = rank;
@@ -76,45 +89,106 @@ export class UserService {
         id: player.id,
       },
       data: {
-        vectories: user.vectories + vectories,
-        defeats: user.defeats + (1 - vectories),
-        points: newPoints,
-        rank: currentRank,
-        rowvectories: gameInRow,
+        stat: {
+          update: {
+            vectories: {
+              increment: vectories,
+            },
+            defeats: user.stat.defeats + (1 - vectories),
+            points: newPoints,
+            rank: currentRank as Rank,
+            rowVectories: gameInRow,
+          },
+        },
       },
     });
     if (isFirstGame) {
-      await this.achievementService.createAchievement(player.id, "First Game", "Play your first game", "icon-url");
+      await this.achievementService.createAchievement(
+        player.id,
+        'First Game',
+        'Play your first game',
+        'icon-url',
+      );
     }
     if (isFirstWin) {
-      await this.achievementService.createAchievement(player.id, "First Win", "Win your first game", "icon-url");
+      await this.achievementService.createAchievement(
+        player.id,
+        'First Win',
+        'Win your first game',
+        'icon-url',
+      );
     }
     if (isPerfectVictory) {
-      await this.achievementService.createAchievement(player.id, "Perfect Victory", "Win a game with a score of 10-0", "icon-url");
+      await this.achievementService.createAchievement(
+        player.id,
+        'Perfect Victory',
+        'Win a game with a score of 10-0',
+        'icon-url',
+      );
     }
     if (isPerfectDefeat) {
-      await this.achievementService.createAchievement(player.id, "Perfect Defeat", "Lose a game with a score of 0-10", "icon-url");
+      await this.achievementService.createAchievement(
+        player.id,
+        'Perfect Defeat',
+        'Lose a game with a score of 0-10',
+        'icon-url',
+      );
     }
-    if (user.vectories + vectories === 10) {
-      await this.achievementService.createAchievement(player.id, "Deca-Winner", "Achieve victory in 10 games", "icon-url");
+    if (user.stat.vectories + vectories === 10) {
+      await this.achievementService.createAchievement(
+        player.id,
+        'Deca-Winner',
+        'Achieve victory in 10 games',
+        'icon-url',
+      );
     }
-    if (user.vectories + vectories === 20) {
-      await this.achievementService.createAchievement(player.id, "Gold Medalist", "Achieve victory in 20 games", "icon-url");
+    if (user.stat.vectories + vectories === 20) {
+      await this.achievementService.createAchievement(
+        player.id,
+        'Gold Medalist',
+        'Achieve victory in 20 games',
+        'icon-url',
+      );
     }
-    if (user.vectories + vectories === 50) {
-      await this.achievementService.createAchievement(player.id, "Platinum Medalist", "Achieve victory in 30 games", "icon-url");
+    if (user.stat.vectories + vectories === 50) {
+      await this.achievementService.createAchievement(
+        player.id,
+        'Platinum Medalist',
+        'Achieve victory in 30 games',
+        'icon-url',
+      );
     }
-    if (user.vectories + vectories === 100) {
-      await this.achievementService.createAchievement(player.id, "Legend", "Achieve victory in 100 games", "icon-url");
+    if (user.stat.vectories + vectories === 100) {
+      await this.achievementService.createAchievement(
+        player.id,
+        'Legend',
+        'Achieve victory in 100 games',
+        'icon-url',
+      );
     }
     if (gameInRow == 3) {
-      await this.achievementService.createAchievement(player.id, "Triple Kill", "Achieve 3 victories in a row", "icon-url");
+      await this.achievementService.createAchievement(
+        player.id,
+        'Triple Kill',
+        'Achieve 3 victories in a row',
+        'icon-url',
+      );
     }
     if (gameInRow == 5) {
-      await this.achievementService.createAchievement(player.id, "Penta Kill", "Achieve 5 victories in a row", "icon-url");
+      await this.achievementService.createAchievement(
+        player.id,
+        'Penta Kill',
+        'Achieve 5 victories in a row',
+        'icon-url',
+      );
     }
     if (gameInRow == 10) {
-      await this.achievementService.createAchievement(player.id, "Killer", "Achieve 10 victories in a row", "icon-url");
+      await this.achievementService.createAchievement(
+        player.id,
+        'Killer',
+        'Achieve 10 victories in a row',
+        'icon-url',
+      );
     }
     this.achievementService.updateAchievement(player.id, currentRank);
     await this.prisma.game.upsert({
@@ -131,8 +205,7 @@ export class UserService {
         opponentStatus: opp.userStatus,
       },
       update: {},
-    }
-    );
+    });
   }
   async updateUserStatus(id: string, status: string) {
     const user = await this.prisma.user.findUnique({
@@ -149,7 +222,7 @@ export class UserService {
         id: id,
       },
       data: {
-        userStatus: status as UserStatus
+        status: status as UserStatus,
       },
     });
   }

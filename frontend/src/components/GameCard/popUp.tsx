@@ -13,34 +13,34 @@ const PopUp = ({ setIsPopupOpen, selectedOption }:PopUpProps) => {
   const { gameSocket } = useSocket();
   const { state } = useStateContext();
   return (
-    <Card className=" fixed z-10 flex h-[300px] w-[700px] flex-col rounded-lg bg-[#ffffff33] px-6 text-black shadow-2xl ">
+    <Card className=" fixed z-10 flex  flex-col  rounded-lg bg-[#ffffff33] text-black shadow-2xl ">
       {/* First Part */}
-      <div className="m-8 flex h-full flex-row justify-between ">
-        <div className=" flex flex-col justify-center">
+      <div className="m-8 flex h-full sm:flex-row justify-between flex-col sm:space-x-24 space-y-6 ">
+        <div className=" flex flex-col justify-center ">
           <Image
-            src={state.user?.avatar ?? "/smazouz.jpeg"}
+            src={state.user?.avatar.path ?? "/smazouz.jpeg"}
             alt={state.user?.login ?? ""}
-            className="mx-auto rounded-full "
+            className="mx-auto rounded-full w-24 h-24 sm:w-32 sm:h-32"
             width={140}
             height={140}
           />
           <h2 className="mt-4 text-center text-xl font-semibold">
             {state.user?.login}
           </h2>
-          <p className="text-center text-gray-500">{state.user?.rank}</p>
+          <p className="text-center text-gray-500">{"zobi"}</p>
         </div>
-        <div className=" flex h-full flex-col ">
+        <div className=" flex  flex-col ">
           <div className=" flex h-full items-end justify-center">
             <div className="flec-co flex animate-bounce">
-              <span className="mx-1 text-6xl font-bold">V</span>
-              <span className="animate-pulse text-7xl font-bold text-blue-500">
+              <span className="mx-1 sm:text-6xl text-5xl font-bold">V</span>
+              <span className="animate-pulse sm:text-7xl text-6xl font-bold text-blue-500">
                 S
               </span>
             </div>
           </div>
-          <div className="flex h-full w-full items-center justify-center ">
+          <div className="pt-5 h-full w-full items-center justify-center sm:block hidden ">
             <Button
-              className="flex h-[40px] w-[140px] rounded-full  text-2xl"
+              className="sm:h-[35px] sm:w-[130px] rounded-full  sm:text-2xl text-xl "
               onClick={() => {
                 if (selectedOption === "Normal game")
                   gameSocket.emit("leave-queue", { user: state.user });
@@ -54,11 +54,25 @@ const PopUp = ({ setIsPopupOpen, selectedOption }:PopUpProps) => {
           </div>
         </div>
         <div className="flex flex-col items-center  justify-center ">
-          <div className="mx-auto h-32 w-32 animate-spin rounded-full border-b-2 border-t-2 border-black"></div>
+          <div className="mx-auto sm:h-32 sm:w-32 h-20 w-20 animate-spin rounded-full border-b-2 border-t-2 border-black"></div>
           <p className="mt-4 text-center font-semibold ">
             Waiting for opponent...
           </p>
         </div>
+        <div className=" flex flex-col justify-center  items-center sm:hidden">
+          <Button
+              className=" flex  rounded-full w-[90px] h-[30px] sm:text-2xl text-xl  items-center justify-center "
+              onClick={() => {
+                if (selectedOption === "Normal game")
+                  gameSocket.emit("leave-queue", { user: state.user });
+                else if (selectedOption === "Ranked game")
+                  gameSocket.emit("leave-ranked-queue", { user: state.user });
+                setIsPopupOpen(false);
+              }}
+            >
+              cancel
+            </Button>
+            </div>
       </div>
     </Card>
   );

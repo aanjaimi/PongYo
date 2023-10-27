@@ -22,7 +22,6 @@ export class AuthService {
   ) {}
 
   async fortyTwoCallback(user: User, res: Response) {
-
     const payload = {
       iss: 'Transcendence',
       login: user.login,

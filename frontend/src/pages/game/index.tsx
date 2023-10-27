@@ -9,7 +9,7 @@ const Home = () => {
   const [oppData, setOppData] = useState({} as User)
 
   return (
-    <div>
+    <div className="w-screen h-screen">
       {gameStarted ? <Game oppData={oppData} isRanked={isRanked} /> :
         <GameCard setGameStarted={setGameStarted} setOppData={setOppData} setIsRanked={setIsRanked} />}
     </div>

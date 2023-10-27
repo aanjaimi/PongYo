@@ -31,15 +31,15 @@ enum Rank {
 }
 
 model User {
-  id          String     @id @default(cuid())
-  displayname String
-  login       String     @unique
-  email       String     @unique
-  status      UserStatus @default(OFFLINE) @map("status")
-  firstTwoFactor      Boolean        @default(true)
+  id             String     @id @default(cuid())
+  displayname    String
+  login          String     @unique
+  email          String     @unique
+  status         UserStatus @default(OFFLINE) @map("status")
+  firstTwoFactor Boolean    @default(true)
 
-  totp Json
-  isCompleted          Boolean        @default(false)
+  totp        Json
+  isCompleted Boolean @default(false)
 
   // friends of the User
   friends              Friend[]       @relation("userFriends")
@@ -67,6 +67,7 @@ model User {
 
   @@map("users")
 }
+
 enum FriendState {
   NONE
   BLOCKED
@@ -74,6 +75,7 @@ enum FriendState {
   ACCEPTED
   REFUSED
 }
+
 model Friend {
   id       String      @id @default(cuid())
   state    FriendState
@@ -84,6 +86,7 @@ model Friend {
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
   @@map("friends")
 }
 
@@ -148,12 +151,13 @@ model Game {
 }
 
 model Stat {
-  id        String @id @unique @default(cuid())
-  vectories Int
-  defeats   Int
-  points    Int
-  rank      Rank
-  user      User?
+  id           String @id @unique @default(cuid())
+  vectories    Int
+  defeats      Int
+  points       Int
+  rowVectories Int
+  rank         Rank
+  user         User?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

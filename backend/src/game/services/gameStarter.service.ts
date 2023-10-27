@@ -6,10 +6,9 @@ import { Mode } from '@prisma/client';
 
 @Injectable()
 export class GameStarterService {
-  constructor(private userService: UserService) { }
+  constructor(private userService: UserService) {}
 
   async startGame(player1: Socket, player2: Socket, isRanked: boolean) {
-    
     player1.on('disconnect', () => {
       if (isGameOver) return;
       console.log(' player1 disconnected');
@@ -34,7 +33,7 @@ export class GameStarterService {
     let player1Score = 0;
     let player2Score = 0;
     let isGameOver = false;
-    
+
     const engine = Engine.create({ gravity: { x: 0, y: 0 } });
     const createWall = (
       x: number,
@@ -64,7 +63,9 @@ export class GameStarterService {
     const redball = Bodies.circle(150, 550, 25, { isStatic: true });
     const tanball = Bodies.circle(150, 200, 25, { isStatic: true });
     const playerPaddle = Bodies.rectangle(325, 15, 150, 20, { isStatic: true });
-    const opponentPaddle = Bodies.rectangle(325, 735, 150, 20, { isStatic: true });
+    const opponentPaddle = Bodies.rectangle(325, 735, 150, 20, {
+      isStatic: true,
+    });
 
     const walls = [
       createWall(0, 375, 1, 750, true, 1),
@@ -72,9 +73,8 @@ export class GameStarterService {
       createWall(325, 0, 650, 1, true, 1),
       createWall(325, 750, 650, 1, true, 1),
     ];
-    World.add(engine.world, [ball, playerPaddle, opponentPaddle, ...walls
-    ]);
-    if(isRanked){
+    World.add(engine.world, [ball, playerPaddle, opponentPaddle, ...walls]);
+    if (isRanked) {
       World.add(engine.world, [blueball, magentaball, redball, tanball]);
     }
     const runner = Runner.create();
@@ -122,8 +122,14 @@ export class GameStarterService {
           };
 
           const emitScoreUpdate = () => {
-            player1.emit('update-score', { myScore: player1Score, oppScore: player2Score });
-            player2.emit('update-score', { myScore: player2Score, oppScore: player1Score });
+            player1.emit('update-score', {
+              myScore: player1Score,
+              oppScore: player2Score,
+            });
+            player2.emit('update-score', {
+              myScore: player2Score,
+              oppScore: player1Score,
+            });
           };
 
           const resetBallPosition = () => {
@@ -134,48 +140,56 @@ export class GameStarterService {
 
           if (bodyA === blueball || bodyB === blueball) {
             emitColorChange('blue');
-            ball.velocity.y = (ball.velocity.y > 0) ? 8 : -8;
+            ball.velocity.y = ball.velocity.y > 0 ? 8 : -8;
 
             Body.setVelocity(ball, { x: 8, y: ball.velocity.y });
-
           }
           if (bodyA === magentaball || bodyB === magentaball) {
             emitColorChange('magenta');
-            ball.velocity.y = (ball.velocity.y > 0) ? 8 : -8;
+            ball.velocity.y = ball.velocity.y > 0 ? 8 : -8;
 
             Body.setVelocity(ball, { x: 8, y: ball.velocity.y });
-
           }
           if (bodyA === redball || bodyB === redball) {
             emitColorChange('red');
-            ball.velocity.y = (ball.velocity.y > 0) ? 8 : -8;
+            ball.velocity.y = ball.velocity.y > 0 ? 8 : -8;
 
             Body.setVelocity(ball, { x: 8, y: ball.velocity.y });
-
           }
           if (bodyA === tanball || bodyB === tanball) {
             emitColorChange('tan');
-            ball.velocity.y = (ball.velocity.y > 0) ? 8 : -8;
-
-            Body.setVelocity(ball, { x: 8, y: ball.velocity.y });
-
-          }
-          if (bodyA === walls[0] && bodyB === ball || bodyB === walls[0] && bodyA === ball) {
-            ball.velocity.y = (ball.velocity.y > 0) ? 8 : -8;
+            ball.velocity.y = ball.velocity.y > 0 ? 8 : -8;
 
             Body.setVelocity(ball, { x: 8, y: ball.velocity.y });
           }
-          if (bodyA === walls[1] && bodyB === ball || bodyB === walls[1] && bodyA === ball) {
-            ball.velocity.y = (ball.velocity.y > 0) ? 8 : -8;
+          if (
+            (bodyA === walls[0] && bodyB === ball) ||
+            (bodyB === walls[0] && bodyA === ball)
+          ) {
+            ball.velocity.y = ball.velocity.y > 0 ? 8 : -8;
 
             Body.setVelocity(ball, { x: 8, y: ball.velocity.y });
           }
-          if ((bodyA === walls[2] && bodyB === ball) || (bodyB === walls[2] && bodyA === ball)) {
+          if (
+            (bodyA === walls[1] && bodyB === ball) ||
+            (bodyB === walls[1] && bodyA === ball)
+          ) {
+            ball.velocity.y = ball.velocity.y > 0 ? 8 : -8;
+
+            Body.setVelocity(ball, { x: 8, y: ball.velocity.y });
+          }
+          if (
+            (bodyA === walls[2] && bodyB === ball) ||
+            (bodyB === walls[2] && bodyA === ball)
+          ) {
             player2Score++;
             emitScoreUpdate();
             resetBallPosition();
           }
-          if ((bodyA === walls[3] && bodyB === ball) || (bodyB === walls[3] && bodyA === ball)) {
+          if (
+            (bodyA === walls[3] && bodyB === ball) ||
+            (bodyB === walls[3] && bodyA === ball)
+          ) {
             player1Score++;
             emitScoreUpdate();
             resetBallPosition();
@@ -186,14 +200,16 @@ export class GameStarterService {
             Engine.clear(engine);
             World.clear(engine.world, false);
 
-            const updateRankStats = (winnerID,
+            const updateRankStats = (
+              winnerID,
               winnerScore,
               winnerPoints,
               winnerStatus,
               loserID,
               loserScore,
               loserPoints,
-              loserStatus) => {
+              loserStatus,
+            ) => {
               this.userService.updateUserRankStats(
                 {
                   id: winnerID,
@@ -220,9 +236,10 @@ export class GameStarterService {
                   player2.user.id,
                   player2Score,
                   -5,
-                  false
+                  false,
                 );
-                updateRankStats(player2.user.id,
+                updateRankStats(
+                  player2.user.id,
                   player2Score,
                   -5,
                   false,
@@ -257,13 +274,11 @@ export class GameStarterService {
             if (player1.connected) {
               player1.emit('game-over', { user: player1.user });
               player1.disconnect();
-
             }
             if (player2.connected) {
               player2.emit('game-over', { user: player2.user });
               player2.disconnect();
             }
-
           }
         }
       });

@@ -16,20 +16,19 @@ const InvitationCard = ({ setInviteNotify, opp }:InvitationCardProps) => {
 
 
   return (
-    <Card className='flex items-center  justify-center h-screen  w-screen'>
-      <div className="flex items-center  justify-between p-10 gap-20 rounded-3xl border-4">
-        
+    <Card className='flex items-center  justify-center h-screen  w-screen '>
+      <div className="flex items-center  justify-between p-10 sm:gap-20 gap-6 rounded-3xl border-4 flex-col sm:flex-row">
         <div className="flex items-center flex-col">
           <Image
-            src={state.user?.avatar ?? "/smazouz.jpeg"}
-            alt={state.user?.login}
+            src={state.user?.avatar.path ?? "/smazouz.jpeg"}
+            alt={"user login"}
             width={100} // Specify the desired width
             height={100} // Specify the desired height
-            className="rounded-full h-40 w-40"
+            className="rounded-full sm:h-40 sm:w-40 h-16 w-16"
           />
           <div className=" pt-2 flex flex-col items-center">
-            <p className="font-semibold pt-1 text-2xl text-gray-300">{state.user?.login}</p>
-            <p className="text-gray-500 text-xl">{state.user?.rank}</p>
+            <p className="font-semibold pt-1 sm:text-2xl text-xl text-gray-300">{state.user?.login}</p>
+            <p className="text-gray-500 sm:text-xl text-lg">{"zobi"}</p>
           </div>
         </div>
 
@@ -51,7 +50,7 @@ const InvitationCard = ({ setInviteNotify, opp }:InvitationCardProps) => {
                   duration: 0.5,
                   delay: 0.1,
                 }}
-                className="h-6 w-6 mx-2 bg-black rounded-full"
+                className="sm:h-6 sm:w-6 w-4 h-4 mx-2 bg-black rounded-full"
               />
               <motion.div
                 initial={{ opacity: 1 }}
@@ -62,7 +61,7 @@ const InvitationCard = ({ setInviteNotify, opp }:InvitationCardProps) => {
                   duration: 0.5,
                   delay: 0.2,
                 }}
-                className="h-6 w-6 mx-2 bg-black rounded-full"
+                className="sm:h-6 sm:w-6 w-4 h-4  mx-2 bg-black rounded-full"
               />
               <motion.div
                 initial={{ opacity: 1 }}
@@ -73,7 +72,7 @@ const InvitationCard = ({ setInviteNotify, opp }:InvitationCardProps) => {
                   duration: 0.5,
                   delay: 0.3,
                 }}
-                className="h-6 w-6 mx-2 bg-black rounded-full"
+                className="sm:h-6 sm:w-6 w-4 h-4 mx-2 bg-black rounded-full"
               />
               <motion.div
                 initial={{ opacity: 1 }}
@@ -84,13 +83,13 @@ const InvitationCard = ({ setInviteNotify, opp }:InvitationCardProps) => {
                   duration: 0.5,
                   delay: 0.3,
                 }}
-                className="h-6 w-6 mx-2 bg-black rounded-full"
+                className="sm:h-6 sm:w-6 w-4 h-4  bg-black rounded-full"
               />
             </div>
             <div className=' pt-5'>
-              <p className="text-center text-2xl font-semibold text-gray-400">Waiting for {opp.login} to join </p>
+              <p className="text-center sm:text-2xl text-xl font-semibold text-gray-400">Waiting for {opp.login} to join </p>
             </div>
-            <div className="flex justify-center pt-8">
+            <div className=" pt-8 hidden  sm:flex justify-center">
               <Button
                 className="  flex h-[40px] w-[140px] rounded-full   text-2xl"
                 onClick={() => {
@@ -110,12 +109,24 @@ const InvitationCard = ({ setInviteNotify, opp }:InvitationCardProps) => {
             alt={opp?.login}
             width={100}
             height={100}
-            className="rounded-full h-40 w-40"
+            className="rounded-full sm:h-40 sm:w-40 h-16 w-16"
           />
           <div className=" pt-2 flex flex-col items-center">
-            <p className="font-semibold text-2xl text-gray-400" >{opp?.login}</p>
-            <p className="pt-1 text-gray-500 text-xl">{opp?.rank}</p>
+            <p className="font-semibold sm:text-2xl text-xl text-gray-400" >{opp?.login}</p>
+            <p className=" text-gray-500 sm:text-xl text-lg">{"zobi"}</p>
           </div>
+          <div className=" pt-2 flex  sm:hidden justify-center">
+              <Button
+                className="  flex h-[30px] w-[100px] rounded-full   text-2xl"
+                onClick={() => {
+                  setInviteNotify(false);
+                  gameSocket.emit("declineInvite");
+                }
+                }
+              >
+                cancel
+              </Button>
+            </div>
         </div>
       </div>
     </Card>

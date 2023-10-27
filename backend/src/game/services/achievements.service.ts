@@ -3,53 +3,53 @@ import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
 export class AchievementService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   static rankAchievements = {
     Legend: {
-      name: "Legend",
-      description: "Achieve Legend Rank",
-      icon: "legend-icon-url",
+      name: 'Legend',
+      description: 'Achieve Legend Rank',
+      icon: 'legend-icon-url',
     },
     Champion: {
-      name: "Champion",
-      description: "Achieve Champion Rank",
-      icon: "champion-icon-url",
+      name: 'Champion',
+      description: 'Achieve Champion Rank',
+      icon: 'champion-icon-url',
     },
     Grandmaster: {
-      name: "Grandmaster",
-      description: "Achieve Grandmaster Rank",
-      icon: "grandmaster-icon-url",
+      name: 'Grandmaster',
+      description: 'Achieve Grandmaster Rank',
+      icon: 'grandmaster-icon-url',
     },
     Master: {
-      name: "Master",
-      description: "Achieve Master Rank",
-      icon: "master-icon-url",
+      name: 'Master',
+      description: 'Achieve Master Rank',
+      icon: 'master-icon-url',
     },
     Diamond: {
-      name: "Diamond",
-      description: "Achieve Diamond Rank",
-      icon: "diamond-icon-url",
+      name: 'Diamond',
+      description: 'Achieve Diamond Rank',
+      icon: 'diamond-icon-url',
     },
     Platinum: {
-      name: "Platinum",
-      description: "Achieve Platinum Rank",
-      icon: "platinum-icon-url",
+      name: 'Platinum',
+      description: 'Achieve Platinum Rank',
+      icon: 'platinum-icon-url',
     },
     Gold: {
-      name: "Gold",
-      description: "Achieve Gold Rank",
-      icon: "gold-icon-url",
+      name: 'Gold',
+      description: 'Achieve Gold Rank',
+      icon: 'gold-icon-url',
     },
     Silver: {
-      name: "Silver",
-      description: "Achieve Silver Rank",
-      icon: "silver-icon-url",
+      name: 'Silver',
+      description: 'Achieve Silver Rank',
+      icon: 'silver-icon-url',
     },
     Bronze: {
-      name: "Bronze",
-      description: "Achieve Bronze Rank",
-      icon: "bronze-icon-url",
+      name: 'Bronze',
+      description: 'Achieve Bronze Rank',
+      icon: 'bronze-icon-url',
     },
   };
 
@@ -67,7 +67,12 @@ export class AchievementService {
         },
       });
       if (!user.achievement || user.achievement.length === 0) {
-        await this.createAchievement(playerId, achievement.name, achievement.description, achievement.icon);
+        await this.createAchievement(
+          playerId,
+          achievement.name,
+          achievement.description,
+          achievement.icon,
+        );
       }
     }
   }
@@ -90,4 +95,3 @@ export class AchievementService {
     });
   }
 }
-

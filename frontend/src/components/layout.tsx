@@ -17,7 +17,7 @@ export default function Layout({ children }: LayoutProps) {
       {authenicated === true && (
         <div className="flex h-screen w-screen flex-col">
           <NavBar />
-          <div className="flex overflow-auto">
+          <div className="flex">
             <div className="hidden sm:block">
               <SideBar />
             </div>

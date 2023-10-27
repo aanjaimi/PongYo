@@ -19,11 +19,14 @@ export class MatchMakerService {
     private inviteService: InviteService,
     protected redisService: RedisService,
     private gameStarterService: GameStarterService,
-  ) { }
+  ) {}
 
   async handleJoinQueue(client: Socket, gameMap: Map<string, Socket>) {
     const user = client.user;
-    if (user.userStatus === 'IN_GAME') {
+    if(user === undefined) {
+      return;
+    }
+    if (user.status === 'IN_GAME') {
       client.emit('already-in-Queue', {
         msg: 'You are already in queue',
       });
@@ -41,8 +44,11 @@ export class MatchMakerService {
       });
       return;
     }
-    if (await this.queueService.getLength(QueueType.NORMAL) !== 0) {
-      const opponent = (await this.queueService.pop(QueueType.NORMAL)).replace(/"/g, '');
+    if ((await this.queueService.getLength(QueueType.NORMAL)) !== 0) {
+      const opponent = (await this.queueService.pop(QueueType.NORMAL)).replace(
+        /"/g,
+        '',
+      );
       const oppnentSocket = gameMap.get(opponent);
       oppnentSocket.emit('game-start', {
         opp: client.user,
@@ -61,7 +67,10 @@ export class MatchMakerService {
 
   async handleJoinRankedQueue(client: Socket, gameMap: Map<string, Socket>) {
     const user = client.user;
-    if (user.userStatus === 'IN_GAME') {
+    if(user === undefined) {
+      return;
+    }
+    if (user.status === 'IN_GAME') {
       client.emit('already-in-Queue', {
         msg: 'You are already in queue',
       });
@@ -69,18 +78,21 @@ export class MatchMakerService {
     }
     if (await this.queueService.isUserInQueue(QueueType.RANKED, user.id)) {
       client.emit('already-in-Queue', {
-        msg: 'You are already in queue'
+        msg: 'You are already in queue',
       });
       return;
     }
     if (await this.queueService.isUserInQueue(QueueType.NORMAL, user.id)) {
       client.emit('already-in-Queue', {
-        msg: 'You are already in queue'
+        msg: 'You are already in queue',
       });
       return;
     }
-    if (await this.queueService.getLength(QueueType.RANKED) !== 0) {
-      const opponent = (await this.queueService.pop(QueueType.RANKED)).replace(/"/g, '');
+    if ((await this.queueService.getLength(QueueType.RANKED)) !== 0) {
+      const opponent = (await this.queueService.pop(QueueType.RANKED)).replace(
+        /"/g,
+        '',
+      );
       const clientSocket = gameMap.get(opponent);
       client.emit('game-start', {
         oppData: opponent,
@@ -96,9 +108,18 @@ export class MatchMakerService {
     client.emit('queue-joined');
     this.queueService.push(QueueType.RANKED, user.id);
   }
-  async handleInvite(client: Socket, opponent: string, gameMap: Map<string, Socket>) {
+  async handleInvite(
+    client: Socket,
+    opponent: string,
+    gameMap: Map<string, Socket>,
+  ) {
     const user = client.user;
+    if(user === undefined) {
+      return;
+    }
     const opponentId = await this.inviteService.handleInvite(user.id, opponent);
+    console.log(opponent);
+    console.log('opponentId');
     const opponentSocket = gameMap.get(opponentId);
     if (!opponentId) {
       client.emit('invited-fail', {
@@ -121,8 +142,11 @@ export class MatchMakerService {
     });
     await this.redisService.lpush(client.user.login, JSON.stringify(opponent));
   }
-  async handleAcceptInvite(client: Socket, opponent: string, gameMap: Map<string, Socket>) {
-
+  async handleAcceptInvite(
+    client: Socket,
+    opponent: string,
+    gameMap: Map<string, Socket>,
+  ) {
     const opponentSocket = gameMap.get(opponent);
     if (opponentSocket === undefined) {
       console.log('not online');
@@ -135,7 +159,7 @@ export class MatchMakerService {
     }
     if (await this.queueService.isUserInQueue(QueueType.RANKED, opponent)) {
       client.emit('already-in-Queue', {
-        msg: 'You ar already in queue'
+        msg: 'You ar already in queue',
       });
       return;
     }

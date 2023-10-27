@@ -24,7 +24,7 @@ export class GameGateway extends WsGateway {
     protected configService: ConfigService,
     private queueService: QueueService,
     protected redisService: RedisService,
-    private matchMakerService : MatchMakerService,
+    private matchMakerService: MatchMakerService,
   ) {
     super(prismaService, jwtService, configService, redisService);
   }
@@ -53,6 +53,7 @@ export class GameGateway extends WsGateway {
 
   @SubscribeMessage('join-queue')
   async handleJoinQueue(client: Socket) {
+    console.log('join-queue');
     this.matchMakerService.handleJoinQueue(client, this.gameMap);
   }
   @SubscribeMessage('join-ranked-queue')
@@ -74,7 +75,11 @@ export class GameGateway extends WsGateway {
   }
   @SubscribeMessage('acceptInvite')
   async handleAcceptInvite(client: Socket, data: { opponent: string }) {
-    this.matchMakerService.handleAcceptInvite(client, data.opponent, this.gameMap);
+    this.matchMakerService.handleAcceptInvite(
+      client,
+      data.opponent,
+      this.gameMap,
+    );
   }
   @SubscribeMessage('declineInvite')
   async handleDeclineInvite(client: Socket) {

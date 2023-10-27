@@ -6,18 +6,26 @@ import type { ChangeEvent } from "react";
 import { Input } from "@/components/ui/input"
 import type { User } from "@/types/user";
 import { Button } from "@/components/ui/button"
+import { useRouter } from "next/router";
+import type { GetServerSidePropsContext } from "next";
 type InvitedButtonProps = {
   setInviteNotify: (value: boolean) => void;
   setFriend: (value: User) => void
 };
+
 const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
   // State
   const { gameSocket } = useSocket();
   const [username, setUsername] = useState("");
+  const router = useRouter();
+  const { query } = router;
+
 
   // Handle Invite Click
   const handleInviteClick = () => {
-    setInviteNotify(true);
+    // setInviteNotify(true);
+    console.log(gameSocket.connected);
+
     gameSocket.emit("invite", { opponent : username });
   };
 
@@ -27,15 +35,23 @@ const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
   };
 
   useEffect(() => {
+    // console.log(router);
+    // console.log(query);
+    if(!gameSocket.connected)
+      gameSocket.connect();
+    if(query.username){
+      setUsername(query.username as string);
+      handleInviteClick();
+      console.log("i'm here\n");
+    }
     const invitedSuccessHandler = (data:{opp:User}) => {
       setFriend(data.opp);
+      // router.push(`/game/${data.opp.login}`).catch((err) => console.error(err));
       setInviteNotify(true);
     };
-
     const invitedHandler = (data:{msg:string, friend:string}) => {
       inviteNotify(data);
     };
-
     const invitedFailHandler = (data:{msg:string}) => {
       notifyError(data.msg);
     };

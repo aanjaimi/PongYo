@@ -1,19 +1,7 @@
 import type { Achievements } from "./achievement";
 import type { Game } from "./game";
-
-export enum Rank {
-  UNRANKED,
-  BRONZE,
-  SILVER,
-  GOLD,
-  PLATINUM,
-  EMERALD,
-  DIAMOND,
-  MASTER,
-  GRANDMASTER,
-  LEGEND,
-  CHAMPION,
-}
+import type { FriendShip } from "./friendship";
+import type { Stat } from "./stat";
 
 export enum UserStatus {
   ONLINE,
@@ -32,15 +20,13 @@ export type User = {
   displayname: string;
   login: string;
   email: string;
-  rank: Rank;
   userStatus: UserStatus;
-  vectories: number;
-  defeats: number;
-  points: number;
-  rowvectories: number;
+  stat: Stat;
   isCompleted: boolean;
   achievement: Achievements[];
   userGameHistory: Game[];
+  friends: FriendShip[];// friends of the User
+  myFriends: FriendShip[];// users who are Friends with this User
   totp: {
     enabled: boolean;
   } & {
@@ -55,3 +41,5 @@ export type User = {
     path: string;
   };
 };
+
+

@@ -12,7 +12,7 @@ import type { ChangeEvent } from "react";
 import InvitationCard from "./inviteCard";
 import { useRouter } from "next/router";
 import {
-  Card,
+  Card, CardTitle,
 } from "@/components/ui/card"
 
 
@@ -30,7 +30,9 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
   const [friend, setFriend] = useState({} as User);
   const router = useRouter();
   const { state } = useStateContext();
+	const { query } = router;
   const handleStartClick = () => {
+    console.log(selectedOption);
     if (selectedOption === "Normal game") {
       gameSocket.emit("join-queue");
     } else if (selectedOption === "Ranked game") {
@@ -62,8 +64,11 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
   };
 
   useEffect(() => {
-    if (!state.user)
-      router.push("/profile/@me").catch((err) => console.error(err));
+    
+    // if (!state.user)
+    // {
+    //   state.user = {login: "said", avatar: "https://avatars.githubusercontent.com/u/49057494?v=4", isCompleted: true, score: 0, rank: 0, _id: "60d9f1d9d6b4a40015f1b3a5"};
+    // }
     if (!gameSocket.connected) {
       gameSocket.connect();
     }
@@ -109,12 +114,10 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
       )}
 
       {!isPopupOpen && !inviteNotify && (
-        <div className="flex h-[450px] w-[500px] flex-col rounded-xl bg-white border-4 text-black">
-          <div className="pt-7">
-            <h1 className="pl-5 text-3xl  "> Start A Game :</h1>
-          </div>
-          <div className="flex space-x-16 pl-16 pt-5 text-sm text-black ">
-            <div className="space-x-4">
+        <div className="flex sm:h-[450px] sm:w-[500px] w-[320px] h-[350px]  flex-col rounded-xl bg-white border-4 text-black ">
+          <CardTitle className="sm:text-3xl text-xl sm:pt-5 sm:pl-5 pt-2 pl-2">Start A Game :</CardTitle>
+          <div className="flex space-x-16 sm:pl-16 pl-4 pt-5 text-sm text-black ">
+            <div className="sm:space-x-4 space-x-2">
               <input
                 type="radio"
                 id="normalGame"
@@ -123,10 +126,10 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
                 checked={selectedOption === "Normal game"}
                 onChange={handleChange}
               />
-              <label htmlFor="normalGame">Normal game
+              <label className="sm:text-lg "  htmlFor="normalGame">Normal game
               </label>
             </div>
-            <div className="space-x-4">
+            <div className="sm:space-x-4 space-x-2">
               <input
                 type="radio"
                 id="rankedGame"
@@ -135,23 +138,21 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
                 checked={selectedOption === "Ranked game"}
                 onChange={handleChange}
               />
-              <label htmlFor="rankedGame">Ranked game</label>
+              <label className="sm:text-lg" htmlFor="rankedGame">Ranked game</label>
             </div>
           </div>
 
           <div className="mt-8 flex w-full items-center justify-center text-xl ">
             <Button
-              className="flex h-[40px] w-[140px] rounded-full  text-2xl"
+              className="flex sm:h-[40px] sm:w-[140px] rounded-full  text-2xl"
               onClick={handleStartClick}
             >
               Start
             </Button>
           </div>
           <Divider />
-          <div className="mt-10 flex">
-            <h1 className="pl-5 text-3xl  "> INVITE YOUR FRIEND :</h1>
-          </div>
-          <div className="mt-6 flex items-center pt-2 text-xl text-white">
+          <CardTitle className="sm:text-3xl text-xl pt-5 pl-5">Invite A Friend :</CardTitle>
+          <div className="sm:mt-6 flex items-center pt-2 text-xl text-white">
             <InvitedButton setInviteNotify={setInviteNotify} setFriend={setFriend} />
           </div>
         </div>
