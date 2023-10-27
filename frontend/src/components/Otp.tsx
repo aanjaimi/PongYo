@@ -16,7 +16,7 @@ async function verifyOtp(token: string) {
 }
 
 const Otp = () => {
-  const { dispatch } = useStateContext();
+  const { state } = useStateContext();
   const router = useRouter();
   const [otp, setOtp] = useState<string>("");
   const [correct, setCorrect] = useState<boolean>(true);
@@ -26,11 +26,12 @@ const Otp = () => {
     onSuccess: async ({ valid }) => {
       setCorrect(valid);
       if (valid) {
-        dispatch({ type: "SET_AUTH", payload: true });
+        state.auth_status = true;
         await router.push("/profile/@me");
       }
     },
     onError: () => {
+      state.auth_status = false;
       console.log("error");
     },
   });

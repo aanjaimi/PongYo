@@ -7,6 +7,7 @@ import io, {
   type SocketOptions,
   type Socket,
 } from "socket.io-client";
+import { useStateContext } from "./state-context";
 
 type SocketContextProps = {
   socket: Socket;
@@ -33,6 +34,8 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
     return state;
   }
 
+  const { state } = useStateContext();
+
   const [{ socket, chatSocket, gameSocket }] = useReducer(
     reducer,
     undefined,
@@ -41,6 +44,7 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
       const opts = {
         withCredentials: true,
         transports: ["websocket"],
+        autoConnect: state.auth_status === true,
       } satisfies Partial<ManagerOptions & SocketOptions>;
 
       const [socket, chatSocket, gameSocket] = [
