@@ -25,7 +25,9 @@ export class FriendService {
   ) {}
 
   private async friendChecking(userId: string, friendId: string) {
-    return await friendChecking.bind(this)(userId, friendId);
+    return (await friendChecking.bind(this)(userId, friendId)) as ReturnType<
+      typeof friendChecking
+    >;
   }
 
   private getFriendsWhere(userId: string, state: FriendStateQuery) {
