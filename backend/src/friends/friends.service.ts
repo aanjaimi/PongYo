@@ -10,6 +10,7 @@ import {
   FriendQueryDTO,
   FriendShipAction,
   FriendShipActionDTO,
+  FriendStateQuery,
 } from './friends.dto';
 import { buildPagination } from '@/global/global.utils';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -31,36 +32,30 @@ export class FriendService {
     return await friendChecking.bind(this)(userId, friendId);
   }
 
-  async getUserFriends(
-    userId: string,
-    friendId: string,
-    query: FriendQueryDTO,
-  ) {
-    const { friendId: _friendId, friendShip } = await this.friendChecking(
-      userId,
-      friendId,
-    );
+  private getFriendsWhere(userId: string, state: FriendStateQuery) {
+    const owner =
+      !state || ['BLOCKED', 'REQUESTED', 'ACCEPTED'].includes(state);
+    const reciever = !state || !owner || state === 'ACCEPTED';
 
-    if (
-      userId !== _friendId &&
-      (!friendShip || friendShip.state !== 'ACCEPTED')
-    )
-      throw new ForbiddenException(); // you can only see friends of your friends
+    if (state === 'REQUESTED') state = FriendStateQuery.PENDING;
 
-    // TODO: without testing !
+    let side: unknown = owner ? { userId } : { friendId: userId };
+    if (owner && reciever) {
+      side = {
+        OR: [{ userId }, { friendId: userId }],
+      };
+    }
 
-    const where = {
-      OR: [
-        {
-          myFriends: {
-            some: { userId: _friendId, state: query.state },
-          },
-        },
-        {
-          friends: { some: { userId: _friendId, state: query.state } },
-        },
-      ],
-    } satisfies Prisma.UserWhereInput;
+    const where: unknown = { AND: [side, { state }] };
+
+    if (!state) {
+      where['NOT'] = {
+        AND: [{ friendId: userId }, { state: FriendState.BLOCKED }],
+      };
+    }
+
+    return where;
+  }
 
     const [totalCount, users] = await this.prismaService.$transaction([
       this.prismaService.user.count({ where }),
