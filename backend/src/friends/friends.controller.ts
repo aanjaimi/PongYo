@@ -36,15 +36,11 @@ import { CurrentUser } from '@/global/global.decorators';
 export class FriendController {
   constructor(private readonly friendService: FriendService) {}
 
-  @Get(':id/users')
+  @Get()
   // TODO: get user friends functionality should be done here!
-  async findAll(
-    @CurrentUser() user: User,
-    @Param('id') friendId: string,
-    @Query() query: FriendQueryDTO,
-  ) {
+  async findAll(@CurrentUser() user: User, @Query() query: FriendQueryDTO) {
     // should be paginated
-    return await this.friendService.getUserFriends(user.id, friendId, query);
+    return await this.friendService.getUserFriends(user.id, query);
   }
 
   @Get(':id')
