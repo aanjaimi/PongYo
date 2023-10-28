@@ -1,8 +1,6 @@
-import type { Channel } from '@/types/Channel';
 import type { User } from '@/types/User';
 import React from 'react';
 import Image from 'next/image';
-import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 
 export default function OwnerCard({ user }: { user: User }) {

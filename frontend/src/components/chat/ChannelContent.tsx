@@ -1,14 +1,14 @@
 import type { Channel } from '@/types/Channel';
 import type { User } from '@/types/User';
 import type { Message } from '@/types/Message';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ChannelInfo from './ChannelInfo';
 import CreateOrJoin from './CreateOrJoin';
 import Image from 'next/image';
-import ScrollableFeed from 'react-scrollable-feed';
 import axios from 'axios';
 import { env } from '@/env.mjs';
 import ChannelSettings from './ChannelSettings';
+import { ScrollArea } from '../ui/scroll-area';
 
 export default function ChannelContent({
   channel,
@@ -26,6 +26,11 @@ export default function ChannelContent({
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [message, setMessage] = useState<string>('');
   const [showSettings, setShowSettings] = useState<boolean>(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [channel, channels]);
 
   if (channel === undefined)
     return (
@@ -90,7 +95,7 @@ export default function ChannelContent({
       <div className="mr-1 rounded-r-full border border-black"></div>
       {/* channel messages container*/}
       <div className="pb-10px flex h-[86%] flex-col justify-end">
-        <ScrollableFeed className="grow py-[0.5rem]">
+        <ScrollArea className="grow py-[0.5rem]">
           {channel?.messages?.map((message) => (
             <div
               className={`chat ml-[0.75rem] justify-self-end rounded-md ${
@@ -108,22 +113,18 @@ export default function ChannelContent({
                   />
                 </div>
               </div>
-              {/* <div className="chat-header text-[#9bb3c7]">
-                {message.userId}
-              </div> */}
-              <div className={`chat-bubble max-w-[36rem] break-words${
-                message.userId === user.id ? 'text-white' : 'text-white'
-              }`}>
+              <div className="chat-bubble max-w-[36rem] break-words text-white">
                 {message.content}
               </div>
             </div>
           ))}
-        </ScrollableFeed>
+          <div ref={bottomRef}></div>
+        </ScrollArea>
       </div>
       {
         <form
-          className="mx-[1rem] mt-[1rem] flex h-[2rem] rounded-full border bg-[#d9d9d933] border-black"
-          onSubmit={(e) => sendMessage(e)}
+          className="mx-[1rem] mt-[1rem] flex h-[2rem] rounded-full border border-black bg-[#d9d9d933]"
+          onSubmit={(e) => {void sendMessage(e)}}
         >
           <input
             type="text"

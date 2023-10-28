@@ -1,7 +1,7 @@
 import { ChatType, type Channel } from '@/types/Channel';
 import type { User } from '@/types/User';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { env } from '@/env.mjs';
 import { useSocket } from '@/contexts/socket-context';
 import { type ToastOptions, toast } from 'react-toastify';
@@ -118,8 +118,10 @@ export default function JoinChannel({
 
       updateChannels([channel, ...channels]);
       updateSelectedChannel(channel);
-    } catch (err) {
-      toast.error(err.response.data.message, toastOptions);
+    } catch (err: unknown) {
+      const error = err as { response: { data: { message: string } } };
+      console.log('error');
+      toast.error(error.response.data.message, toastOptions);
     }
   };
 
@@ -129,7 +131,7 @@ export default function JoinChannel({
         <div className="text-xl">Direct message:</div>
         <form
           className="ml-6 flex w-[17rem] rounded-full bg-white"
-          onSubmit={(e) => joinDirectMessage(e)}
+          onSubmit={(e) => {void joinDirectMessage(e)}}
         >
           <Input
             type="text"
@@ -145,7 +147,7 @@ export default function JoinChannel({
         <div className="text-xl">Join a channel:</div>
         <form
           className="ml-6 flex w-[17rem] flex-col rounded-full"
-          onSubmit={(e) => joinChannel(e)}
+          onSubmit={(e) => {void joinChannel(e)}}
         >
           <div className="mb-[0.75rem] flex rounded-full bg-white">
             <Input
@@ -161,7 +163,7 @@ export default function JoinChannel({
             <Button>Join</Button>
           </div>
           {passwordRequired && (
-            <div className="flex flex-col w-[12.5rem]">
+            <div className="flex w-[12.5rem] flex-col">
               <Input
                 type="password"
                 placeholder="password..."

@@ -603,12 +603,19 @@ export class ChatService {
       select: {
         members: true,
         owner: true,
+        moderators: true,
+        isDM: true,
       },
     });
 
     // check if channel exists
     if (!channel) {
       throw new HttpException('Channel not found', 404);
+    }
+
+    // check if channel is a dm
+    if (channel.isDM) {
+      throw new HttpException('Cannot leave DM', 403);
     }
 
     // check if user is owner
@@ -622,6 +629,26 @@ export class ChatService {
       throw new HttpException('You are not a member', 403);
     }
 
+    // check if user is a moderator
+    const isModerator = channel.moderators.some(
+      (moderator) => moderator.id === user.id,
+    );
+    if (isModerator) {
+      await this.prismaService.channel.update({
+        where: { id },
+        data: {
+          moderators: {
+            disconnect: { id: user.id },
+          },
+        },
+      });
+
+      this.chatGateway
+        .io()
+        .to(`channel-${id}`)
+        .emit('delete-moderator', { user: isModerator, channelId: id });
+    }
+
     // remove user from channel
     await this.prismaService.channel.update({
       where: { id },
@@ -631,6 +658,11 @@ export class ChatService {
         },
       },
     });
+
+    this.chatGateway
+      .io()
+      .to(`channel-${id}`)
+      .emit('leave', { user, channelId: id });
   }
 
   async addModerator(user: User, id: string, addModeratorDto: AddModeratorDto) {
@@ -640,6 +672,8 @@ export class ChatService {
       select: {
         owner: true,
         moderators: true,
+        members: true,
+        isDM: true,
       },
     });
 
@@ -648,9 +682,25 @@ export class ChatService {
       throw new HttpException('Channel not found', 404);
     }
 
+    // check if channel is a dm
+    if (channel.isDM) {
+      throw new HttpException('Cannot add moderator in DM', 403);
+    }
+
     // check if user is owner
     if (channel.owner.id !== user.id) {
       throw new HttpException('You are not the owner', 403);
+    }
+
+    // check if user is not the owner
+    if (channel.owner.id === userId) {
+      throw new HttpException('You cannot add yourself', 403);
+    }
+
+    // check if user is not a member
+    const isMember = channel.members.find((member) => member.id === userId);
+    if (!isMember) {
+      throw new HttpException('User is not a member', 403);
     }
 
     // check if user is already a moderator
@@ -670,19 +720,20 @@ export class ChatService {
         },
       },
     });
+
+    this.chatGateway
+      .io()
+      .to(`channel-${id}`)
+      .emit('add-moderator', { user: isMember, channelId: id });
   }
 
-  async removeModerator(
-    user: User,
-    id: string,
-    addModeratorDto: AddModeratorDto,
-  ) {
-    const { userId } = addModeratorDto;
+  async removeModerator(user: User, id: string, userId: string) {
     const channel = await this.prismaService.channel.findUnique({
       where: { id },
       select: {
         owner: true,
         moderators: true,
+        isDM: true,
       },
     });
 
@@ -691,13 +742,18 @@ export class ChatService {
       throw new HttpException('Channel not found', 404);
     }
 
+    // check if channel is a dm
+    if (channel.isDM) {
+      throw new HttpException('Cannot remove moderator in DM', 403);
+    }
+
     // check if user is owner
     if (channel.owner.id !== user.id) {
       throw new HttpException('You are not the owner', 403);
     }
 
     // check if user is not a moderator
-    const isModerator = channel.moderators.some(
+    const isModerator = channel.moderators.find(
       (moderator) => moderator.id === userId,
     );
     if (!isModerator) {
@@ -713,6 +769,11 @@ export class ChatService {
         },
       },
     });
+
+    this.chatGateway
+      .io()
+      .to(`channel-${id}`)
+      .emit('delete-moderator', { user: isModerator, channelId: id });
   }
 
   async ban(user: User, id: string, banUserDto: BanUserDto) {
@@ -873,7 +934,7 @@ export class ChatService {
         },
         where: { id: oldMute.id },
         data: {
-          mutedUntil: new Date(Date.now() + muteDuration * 1000),
+          mutedUntil: new Date(Date.now() + muteDuration),
         },
       });
 
@@ -893,7 +954,7 @@ export class ChatService {
         createdAt: true,
       },
       data: {
-        mutedUntil: new Date(Date.now() + muteDuration * 1000),
+        mutedUntil: new Date(Date.now() + muteDuration),
         channel: {
           connect: { id },
         },
@@ -958,6 +1019,7 @@ export class ChatService {
         owner: true,
         moderators: true,
         members: true,
+        isDM: true,
       },
     });
 
@@ -967,7 +1029,7 @@ export class ChatService {
     }
 
     // check if channel is dm
-    if (channel.members.length === 2) {
+    if (channel.isDM) {
       throw new HttpException('Cannot kick in DM', 403);
     }
 
@@ -977,6 +1039,26 @@ export class ChatService {
       !channel.moderators.some((moderator) => moderator.id === user.id)
     ) {
       throw new HttpException('You are not the owner or moderator', 403);
+    }
+
+    // check if user is not moderator
+    const isModerator = channel.moderators.find(
+      (moderator) => moderator.id === userId,
+    );
+    if (isModerator) {
+      await this.prismaService.channel.update({
+        where: { id },
+        data: {
+          moderators: {
+            disconnect: { id: userId },
+          },
+        },
+      });
+
+      this.chatGateway
+        .io()
+        .to(`channel-${id}`)
+        .emit('delete-moderator', { user: isModerator, channelId: id });
     }
 
     // check if user is not a member

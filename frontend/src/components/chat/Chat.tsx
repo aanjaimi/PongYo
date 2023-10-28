@@ -1,7 +1,7 @@
 import type { User } from '@/types/User';
 import type { Channel, mute, ban } from '@/types/Channel';
 import type { Message } from '@/types/Message';
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ChannelsList from './ChannelsList';
 import ChannelContent from './ChannelContent';
 import { ScrollArea } from '../ui/scroll-area';
@@ -136,6 +136,51 @@ export default function Chat({ user }: { user: User }) {
       }
     });
 
+    chatSocket.on('leave', (data: { user: User; channelId: string }) => {
+      if (data.user.id === user.id) {
+        const updatedChannels = channels.filter(
+          (channel) => channel.id !== data.channelId,
+        );
+        setChannels(updatedChannels);
+        setSelectedChannel(undefined);
+        return;
+      }
+      const channel = channels.find((channel) => channel.id === data.channelId);
+      if (!channel) return;
+      const updatedMembers = channel.members.filter(
+        (member) => member.id !== data.user.id,
+      );
+      channel.members = updatedMembers;
+      if (selectedChannel?.id === channel.id) {
+        setSelectedChannel(channel);
+      }
+      setChannels([...channels]);
+    });
+
+    chatSocket.on('add-moderator', (data: { user: User; channelId: string }) => {
+      const channel = channels.find((channel) => channel.id === data.channelId);
+      if (!channel) return;
+      const updatedModerators = [...channel.moderators, data.user];
+      channel.moderators = updatedModerators;
+      if (selectedChannel?.id === channel.id) {
+        setSelectedChannel(channel);
+      }
+      setChannels([...channels]);
+    });
+
+    chatSocket.on('delete-moderator', (data: { user: User; channelId: string }) => {
+      const channel = channels.find((channel) => channel.id === data.channelId);
+      if (!channel) return;
+      const updatedModerators = channel.moderators.filter(
+        (moderator) => moderator.id !== data.user.id,
+      );
+      channel.moderators = updatedModerators;
+      if (selectedChannel?.id === channel.id) {
+        setSelectedChannel(channel);
+      }
+      setChannels([...channels]);
+    });
+
     return () => {
       chatSocket.off('message');
       chatSocket.off('mute');
@@ -145,6 +190,9 @@ export default function Chat({ user }: { user: User }) {
       chatSocket.off('kick');
       chatSocket.off('join');
       chatSocket.off('update');
+      chatSocket.off('leave');
+      chatSocket.off('add-moderator');
+      chatSocket.off('delete-moderator');
     };
   }, [channels, selectedChannel, user, chatSocket]);
 

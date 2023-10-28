@@ -39,7 +39,6 @@ export class ChatController {
     return dm;
   }
 
-  // ? from here --------------------------------------------
   @Post('channel')
   create(
     @CurrentUser() user: User,
@@ -118,9 +117,9 @@ export class ChatController {
   removeModerator(
     @CurrentUser() user: User,
     @Param('id') id: string,
-    @Body() addModeratorDto: AddModeratorDto,
+    @Query('userId') userId: string,
   ) {
-    return this.chatService.removeModerator(user, id, addModeratorDto);
+    return this.chatService.removeModerator(user, id, userId);
   }
 
   @Patch('/channel/:id/bans')

@@ -30,7 +30,6 @@ interface EditChannelProps {
 
 export default function EditChannel({
   channel,
-  user,
   channels,
   updateChannels,
   updateSelectedChannel,
@@ -76,9 +75,9 @@ export default function EditChannel({
       setChannelPassword('');
       setChannelType('');
       setIsProtected(false);
-    } catch (err) {
-      console.log(err);
-      toast.error('Channel already exists', toastOptions);
+    } catch (err: unknown) {
+      const error = err as { response: { data: { message: string } } }
+      toast.error(error.response.data.message, toastOptions);
     }
   };
 
@@ -100,7 +99,7 @@ export default function EditChannel({
           </DialogHeader>
           <form
             className="flex flex-col gap-4 py-4"
-            onSubmit={(e) => editChannel(e)}
+            onSubmit={(e) => {void editChannel(e)}}
           >
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">

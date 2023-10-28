@@ -1,34 +1,16 @@
 import type { User } from '@/types/User';
-import type { Channel } from '@/types/Channel';
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import Chat from '@/components/chat/Chat';
 import { useSocket } from '@/contexts/socket-context';
 import { env } from '@/env.mjs';
 import { ToastContainer } from 'react-toastify';
-import { useRouter } from 'next/router';
 
 export default function Home() {
   const { chatSocket } = useSocket();
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [user, setUser] = useState<User | null>(null);
-  const router = useRouter();
-
-  const joinAllChannels = () => {
-    user?.channels.forEach((channel) => {
-      if (!channel.isDM)
-        chatSocket.emit('join-channel', { channelId: channel.id });
-      channel.msgNotification = false;
-    });
-  };
-
-  const leaveAllChannels = () => {
-    user?.channels.forEach((channel) => {
-      if (!channel.isDM)
-        chatSocket.emit('leave-channel', { channelId: channel.id });
-    });
-  };
 
   const userQuery = useQuery({
     queryKey: ['userData'],
@@ -45,9 +27,27 @@ export default function Home() {
       setUser(data);
       return data;
     },
+    // onError: (err) => {
+    //   router.push('/').catch((err) => console.log(err));
+    //   console.log(err);
+    // },
   });
 
   useEffect(() => {
+    const joinAllChannels = () => {
+      user?.channels.forEach((channel) => {
+        if (!channel.isDM)
+          chatSocket.emit('join-channel', { channelId: channel.id });
+        channel.msgNotification = false;
+      });
+    };
+
+    const leaveAllChannels = () => {
+      user?.channels.forEach((channel) => {
+        if (!channel.isDM)
+          chatSocket.emit('leave-channel', { channelId: channel.id });
+      });
+    };
     if (user) {
       joinAllChannels();
     }
@@ -57,7 +57,7 @@ export default function Home() {
         leaveAllChannels();
       }
     };
-  }, [user]);
+  }, [user, chatSocket]);
 
   if (userQuery.isLoading) {
     return <div className="h-screen w-screen">Loading...</div>;
@@ -69,7 +69,7 @@ export default function Home() {
 
   if (!user) {
     // router.push('/').catch((err) => console.log(err));
-    return <div></div>;
+    return <div className="h-screen w-screen">Redirecting...</div>;
   }
 
   return (

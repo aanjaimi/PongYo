@@ -19,7 +19,6 @@ interface CreateChannelProps {
 }
 
 export default function CreateChannel({
-  user,
   channels,
   updateChannels,
   updateSelectedChannel,
@@ -40,9 +39,10 @@ export default function CreateChannel({
 
   const createNewChannel = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (channelName === '' || (isProtected && channelPassword === ''))
+    if (channelName === '' || (isProtected && channelPassword === '') || channelType === '')
       return toast.error('Incomplete format', toastOptions);
     try {
+      console.log(channelName, channelPassword, channelType);
       const { data }: { data: Channel } = await axios.post(
         `${uri}/chat/Channel`,
         {
@@ -55,16 +55,16 @@ export default function CreateChannel({
       chatSocket.emit('join-channel', { channelId: data.id });
       updateChannels([data, ...channels]);
       updateSelectedChannel(data);
-    } catch (err) {
-      console.log(err);
-      toast.error('Channel already exists', toastOptions);
+    } catch (err: unknown) {
+      const error = err as { response: { data: { message: string } } };
+      toast.error(error.response.data.message, toastOptions);
     }
   };
 
   return (
     <form
       className="flex w-[75%] flex-col"
-      onSubmit={(e) => createNewChannel(e)}
+      onSubmit={(e) => (void createNewChannel(e))}
     >
       <div className="my-[1rem] flex">
         <div className="text-xl">Create a channel:</div>

@@ -2,12 +2,14 @@ import type { Channel } from '@/types/Channel';
 import type { User } from '@/types/User';
 import React, { useState } from 'react';
 import Image from 'next/image';
-import axios from 'axios';
-import { env } from '@/env.mjs';
+// import axios from 'axios';
+// import { env } from '@/env.mjs';
 import ChannelSettingsContent from './ChannelSettingsContent';
 import EditChannel from './EditChannel';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
+import LeaveChannel from './LeaveChannel';
+import Moderator from './Moderator';
 
 interface channelSettingsProps {
   channel: Channel;
@@ -26,8 +28,7 @@ export default function ChannelSettings({
   updateChannels,
   setShowSettings,
 }: channelSettingsProps) {
-  const url = env.NEXT_PUBLIC_BACKEND_ORIGIN;
-  const [editChannelName, setEditChannelName] = useState<boolean>(false);
+  // const url = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [userName, setUserName] = useState<string>('');
 
   const inviteUser = (e: React.FormEvent<HTMLFormElement>) => {
@@ -95,6 +96,21 @@ export default function ChannelSettings({
           updateChannels={updateChannels}
           user={user}
         />
+        <div className="flex justify-between">
+          <div>
+            {user.id === channel.ownerId && <Moderator channel={channel} />}
+          </div>
+          <div>
+            {channel.ownerId !== user.id ? (
+              <LeaveChannel
+                channel={channel}
+                setShowSettings={setShowSettings}
+              />
+            ) : (
+              <Button className="m-[1rem]">delete channel</Button>
+            )}
+          </div>
+        </div>
       </div>
     </>
   );

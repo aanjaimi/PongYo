@@ -1,7 +1,6 @@
 import type { Channel } from '@/types/Channel';
 import React from 'react';
 import Image from 'next/image';
-import { useQuery } from '@tanstack/react-query';
 import { Card } from '../ui/card';
 
 const displayLastMessage = (channel: Channel) => {
