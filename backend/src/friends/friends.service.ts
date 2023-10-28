@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { FriendState, Prisma } from '@prisma/client';
+import { FriendState, NotifType, Prisma } from '@prisma/client';
 import {
   FriendQueryDTO,
   FriendShipAction,
@@ -14,7 +14,7 @@ import {
 } from './friends.dto';
 import { buildPagination } from '@/global/global.utils';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { SendNotificationPayload } from '@/ws/chat/chat.interface';
+import { SendNotificationPayload } from '@/ws/notifications/notification.interface';
 import { friendChecking, swapUsers } from './friends.helpers';
 
 @Injectable()
@@ -56,6 +56,35 @@ export class FriendService {
     }
 
     return where;
+  }
+
+  private async createNewNotification(
+    senderId: string,
+    receiverId: string,
+    type: NotifType,
+  ) {
+    return await this.prismaService.notification.create({
+      data: {
+        type,
+        senderId,
+        receiverId,
+        content: {}, // ?INFO: add some details
+      },
+    });
+  }
+
+  private async deleteOldNotifications(
+    senderId: string,
+    receiverId: string,
+    type: NotifType,
+  ) {
+    await this.prismaService.notification.deleteMany({
+      where: {
+        senderId,
+        receiverId,
+        type,
+      },
+    });
   }
 
   async getUserFriends(userId: string, query: FriendQueryDTO) {
@@ -121,23 +150,14 @@ export class FriendService {
       },
     });
 
-    const { sender, receiver } = await this.prismaService.notification.create({
-      data: {
-        type: 'FRIEND_REQUEST',
-        senderId: userId,
-        receiverId: _friendId,
-        content: {}, // ?INFO: add some details
-      },
-      include: {
-        receiver: true,
-        sender: true,
-      },
-    });
+    // delete all old friend request notifcations
+    await this.deleteOldNotifications(userId, _friendId, 'FRIEND_REQUEST');
+    await this.createNewNotification(userId, _friendId, 'FRIEND_REQUEST');
 
-    this.eventEmitter.emit('chat.send-notification', {
-      sender,
-      receiver,
-      type: 'FRIEND_REQUEST',
+    this.eventEmitter.emit('notification.send-notification', {
+      senderId: userId,
+      receiverId: _friendId,
+      type: 'IGNORE',
     } satisfies SendNotificationPayload);
 
     return newFriendShip;
@@ -193,26 +213,16 @@ export class FriendService {
         friendShip.state === 'PENDING' &&
         updatedFriendShip.state === 'ACCEPTED'
       ) {
-        const { sender, receiver } =
-          await this.prismaService.notification.create({
-            data: {
-              type: 'FRIEND_ACCEPT',
-              senderId: userId,
-              receiverId: _friendId,
-              content: {}, // ?INFO: add some details
-            },
-            include: {
-              receiver: true,
-              sender: true,
-            },
-          });
-
-        this.eventEmitter.emit('chat.send-notification', {
-          sender,
-          receiver,
-          type: 'FRIEND_ACCEPT',
-        } satisfies SendNotificationPayload);
+        // remove all old friend accept notifcations
+        await this.deleteOldNotifications(userId, _friendId, 'FRIEND_ACCEPT');
+        await this.createNewNotification(userId, _friendId, 'FRIEND_ACCEPT');
       }
+
+      this.eventEmitter.emit('notification.send-notification', {
+        senderId: userId,
+        receiverId: _friendId,
+        type: 'IGNORE',
+      } satisfies SendNotificationPayload);
 
       return updatedFriendShip;
     } catch {
@@ -232,7 +242,7 @@ export class FriendService {
       throw new ConflictException();
     }
 
-    return await this.prismaService.friend.upsert({
+    const nextfriendShip = await this.prismaService.friend.upsert({
       where: {
         id: friendShip?.id ?? '',
       },
@@ -246,5 +256,11 @@ export class FriendService {
         friendId: _friendId,
       },
     });
+    this.eventEmitter.emit('notification.send-notification', {
+      senderId: userId,
+      receiverId: _friendId,
+      type: 'BLOCKED',
+    } satisfies SendNotificationPayload);
+    return nextfriendShip;
   }
 }
