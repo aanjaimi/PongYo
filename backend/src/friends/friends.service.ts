@@ -226,14 +226,15 @@ export class FriendService {
       friendId,
     );
     if (userId === _friendId) throw new ConflictException();
-    // if (!friendShip) throw new NotFoundException();
+
+    // you already blocked this user before
+    if (friendShip && friendShip.state === 'BLOCKED') {
+      throw new ConflictException('You already blocked this user before');
+    }
 
     return await this.prismaService.friend.upsert({
       where: {
         id: friendShip?.id ?? '',
-        NOT: {
-          state: 'BLOCKED',
-        },
       },
       update: {
         state: 'BLOCKED',
