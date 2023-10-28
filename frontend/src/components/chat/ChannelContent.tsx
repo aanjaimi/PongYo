@@ -42,30 +42,6 @@ export default function ChannelContent({
       />
     );
 
-  const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
-    try {
-      e.preventDefault();
-      if (message.trim() === '') return;
-      const { data }: { data: Message } = await axios.post(
-        `${uri}/chat/channel/${channel.id}/messages`,
-        { content: message },
-        { withCredentials: true },
-      );
-      channel.messages.push(data);
-      channel.updatedAt = data.createdAt;
-      channels.sort((a, b) => {
-        const aDate = new Date(a.updatedAt);
-        const bDate = new Date(b.updatedAt);
-        return bDate.getTime() - aDate.getTime();
-      });
-      updateChannels([...channels]);
-      setMessage('');
-      (e.target as HTMLFormElement).reset();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   const isMuted = () => {
     if (channel.mutes) {
       const mutedUser = channel.mutes.find((mute) => mute.userId === user.id);
@@ -73,6 +49,22 @@ export default function ChannelContent({
       if (mutedUser && new Date(mutedUser.mutedUntil).getTime() > Date.now())
         return true;
     } else return false;
+  };
+
+  const sendMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+    try {
+      e.preventDefault();
+      if (message.trim() === '' || isMuted()) return;
+      const { data }: { data: Message } = await axios.post(
+        `${uri}/chat/channel/${channel.id}/messages`,
+        { content: message },
+        { withCredentials: true },
+      );
+      setMessage('');
+      (e.target as HTMLFormElement).reset();
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return showSettings ? (
@@ -124,7 +116,9 @@ export default function ChannelContent({
       {
         <form
           className="mx-[1rem] mt-[1rem] flex h-[2rem] rounded-full border border-black bg-[#d9d9d933]"
-          onSubmit={(e) => {void sendMessage(e)}}
+          onSubmit={(e) => {
+            void sendMessage(e);
+          }}
         >
           <input
             type="text"

@@ -18,7 +18,7 @@ export default function Chat({ user }: { user: User }) {
   useEffect(() => {
     chatSocket.on('message', (data: { channel: Channel } & Message) => {
       const channel = channels.find((channel) => channel.id === data.channelId);
-      if (channel && data.userId !== user.id) {
+      if (channel) {
         channel.messages.push(data);
         channel.updatedAt = data.createdAt;
         channels.sort((a, b) => {
@@ -28,20 +28,23 @@ export default function Chat({ user }: { user: User }) {
         });
         if (selectedChannel?.id === channel.id) {
           setSelectedChannel(channel);
-        } else {
+        } else if (data.userId !== user.id) {
           channel.msgNotification = true;
         }
         setChannels([...channels]);
-      } else if (!channel && data.userId !== user.id && data.channel.isDM) {
+      } else if (!channel && data.channel.isDM) {
         const dmName: string[] = data.channel.name.split('-');
         data.channel.name = (dmName[0] === user.displayName
           ? dmName[1]
           : dmName[0]) as unknown as string;
-        data.channel.msgNotification = true;
+        if (data.userId !== user.id)
+          data.channel.msgNotification = true;
         setChannels([data.channel, ...channels]);
         if (selectedChannel?.id === data.channel.id) {
           setSelectedChannel(data.channel);
         }
+      } else if (!channel) {
+        setChannels([data.channel, ...channels]);
       }
     });
 

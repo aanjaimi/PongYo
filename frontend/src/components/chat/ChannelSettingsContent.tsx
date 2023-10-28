@@ -4,6 +4,7 @@ import React from 'react';
 import UserCard from './UserCard';
 import OwnerCard from './OwnerCard';
 import { ScrollArea } from '../ui/scroll-area';
+import ModeratorCard from './ModeratorCard';
 
 interface ChannelSettingsContentProps {
   channel: Channel;
@@ -40,7 +41,7 @@ export default function ChannelSettingsContent({
         </div>
       )}
       {channel.moderators.map((moderator) => (
-        <UserCard
+        <ModeratorCard
         key={moderator.id}
         channel={channel}
         channels={channels}
