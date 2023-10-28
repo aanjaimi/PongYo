@@ -71,49 +71,51 @@ const ProfileCompletion = ({ setIsEdited }: ProfileCompletionProps) => {
     await router.push('/profile/@me');
   };
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Edit profile</CardTitle>
-        <CardDescription>
-          Make changes to your profile here. Click save when you&apos;re done.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-[5px] mt-[10px] grid w-full max-w-sm items-center gap-1.5">
-          <Label>DisplayName</Label>
-          <Input
-            id="DisplayName"
-            placeholder="DisplayName"
-            value={displayname}
-            onChange={(e) => setDisplayName(e.target.value)}
-          />
-        </div>
-        <div className="mb-[5px] mt-[10px] grid w-full max-w-sm items-center gap-1.5">
-          <Label>Avatar</Label>
-          <Input id="avatar" type="file" ref={avatarRef} />
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <div className="mt-[20px] flex">
-          <Button
-            disabled={userMutation.isLoading}
-            className="bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
-            onClick={() => void handleSkip()}
-          >
-            <>Skip</>
-          </Button>
-        </div>
-        <div className="mt-[20px] flex grow justify-end">
-          <Button
-            disabled={userMutation.isLoading}
-            className="bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
-            onClick={() => void handleSubmit()}
-          >
-            <>Submit</>
-          </Button>
-        </div>
-      </CardFooter>
-    </Card>
+    <div className="grow flex h-full w-full items-center justify-center">
+      <Card>
+        <CardHeader>
+          <CardTitle>Edit profile</CardTitle>
+          <CardDescription>
+            Make changes to your profile here. Click save when you&apos;re done.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-[5px] mt-[10px] grid w-full max-w-sm items-center gap-1.5">
+            <Label>DisplayName</Label>
+            <Input
+              id="DisplayName"
+              placeholder="DisplayName"
+              value={displayname}
+              onChange={(e) => setDisplayName(e.target.value)}
+            />
+          </div>
+          <div className="mb-[5px] mt-[10px] grid w-full max-w-sm items-center gap-1.5">
+            <Label>Avatar</Label>
+            <Input id="avatar" type="file" ref={avatarRef} />
+          </div>
+        </CardContent>
+        <CardFooter className="flex justify-between">
+          <div className="mt-[20px] flex">
+            <Button
+              disabled={userMutation.isLoading}
+              className="bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
+              onClick={() => void handleSkip()}
+            >
+              <>Skip</>
+            </Button>
+          </div>
+          <div className="mt-[20px] flex grow justify-end">
+            <Button
+              disabled={userMutation.isLoading}
+              className="bg-gradient-to-r from-[#ABD9D980] to-[#8d8dda80]"
+              onClick={() => void handleSubmit()}
+            >
+              <>Submit</>
+            </Button>
+          </div>
+        </CardFooter>
+      </Card>
+    </div>
   );
 };
 

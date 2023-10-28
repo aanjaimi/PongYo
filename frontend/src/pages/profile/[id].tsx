@@ -39,7 +39,7 @@ export default function Profile({ user }: ProfileProps) {
   const [isEdited, setIsEdited] = useState(user.isCompleted);
 
   return (
-    <div className="flex flex-grow flex-col">
+    <div className="flex flex-grow flex-col w-full h-full">
       <ProfileContent
         user={user}
         isEdited={isEdited}
