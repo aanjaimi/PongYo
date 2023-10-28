@@ -10,7 +10,7 @@ const NavBar = () => {
       <Link href="/profile/@me">
         <Rocket />
       </Link>
-      <Search />
+        <Search />
       <Link href="/notification">
         <Bell />
       </Link>

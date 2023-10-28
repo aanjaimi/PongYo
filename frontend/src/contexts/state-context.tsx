@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/utils/user-utils";
 
 type State = {
   user: User | null;
-  auth_status: false | true | "otp" | "loading";
+  auth_status: false | true | "otp" | 'authenticated';
 };
 
 type Action =
@@ -33,9 +33,9 @@ const stateReducer = (state: State, action: Action) => {
     case "SET_USER":
       return { ...state, user: action.payload };
     case "SET_AUTH":
-      return { ...state, authenicated: action.payload };
+      return { ...state, auth_status: action.payload };
     default:
-      return state;
+      return { ...state };
   }
 };
 
@@ -44,26 +44,24 @@ type StateProviderProps = { children: React.ReactNode };
 const StateProvider = ({ children }: StateProviderProps) => {
   const [state, dispatch] = useReducer(stateReducer, initialState);
   const value = { state, dispatch };
-  const userQuery = useQuery({
+  useQuery({
     queryKey: ["users", "@me"],
     retry: false,
     queryFn: async () => {
       return getCurrentUser();
     },
     onSuccess(user) {
-      // ! TODO: use dispatch & check why kan error!
-      state.auth_status = user.totp.enabled && user.otpNeeded ? "otp" : true;
-      state.user = user;
+      dispatch({ type: "SET_USER", payload: user });
+      dispatch({
+        type: "SET_AUTH",
+        payload: user.totp.enabled && user.otpNeeded ? "otp" : 'authenticated'
+      });
     },
     onError() {
-      state.auth_status = false;
-      state.user = null;
+      dispatch({ type: "SET_AUTH", payload: false });
+      dispatch({ type: "SET_USER", payload: null });
     },
   });
-
-  useEffect(() => {
-    if (userQuery.status === "loading") state.auth_status = "loading";
-  }, [userQuery.status, state]);
 
   return (
     <StateContext.Provider value={value}>{children}</StateContext.Provider>

@@ -1,12 +1,12 @@
-import React from 'react'
-import {CircularProgress} from "@nextui-org/react";
+import React from "react";
+import ReactLoading from "react-loading";
 
 const Loading = () => {
   return (
-    <div className="border flex w-full h-full items-center justify-center">
-      <CircularProgress className="border w-64 h-64" color="primary" aria-label="Loading..." />
+    <div className="flex h-full w-full items-center justify-center border">
+      <ReactLoading type="spin" color="#0000FF" height={100} width={100} />
     </div>
-  )
-}
+  );
+};
 
 export default Loading;

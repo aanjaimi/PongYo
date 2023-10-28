@@ -188,7 +188,7 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
             </div>
           </div>
           {/* Avatar */}
-          <div className="bottom-50 left-50 absolute md:bottom-10 md:left-20">
+          <div className="bottom-[90px] left-50 absolute md:bottom-10 md:left-20">
             <Image
               className="rounded-full"
               src={user.avatar.path}

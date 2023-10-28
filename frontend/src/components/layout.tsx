@@ -14,23 +14,19 @@ export default function Layout({ children }: LayoutProps) {
     state: { auth_status },
   } = useStateContext();
 
-  const { socket, chatSocket, gameSocket } = useSocket();
+  const { notifSocket, chatSocket, gameSocket } = useSocket();
 
   useEffect(() => {
-    if (auth_status === true) {
+    if (auth_status === 'authenticated') {
       // to avoid re-connect !
-      if (!socket.connected) socket.connect();
+      if (!notifSocket.connected) notifSocket.connect();
       if (!chatSocket.connected) chatSocket.connect();
       if (!gameSocket.connected) gameSocket.connect();
     }
-  }, [auth_status, socket, chatSocket, gameSocket]);
+  }, [auth_status, notifSocket, chatSocket, gameSocket]);
 
-  if (auth_status === "loading")
-    return (
-      <div className="flex h-screen w-screen">
-        TODO: Add Loading Component...
-      </div>
-    );
+
+
 
   if (auth_status === "otp")
     return (
@@ -39,7 +35,7 @@ export default function Layout({ children }: LayoutProps) {
       </div>
     );
 
-  if (auth_status === true)
+  if (auth_status === 'authenticated')
     return (
       <div className="flex h-screen w-screen flex-col">
         <NavBar />
