@@ -6,9 +6,10 @@ const validationSchema = Joi.object({
   INTRA_CLIENT_ID: Joi.string().required(),
   INTRA_CLIENT_SECRET: Joi.string().required(),
   INTRA_CALLBACK_URL: Joi.string().uri().required(),
+  // TODO: add also origin profile
   FRONTEND_ORIGIN: Joi.string().uri().required(),
   JWT_SECRET: Joi.string(),
-  TOTP_JWT_SECRET: Joi.string(),
+  TOTP_JWT_SECRET: Joi.string(), // TODO: to be removed!
 
   // redis validation
   REDIS_HOST: Joi.string().required(),
