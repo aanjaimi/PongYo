@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { fetcher } from '@/utils/fetcher';
 import type { User } from '@/types/user';
@@ -34,89 +34,44 @@ const Historique = ({ user }: HistoryProps) => {
 
   if (gameHistoryQuery.isError) void router.push('/404');
 
-  return (
-    <div
-      style={{ overflow: 'auto', maxHeight: '359px' }}
-      className="mt-[10px] grow"
-    >
-      <h1 className="my-[10px] flex items-center justify-center font-bold">
-        Match histories
-      </h1>
-      {gameHistoryQuery.data?.map((gam, index) => (
-        <div key={gam.id} className="mb-[20px] flex justify-center">
-          <HoverCard>
-            <HoverCardTrigger className="container relative flex h-[70px] w-[70%] items-center justify-between rounded-[15px] border bg-[#2B3954] md:w-[60%] lg:w-[50%]">
-              {gam.userStatus ? (
-                <div className="Winner">Winner</div>
-              ) : (
-                <div className="Loser">Loser</div>
-              )}
-              <div className="flex h-[100%] items-center justify-center font-bold text-white">
-                <Image
-                  className=""
-                  alt=""
-                  src="/avatar.png"
-                  width={50}
-                  height={50}
-                />
-              </div>
-              <div className="flex h-[100%] items-center justify-center font-bold text-white">
-                vs
-              </div>
-              <div className="flex h-[100%] items-center justify-center font-bold text-white">
-                <Image
-                  className=""
-                  alt=""
-                  src="/avatar.png"
-                  width={50}
-                  height={50}
-                />
-              </div>
-              {gam.opponentStatus ? (
-                <div className="Winner">Winner</div>
-              ) : (
-                <div className="Loser">Loser</div>
-              )}
-            </HoverCardTrigger>
-            <HoverCardContent className="flex-col items-center justify-around">
-              <div className="flex items-center justify-around">
-                <div>
-                  <Image
-                    alt=""
-                    src="/avatar.png"
-                    width={50}
-                    height={50}
-                    className=""
-                  />
-                </div>
-                <div className="font-semibold">{gam.userScore}</div>
-                <div className="font-semibold text-black">-</div>
-                <div className="font-semibold">{gam.oppnentScore}</div>
-                <div>
-                  <Image
-                    alt=""
-                    src="/avatar.png"
-                    width={50}
-                    height={50}
-                    className=""
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-around">
-                <p className="mt-[5px] font-bold text-black">{user?.login}</p>
-                <div></div>
-                <div></div>
-                <div></div>
-                {/* <p className="mt-[5px] font-bold text-black">
-                  {opponents[index]?.login} //! FIX THIS
-                </p> */}
-              </div>
-            </HoverCardContent>
-          </HoverCard>
-        </div>
-      ))}
-    </div>
-  );
-};
+	return (
+		<div style={{overflow: 'auto', maxHeight: '359px' }} className="grow mt-[10px]">
+			<h1 className="my-[10px] flex items-center justify-center font-bold">Match histories</h1>
+			{gameHistoryQuery.data?.map((game) => (
+				<div key={game.id} className="flex justify-center mb-[20px]">
+					<HoverCard>
+						<HoverCardTrigger className="container bg-[#2B3954] border rounded-[15px] relative flex justify-between items-center w-[70%] md:w-[60%] lg:w-[50%] h-[70px]">
+							{game.userStatus ? <div className="Winner">Winner</div> : <div className="Loser">Loser</div>}
+							<div className="h-[100%] text-white font-bold flex items-center justify-center"><Image className="" alt="" src="/avatar.png" width={50} height={50}/></div>
+							<div className="h-[100%] text-white font-bold flex items-center justify-center">vs</div>
+							<div className="h-[100%] text-white font-bold flex items-center justify-center"><Image className="" alt="" src="/avatar.png" width={50} height={50}/></div>
+							{game.opponentStatus ? <div className="Winner">Winner</div> : <div className="Loser">Loser</div>}
+						</HoverCardTrigger>
+						<HoverCardContent className="flex-col justify-around items-center">
+							<div className="flex justify-around items-center">
+								<div>
+									<Image alt="" src={game.user.avatar.path} width={50} height={50} className=""/>
+								</div>
+								<div className="font-semibold">{game.userScore}</div>
+								<div className="text-black font-semibold">-</div>
+								<div className="font-semibold">{game.oppnentScore}</div>
+								<div>
+									<Image alt="" src={game.opponent.avatar.path} width={50} height={50} className=""/>
+								</div>
+							</div>
+							<div className="flex justify-around items-center">
+								<p className="text-black font-bold mt-[5px]">{game.user.login}</p>
+								<div></div>
+								<div></div>
+								<div></div>
+								<p className="text-black font-bold mt-[5px]">{game.opponent.login}</p>
+							</div>
+						</HoverCardContent>
+					</HoverCard>
+				</div>
+			))}
+		</div>
+	)
+}
 
 export default Historique;

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import ProfileCompletion from "./ProfileCompletion";
 
 type ProfileEditProps = {
@@ -7,7 +7,6 @@ type ProfileEditProps = {
 };
 
 const ProfileEdit = ({ isEdited, setIsEdited }: ProfileEditProps) => {
-  const [, setOn] = useState(true);
 
   return (
     <>

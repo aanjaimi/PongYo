@@ -18,7 +18,6 @@ import {
 } from "./FriendshipMethods";
 import { useRouter } from "next/router";
 import { useStateContext } from "@/contexts/state-context";
-import Loading from "@/pages/Loading";
 
 export const getFriendShipStatus = (
   currUserId: string,
