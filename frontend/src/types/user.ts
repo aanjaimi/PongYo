@@ -2,6 +2,7 @@ import type { Achievements } from "./achievement";
 import type { Game } from "./game";
 import type { FriendShip } from "./friend";
 import type { Stat } from "./stat";
+import type { Channel } from './channel';
 
 export enum UserStatus {
   ONLINE,
@@ -40,4 +41,5 @@ export type User = {
     minio: boolean;
     path: string;
   };
+  channels: Channel[];
 };

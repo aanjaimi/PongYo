@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validationSchema, validationOptions } from '@/config/validation.joi';
+import { ChatModule } from './chat/chat.module';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from './users/users.module';
@@ -23,6 +24,7 @@ import { AchievementModule } from './achievement/achievement.module';
       validationSchema,
       validationOptions,
     }),
+    ChatModule,
     AuthModule,
     UserModule,
     RedisModule.forRootAsync({
