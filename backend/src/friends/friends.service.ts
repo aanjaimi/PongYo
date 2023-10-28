@@ -229,7 +229,7 @@ export class FriendService {
 
     // you already blocked this user before
     if (friendShip && friendShip.state === 'BLOCKED') {
-      throw new ConflictException('You already blocked this user before');
+      throw new ConflictException();
     }
 
     return await this.prismaService.friend.upsert({
