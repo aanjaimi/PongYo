@@ -7,14 +7,15 @@ import io, {
   type SocketOptions,
   type Socket,
 } from "socket.io-client";
+import { useStateContext } from "./state-context";
 
 type SocketContextProps = {
-  socket: Socket;
+  notifSocket: Socket;
   chatSocket: Socket;
   gameSocket: Socket;
 };
 const SocketContext = createContext<Partial<SocketContextProps>>({
-  socket: undefined,
+  notifSocket: undefined,
   chatSocket: undefined,
   gameSocket: undefined,
 });
@@ -33,7 +34,9 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
     return state;
   }
 
-  const [{ socket, chatSocket, gameSocket }] = useReducer(
+  const { state } = useStateContext();
+
+  const [{ notifSocket, chatSocket, gameSocket }] = useReducer(
     reducer,
     undefined,
     () => {
@@ -41,27 +44,32 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
       const opts = {
         withCredentials: true,
         transports: ["websocket"],
+        autoConnect: state.auth_status === 'authenticated',
       } satisfies Partial<ManagerOptions & SocketOptions>;
 
-      const [socket, chatSocket, gameSocket] = [
+      const [notifSocket, chatSocket, gameSocket] = [
         // TODO: pass opts from provider!
-        io(uri, opts),
+        io(uri + "/notification", opts),
         io(uri + "/chat", opts), // ! TODO:  avoid double slash in path!
-        io(uri + "/game", { ...opts }),
+        io(uri + "/game", opts),
       ];
-      return { socket, chatSocket, gameSocket } satisfies SocketContextProps;
+      return {
+        notifSocket,
+        chatSocket,
+        gameSocket,
+      } satisfies SocketContextProps;
     }
   );
 
   useEffect(() => {
     return () => {
-      socket.disconnect();
+      notifSocket.disconnect();
       chatSocket.disconnect();
       gameSocket.disconnect();
     };
-  });
+  }, [notifSocket, chatSocket, gameSocket]);
   return (
-    <SocketContext.Provider value={{ socket, chatSocket, gameSocket }}>
+    <SocketContext.Provider value={{ notifSocket, chatSocket, gameSocket }}>
       {children}
     </SocketContext.Provider>
   );

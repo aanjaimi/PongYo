@@ -31,13 +31,15 @@ enum Rank {
 }
 
 model User {
-  id          String     @id @default(cuid())
-  displayname String
-  login       String     @unique
-  email       String     @unique
-  status      UserStatus @default(OFFLINE) @map("status")
+  id             String     @id @default(cuid())
+  displayname    String
+  login          String     @unique
+  email          String     @unique
+  status         UserStatus @default(OFFLINE) @map("status")
+  firstTwoFactor Boolean    @default(true)
 
-  totp Json
+  totp        Json
+  isCompleted Boolean @default(false)
 
   // friends of the User
   friends              Friend[]       @relation("userFriends")
@@ -46,8 +48,11 @@ model User {
   messages             Message[]
   senderNotification   Notification[] @relation("sender")
   receiverNotification Notification[] @relation("receiver")
-  achievement          Achievement[]
-  avatar               Json
+  userGameHistory      Game[]         @relation(name: "user")
+  oppGameHistory       Game[]         @relation(name: "opponent")
+
+  achievement Achievement[]
+  avatar      Json
 
   // moderatorForChannel   Channel? @relation(name: "moderators", fields: [moderatorForChannelId], references: [id])
   // moderatorForChannelId String?  @map("moderator_for_channel") // TODO: find a name 
@@ -68,15 +73,14 @@ enum FriendState {
   BLOCKED
   PENDING
   ACCEPTED
-  REFUSED
 }
 
 model Friend {
   id       String      @id @default(cuid())
   state    FriendState
-  user     User        @relation("userFriends", fields: [userId], references: [id])
+  user     User        @relation(name: "userFriends", fields: [userId], references: [id])
   userId   String      @map("user_id")
-  friend   User        @relation("friendsOfUser", fields: [friendId], references: [id])
+  friend   User        @relation(name: "friendsOfUser", fields: [friendId], references: [id])
   friendId String      @map("friend_id")
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -129,11 +133,18 @@ enum Mode {
 }
 
 model Game {
-  id String @id @default(cuid())
-  // mode Mode
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  user           User     @relation(name: "user", fields: [userId], references: [id])
+  opponentId     String   @map("opponent_id")
+  opponent       User     @relation(name: "opponent", fields: [opponentId], references: [id])
+  oppnentScore   Int
+  userScore      Int
+  mode           Mode
+  userStatus     Boolean
+  opponentStatus Boolean
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@map("games")
 }

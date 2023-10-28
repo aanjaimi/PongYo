@@ -7,7 +7,6 @@ import {
   Delete,
   UseGuards,
   Query,
-  HttpCode,
 } from '@nestjs/common';
 import { FriendService } from './friends.service';
 import { User } from '@prisma/client';
@@ -36,15 +35,11 @@ import { CurrentUser } from '@/global/global.decorators';
 export class FriendController {
   constructor(private readonly friendService: FriendService) {}
 
-  @Get(':id/users')
+  @Get()
   // TODO: get user friends functionality should be done here!
-  async findAll(
-    @CurrentUser() user: User,
-    @Param('id') friendId: string,
-    @Query() query: FriendQueryDTO,
-  ) {
+  async findAll(@CurrentUser() user: User, @Query() query: FriendQueryDTO) {
     // should be paginated
-    return await this.friendService.getUserFriends(user.id, friendId, query);
+    return await this.friendService.getUserFriends(user.id, query);
   }
 
   @Get(':id')
@@ -73,7 +68,6 @@ export class FriendController {
 
   // TODO: block functionality should be done here!
   @Delete(':id')
-  @HttpCode(204)
   async remove(@CurrentUser() user: User, @Param('id') friendId: string) {
     return await this.friendService.blockFriend(user.id, friendId);
   }

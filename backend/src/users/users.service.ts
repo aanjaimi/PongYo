@@ -12,12 +12,24 @@ export class UserService {
 
   async getUsers(userId: string, query: UserQueryDTO) {
     const where = {
-      ...(query.login && {
-        OR: [
-          { login: { contains: query.login } },
-          { displayname: { contains: query.login } },
-        ],
-      }),
+      AND: [
+        {
+          ...(query.login && {
+            OR: [
+              { login: { contains: query.login } },
+              { displayname: { contains: query.login } },
+            ],
+          }),
+        },
+        {
+          friends: {
+            none: {
+              friendId: userId,
+              state: 'BLOCKED',
+            },
+          },
+        },
+      ],
     } satisfies Prisma.UserWhereInput;
 
     const [totalCount, users] = await this.prismaService.$transaction([
@@ -35,9 +47,12 @@ export class UserService {
     return buildPagination(users, query.limit, totalCount);
   }
 
-  async getUser(userId: string, otherId: string) {
-    if (otherId === '@me') otherId = userId;
-    const { friend: user } = await friendChecking.bind(this)(userId, otherId);
+  async getUser(currUser: User, otherId: string) {
+    if (['@me', currUser.id, currUser.login].includes(otherId)) return currUser;
+    const { friend: user } = await friendChecking.bind(this)(
+      currUser.id,
+      otherId,
+    );
     return user;
   }
 
@@ -69,7 +84,8 @@ export class UserService {
             minio: true,
           },
         }),
-        totp,
+        ...(tfa !== undefined && { totp }), // TODO: check this !
+        isCompleted: true,
       },
     });
   }

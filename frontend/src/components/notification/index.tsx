@@ -15,8 +15,10 @@ import Image from "next/image";
 import type { NotifType, Notification } from "@/types/notification";
 import type { ApiResponse } from "@/types/common";
 import { EmptyView } from "../empty";
+import Loading from "@/pages/Loading";
+import { useRouter } from "next/router";
 
-const getNotifications = async (page = 1) => {
+const getNotifications = async (page = 0) => {
   return (
     await fetcher.get<ApiResponse<Notification[]>>(`/notifications`, {
       params: { page },
@@ -25,21 +27,22 @@ const getNotifications = async (page = 1) => {
 };
 
 export function Notifications() {
+  const router = useRouter();
   const notificationQuery = useQuery({
     queryKey: ["notifications"],
     queryFn: async () => getNotifications(),
   });
 
-  const { chatSocket: socket } = useSocket();
+  const { notifSocket } = useSocket();
   useEffect(() => {
-    socket.on("notification", async () => {
+    notifSocket.on("notification", async () => {
       await notificationQuery.refetch();
     });
 
     return () => {
-      socket.off("notification");
+      notifSocket.off("notification");
     };
-  }, []);
+  });
 
   const notifTypeMessages: Record<NotifType, string> = {
     FRIEND_REQUEST: "sends a friend request",
@@ -47,26 +50,26 @@ export function Notifications() {
     GAME_REQUEST: "sends a game invite",
   };
 
-  if (notificationQuery.isLoading) return <>Loading</>;
-  if (notificationQuery.isError) return <>Error</>;
+  if (notificationQuery.isLoading) return <Loading />;
+  if (notificationQuery.isError) void router.push("/404");
 
-  const notifications = notificationQuery.data.data;
+  const notifications = notificationQuery.data?.data;
 
   return (
-    <Card>
+    <Card className="flex flex-col items-center justify-center border">
       <CardHeader className="pb-3">
         <CardTitle>Notifications</CardTitle>
         <CardDescription>all notifications</CardDescription>
       </CardHeader>
-      <CardContent className="grid w-[400px] gap-1 overflow-auto">
-        {!notifications.length && (
+      <CardContent className="grid sm:w-[400px] w-[200px] gap-1 overflow-auto">
+        {!notifications?.length && (
           <EmptyView
             title="No notifications"
             message="You don't have any notifications yet"
           ></EmptyView>
         )}
 
-        {notifications.map((notification) => (
+        {notifications?.map((notification) => (
           <div
             key={notification.id}
             className="-mx-2 flex items-start space-x-4 rounded-md p-2 transition-all hover:bg-accent hover:text-accent-foreground"

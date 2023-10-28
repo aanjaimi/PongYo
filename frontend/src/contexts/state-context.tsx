@@ -1,11 +1,11 @@
-import React, { createContext, useReducer, useContext } from "react";
+import React, { createContext, useReducer, useContext, useEffect } from "react";
 import type { User } from "@/types/user";
 import { useQuery } from "@tanstack/react-query";
 import { getCurrentUser } from "@/utils/user-utils";
 
 type State = {
   user: User | null;
-  authenicated: boolean;
+  auth_status: false | true | "otp" | 'authenticated';
 };
 
 type Action =
@@ -15,13 +15,13 @@ type Action =
     }
   | {
       type: "SET_AUTH";
-      payload: boolean;
+      payload: State["auth_status"];
     };
 
 type Dispatch = (action: Action) => void;
 const initialState: State = {
   user: null,
-  authenicated: false,
+  auth_status: true,
 };
 
 const StateContext = createContext<
@@ -33,9 +33,9 @@ const stateReducer = (state: State, action: Action) => {
     case "SET_USER":
       return { ...state, user: action.payload };
     case "SET_AUTH":
-      return { ...state, authenicated: action.payload };
+      return { ...state, auth_status: action.payload };
     default:
-      return state;
+      return { ...state };
   }
 };
 
@@ -46,16 +46,23 @@ const StateProvider = ({ children }: StateProviderProps) => {
   const value = { state, dispatch };
   useQuery({
     queryKey: ["users", "@me"],
+    retry: false,
     queryFn: async () => {
       return getCurrentUser();
     },
-    onSuccess() {
-      dispatch({ type: "SET_AUTH", payload: true });
+    onSuccess(user) {
+      dispatch({ type: "SET_USER", payload: user });
+      dispatch({
+        type: "SET_AUTH",
+        payload: user.totp.enabled && user.otpNeeded ? "otp" : 'authenticated'
+      });
     },
     onError() {
       dispatch({ type: "SET_AUTH", payload: false });
+      dispatch({ type: "SET_USER", payload: null });
     },
   });
+
   return (
     <StateContext.Provider value={value}>{children}</StateContext.Provider>
   );
