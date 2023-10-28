@@ -4,14 +4,34 @@ import { Button } from "@/components/ui/button";
 import { useSocket } from "@/contexts/socket-context";
 import { useStateContext } from "@/contexts/state-context";
 import { Card } from "@nextui-org/react";
+import { use } from "react";
+import { useEffect } from "react";
+import type { User } from "@/types/user";
 
 export type PopUpProps = {
   setIsPopupOpen: (value: boolean) => void;
   selectedOption: string;
+  setOppData: React.Dispatch<React.SetStateAction<{}>>;
+  setGameStarted: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsRanked: React.Dispatch<React.SetStateAction<boolean>>;
 };
-const PopUp = ({ setIsPopupOpen, selectedOption }:PopUpProps) => {
+
+const PopUp = ({ setIsPopupOpen, selectedOption, setOppData, setGameStarted, setIsRanked }: PopUpProps) => {
   const { gameSocket } = useSocket();
   const { state } = useStateContext();
+
+  const handleGameStart = (data: { opp: User, isRanked: boolean }) => {
+    setGameStarted(true);
+    setIsRanked(data.isRanked);
+    setOppData(data.opp);
+  };
+  useEffect(() => {
+    gameSocket.on("game-start", handleGameStart);
+    return () => {
+      gameSocket.off("game-start", handleGameStart);
+    };
+  }
+    , []);
   return (
     <Card className=" fixed z-10 flex  flex-col  rounded-lg bg-[#ffffff33] text-black shadow-2xl ">
       {/* First Part */}
@@ -47,6 +67,7 @@ const PopUp = ({ setIsPopupOpen, selectedOption }:PopUpProps) => {
                 else if (selectedOption === "Ranked game")
                   gameSocket.emit("leave-ranked-queue", { user: state.user });
                 setIsPopupOpen(false);
+                gameSocket.emit("busy");
               }}
             >
               cancel
@@ -61,18 +82,18 @@ const PopUp = ({ setIsPopupOpen, selectedOption }:PopUpProps) => {
         </div>
         <div className=" flex flex-col justify-center  items-center sm:hidden">
           <Button
-              className=" flex  rounded-full w-[90px] h-[30px] sm:text-2xl text-xl  items-center justify-center "
-              onClick={() => {
-                if (selectedOption === "Normal game")
-                  gameSocket.emit("leave-queue", { user: state.user });
-                else if (selectedOption === "Ranked game")
-                  gameSocket.emit("leave-ranked-queue", { user: state.user });
-                setIsPopupOpen(false);
-              }}
-            >
-              cancel
-            </Button>
-            </div>
+            className=" flex  rounded-full w-[90px] h-[30px] sm:text-2xl text-xl  items-center justify-center "
+            onClick={() => {
+              if (selectedOption === "Normal game")
+                gameSocket.emit("leave-queue", { user: state.user });
+              else if (selectedOption === "Ranked game")
+                gameSocket.emit("leave-ranked-queue", { user: state.user });
+              setIsPopupOpen(false);
+            }}
+          >
+            cancel
+          </Button>
+        </div>
       </div>
     </Card>
   );

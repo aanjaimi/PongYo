@@ -18,5 +18,4 @@ const CustomModal = ({ onClose }: CustomModalProps) => {
     </div>
   );
 };
-
 export default CustomModal;

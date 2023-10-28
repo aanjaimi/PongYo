@@ -145,37 +145,37 @@ const friends = [
 
 
 
-// const Friends = () => {
-//   return (
-//     <div className=" h-[calc(100vh-64px)] flex justify-center  items-center w-screen  bg-white space-x-10">
-//       <div className="flex flex-col h-full"  >
-//         <FriendRequests friends={friends}/>
-//         <FriendSendRequests friends={friends}/>
-//       </div>
-//       <FriendList friends={friends}/>
-//     </div>
-//   );
-// };
-// export default Friends;
-
-const home = () => {
+const Friends = () => {
   return (
-    <div className="w-scren h-screen flex justify-center items-center">
-      <h1>Test</h1>
-      <Button
-        onClick={() => {
-          router.push({
-            pathname: '/game',
-            query: {
-              username: 'aanjaimi',
-            },
-          }).catch(err => console.log(err))
-        }
-        }
-      > click me
-      </Button>
-    </div >
-  )
-}
+    <div className=" h-[calc(100vh-64px)] flex justify-center  items-center w-screen  bg-white space-x-10">
+      <div className="flex flex-col h-full"  >
+        <FriendRequests friends={friends}/>
+        <FriendSendRequests friends={friends}/>
+      </div>
+      <FriendList friends={friends}/>
+    </div>
+  );
+};
+export default Friends;
 
-export default home;
+// const home = () => {
+//   return (
+//     <div className="w-scren h-screen flex justify-center items-center">
+//       <h1>Test</h1>
+//       <Button
+//         onClick={() => {
+//           router.push({
+//             pathname: '/game',
+//             query: {
+//               username: 'aanjaimi',
+//             },
+//           }).catch(err => console.log(err))
+//         }
+//         }
+//       > click me
+//       </Button>
+//     </div >
+//   )
+// }
+
+// export default home;

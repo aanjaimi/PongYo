@@ -18,6 +18,7 @@ export default function Layout({ children }: LayoutProps) {
 
   useEffect(() => {
     if (auth_status === true) {
+      
       // to avoid re-connect !
       if (!socket.connected) socket.connect();
       if (!chatSocket.connected) chatSocket.connect();

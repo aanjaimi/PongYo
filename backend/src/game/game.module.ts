@@ -10,6 +10,7 @@ import { AchievementService } from './services/achievements.service';
 import { MatchMakerService } from './services/game.service';
 
 @Module({
+  exports: [GameGateway],
   controllers: [],
   providers: [
     GameGateway,

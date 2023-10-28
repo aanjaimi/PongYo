@@ -14,6 +14,7 @@ import { useRouter } from "next/router";
 import {
   Card, CardTitle,
 } from "@/components/ui/card"
+import { stat } from "fs";
 
 
 type GameCardProps = {
@@ -27,15 +28,18 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
   const [selectedOption, setSelectedOption] = useState("");
   const [showValidation, setShowValidation] = useState(false);
   const [inviteNotify, setInviteNotify] = useState(false);
-  const [friend, setFriend] = useState({} as User);
+  const [friend, setFriend] = useState("");
   const router = useRouter();
   const { state } = useStateContext();
-	const { query } = router;
+  const { query } = router;
   const handleStartClick = () => {
     console.log(selectedOption);
     if (selectedOption === "Normal game") {
+      console.log("join-queue");
+      setIsRanked(false);
       gameSocket.emit("join-queue");
     } else if (selectedOption === "Ranked game") {
+      setIsRanked(true);
       gameSocket.emit("join-ranked-queue");
     } else {
       setShowValidation(true);
@@ -64,36 +68,20 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
   };
 
   useEffect(() => {
-    
-    // if (!state.user)
-    // {
-    //   state.user = {login: "said", avatar: "https://avatars.githubusercontent.com/u/49057494?v=4", isCompleted: true, score: 0, rank: 0, _id: "60d9f1d9d6b4a40015f1b3a5"};
-    // }
-    if (!gameSocket.connected) {
-      gameSocket.connect();
-    }
+
     const handleAlreadyInQueue = (data: { msg: string }) => {
       notifyError(data.msg);
     };
 
     const handleQueueJoined = () => {
+      gameSocket.emit("readyToPlay");
       setIsPopupOpen(true);
     };
 
-    const handleGameStart = (data: { opp: User , isRanked:boolean }) => {
-      setIsRanked(data.isRanked);
-      setOppData(data.opp);
-      setIsPopupOpen(false);
-      setInviteNotify(false);
-      setGameStarted(true);
-    };
     gameSocket.on("already-in-Queue", handleAlreadyInQueue);
     gameSocket.on("queue-joined", handleQueueJoined);
-    gameSocket.on("game-start", handleGameStart);
-
     return () => {
       gameSocket.off("already-in-Queue", handleAlreadyInQueue);
-      gameSocket.off("game-start", handleGameStart);
       gameSocket.off("queue-joined", handleQueueJoined);
     };
   }, []);
@@ -104,10 +92,16 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
         <InvitationCard
           setInviteNotify={setInviteNotify}
           opp={friend}
+          setIsRanked={setIsRanked}
+          setGameStarted={setGameStarted}
+          setOppData={setOppData}
         />
       )}
       {isPopupOpen && (
         <PopUp
+          setOppData={setOppData}
+          setIsRanked={setIsRanked}
+          setGameStarted={setGameStarted}
           setIsPopupOpen={setIsPopupOpen}
           selectedOption={selectedOption}
         />
@@ -126,7 +120,7 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
                 checked={selectedOption === "Normal game"}
                 onChange={handleChange}
               />
-              <label className="sm:text-lg "  htmlFor="normalGame">Normal game
+              <label className="sm:text-lg " htmlFor="normalGame">Normal game
               </label>
             </div>
             <div className="sm:space-x-4 space-x-2">

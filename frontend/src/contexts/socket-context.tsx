@@ -63,7 +63,7 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
       chatSocket.disconnect();
       gameSocket.disconnect();
     };
-  });
+  }, [socket, chatSocket, gameSocket]);
   return (
     <SocketContext.Provider value={{ socket, chatSocket, gameSocket }}>
       {children}

@@ -17,7 +17,6 @@ import { MatchMakerService } from './services/game.service';
   namespace: 'game',
 })
 export class GameGateway extends WsGateway {
-  @WebSocketServer() server: Server; // Import the Server class from 'socket.io'
   constructor(
     protected prismaService: PrismaService,
     protected jwtService: JwtService,
@@ -29,18 +28,28 @@ export class GameGateway extends WsGateway {
     super(prismaService, jwtService, configService, redisService);
   }
   private readonly gameMap = new Map<string, Socket>();
+  protected server = this.io();
 
   async handleConnection(client: Socket): Promise<boolean> {
     return super.handleConnection(client).then(() => {
+      console.log('game connection');
       if (client.user === undefined) {
         return false;
       }
+      console.log("*************************");
+      console.log(client.user.id);
+      client.join(client.user.id);
       this.gameMap.set(client.user.id, client);
       return true;
     });
   }
   async handleDisconnect(client: Socket): Promise<void> {
     return super.handleDisconnect(client).then(() => {
+      console.log('game disconnect');
+      if(client.user === undefined) {
+        return;
+      }
+      // client.leave(client.user.id);
       if (client.user === undefined) {
         return;
       }
@@ -54,11 +63,15 @@ export class GameGateway extends WsGateway {
   @SubscribeMessage('join-queue')
   async handleJoinQueue(client: Socket) {
     console.log('join-queue');
-    this.matchMakerService.handleJoinQueue(client, this.gameMap);
+    this.matchMakerService.handleJoinQueue(client, this.gameMap, this.server);
   }
   @SubscribeMessage('join-ranked-queue')
   async handleJoinRankedQueue(client: Socket) {
-    this.matchMakerService.handleJoinRankedQueue(client, this.gameMap);
+    this.matchMakerService.handleJoinRankedQueue(
+      client,
+      this.gameMap,
+      this.server,
+    );
   }
   @SubscribeMessage('leave-queue')
   async handleLeaveQueue(client: Socket) {
@@ -79,10 +92,24 @@ export class GameGateway extends WsGateway {
       client,
       data.opponent,
       this.gameMap,
+      this.server,
     );
   }
   @SubscribeMessage('declineInvite')
   async handleDeclineInvite(client: Socket) {
+    console.log('declineInvite');
     this.redisService.lpop(client.user.login);
+    const len = await this.redisService.llen(client.user.login);
+    console.log(len);
+  }
+  @SubscribeMessage('readyToPlay')
+  async handleReadyToPlay(client: Socket) {
+    console.log('readyToPlay');
+    this.gameMap.set(client.user.id, client);
+  }
+  @SubscribeMessage('busy')
+  async handleBusy(client: Socket) {
+    console.log('busy');
+    this.gameMap.delete(client.user.id);
   }
 }

@@ -8,51 +8,64 @@ import type { User } from "@/types/user";
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/router";
 import type { GetServerSidePropsContext } from "next";
+import { set } from "zod";
 type InvitedButtonProps = {
   setInviteNotify: (value: boolean) => void;
-  setFriend: (value: User) => void
+  setFriend: (value: string) => void;
 };
 
-const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
+const InvitedButton = ({ setInviteNotify, setFriend }: InvitedButtonProps) => {
   // State
   const { gameSocket } = useSocket();
   const [username, setUsername] = useState("");
   const router = useRouter();
   const { query } = router;
-
-
   // Handle Invite Click
-  const handleInviteClick = () => {
+  const handleInviteClick = (propUserName: string) => {
     // setInviteNotify(true);
-    console.log(gameSocket.connected);
-
-    gameSocket.emit("invite", { opponent : username });
+    if (propUserName) {
+      setFriend(propUserName);
+      gameSocket.emit("invite", { opponent: propUserName });
+      return;
+    }
+    setFriend(username);
+    gameSocket.emit("invite", { opponent: username });
   };
-
   // Handle Input Change
-  const handleInputChange = (event:ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value);
   };
-
   useEffect(() => {
-    // console.log(router);
-    // console.log(query);
-    if(!gameSocket.connected)
-      gameSocket.connect();
-    if(query.username){
+    if (query.username && !query.startGame) {
+      setFriend(query.username as string);
       setUsername(query.username as string);
-      handleInviteClick();
+      handleInviteClick(query.username as string);
+      router.replace({
+        pathname: router.pathname,
+        query: {},
+      }).catch((err) => console.error(err));
       console.log("i'm here\n");
     }
-    const invitedSuccessHandler = (data:{opp:User}) => {
-      setFriend(data.opp);
-      // router.push(`/game/${data.opp.login}`).catch((err) => console.error(err));
+    if(query.startGame && query.username){
+      setFriend(query.username as string);
       setInviteNotify(true);
+      gameSocket.emit("readyToPlay");
+      router.replace({
+        pathname: router.pathname,
+        query: {},
+      }).catch((err) => console.error(err));
+    }
+    const invitedSuccessHandler = (data: { opp: User }) => {
+
+      setInviteNotify(true);
+      gameSocket.emit("readyToPlay");
+
     };
-    const invitedHandler = (data:{msg:string, friend:string}) => {
+    const invitedHandler = (data: { msg: string, friend: string }) => {
       inviteNotify(data);
+      setFriend(data.friend);
     };
-    const invitedFailHandler = (data:{msg:string}) => {
+    const invitedFailHandler = (data: { msg: string }) => {
       notifyError(data.msg);
     };
 
@@ -65,9 +78,9 @@ const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
       gameSocket.off("invited-fail", invitedFailHandler);
       gameSocket.off("invited", invitedHandler);
     };
-  }, [gameSocket]);
+  }, []);
 
-  const inviteNotify = (data:{msg:string, friend:string}) => {
+  const inviteNotify = (data: { msg: string, friend: string }) => {
     toast(data.msg, {
       position: "top-center",
       autoClose: 5000,
@@ -78,13 +91,14 @@ const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
       progress: undefined,
       theme: "dark",
       onClick: () => {
-        gameSocket.emit("acceptInvite", { opponent : data.friend});
+        gameSocket.emit("acceptInvite", { opponent: data.friend });
+        setInviteNotify(true);
       },
     });
   };
 
   // Notify Success
-  const notifySuccess = (message:string) => {
+  const notifySuccess = (message: string) => {
     toast.success(message, {
       position: "top-right",
       autoClose: 5000,
@@ -98,7 +112,7 @@ const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
   };
 
   // Notify Error
-  const notifyError = (message:string) => {
+  const notifyError = (message: string) => {
     toast.error(message, {
       position: "top-right",
       autoClose: 5000,
@@ -123,7 +137,7 @@ const InvitedButton = ({setInviteNotify,setFriend }:InvitedButtonProps) => {
       />
       <Button
         className="absolute right-0 h-10 w-[30%] rounded-full  text-white"
-        onClick={handleInviteClick}
+        onClick={() => handleInviteClick()}
       >
         Invite
       </Button>
