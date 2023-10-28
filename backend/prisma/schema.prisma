@@ -32,9 +32,10 @@ enum Rank {
 
 model User {
   id             String     @id @default(cuid())
-  displayname    String
   login          String     @unique
   email          String     @unique
+  userStatus     UserStatus @default(OFFLINE) @map("user_status")
+  displayname    String     @unique
   status         UserStatus @default(OFFLINE) @map("status")
   firstTwoFactor Boolean    @default(true)
 
@@ -54,16 +55,20 @@ model User {
   achievement Achievement[]
   avatar      Json
 
-  // moderatorForChannel   Channel? @relation(name: "moderators", fields: [moderatorForChannelId], references: [id])
-  // moderatorForChannelId String?  @map("moderator_for_channel") // TODO: find a name 
-  // memberForChannel      Channel? @relation(name: "members", fields: [memberForChannelId], references: [id])
-  // memberForChannelId    String?  @map("member_for_channel_id")
-  // games Game[]
+  ownedChannels Channel[]
+  moderatorFor  Channel[] @relation("moderators")
+  channels      Channel[] @relation("members")
+  ban           Ban[]
+  mute          Mute[]
+
   stat   Stat   @relation(fields: [statId], references: [id])
   statId String @unique
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
+
+  blocks        User[] @relation("blockList")
+  blockRelation User[] @relation("blockList")
 
   @@map("users")
 }
@@ -170,9 +175,9 @@ enum MessageType {
 }
 
 model Message {
-  id      String      @id @default(cuid())
-  type    MessageType @default(TEXT)
-  content Json
+  id      String @id @default(cuid())
+  // type    MessageType @default(TEXT)
+  content String
 
   user      User    @relation(fields: [userId], references: [id])
   userId    String  @map("user_id")
@@ -194,16 +199,52 @@ enum RoomType {
 model Channel {
   id       String   @id @default(cuid())
   type     RoomType
-  name     String
+  name     String   @unique
   password String?
   isDM     Boolean  @map("is_dm")
 
-  messages Message[]
-  // moderators User[]    @relation("moderators")
-  // members    User[]    @relation("members")
+  owner      User      @relation(fields: [ownerId], references: [id])
+  ownerId    String    @map("owner_id")
+  messages   Message[]
+  moderators User[]    @relation("moderators")
+  members    User[]    @relation("members")
+  bans       Ban[]
+  mutes      Mute[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("channels")
+}
+
+model Ban {
+  id String @id @default(cuid())
+
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String  @map("user_id")
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId String  @map("channel_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  bannedUntil DateTime
+
+  @@map("bans")
+}
+
+model Mute {
+  id String @id @default(cuid())
+
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String  @map("user_id")
+  channel   Channel @relation(fields: [channelId], references: [id])
+  channelId String  @map("channel_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  mutedUntil DateTime
+
+  @@map("mutes")
 }

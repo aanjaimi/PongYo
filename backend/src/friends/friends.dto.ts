@@ -22,7 +22,6 @@ export enum FriendShipAction {
 }
 
 export class FriendShipActionDTO {
-  @IsOptional()
   @IsEnum(FriendShipAction)
   action?: FriendShipAction;
 }

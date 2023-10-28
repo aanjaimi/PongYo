@@ -12,12 +12,24 @@ export class UserService {
 
   async getUsers(userId: string, query: UserQueryDTO) {
     const where = {
-      ...(query.login && {
-        OR: [
-          { login: { contains: query.login } },
-          { displayname: { contains: query.login } },
-        ],
-      }),
+      AND: [
+        {
+          ...(query.login && {
+            OR: [
+              { login: { contains: query.login } },
+              { displayname: { contains: query.login } },
+            ],
+          }),
+        },
+        {
+          friends: {
+            none: {
+              friendId: userId,
+              state: 'BLOCKED',
+            },
+          },
+        },
+      ],
     } satisfies Prisma.UserWhereInput;
 
     const [totalCount, users] = await this.prismaService.$transaction([

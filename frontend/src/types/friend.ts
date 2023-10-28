@@ -1,19 +1,19 @@
 import type { User } from "@/types/user";
 
 export enum FriendShipStatus {
-  NONE,
-  BLOCKED,
-  PENDING,
-  ACCEPTED,
+  NONE = "NONE",
+  BLOCKED = "BLOCKED",
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
 }
 
 export enum FriendShipStatusEnum {
-  NONE,
-  BLOCKED_BY_FRIEND, // howa li 3ml block
-  BLOCKED_BY_USER, // ana li 3mlt block
-  PENDING_BY_FRIEND, // howa li 3ml add
-  PENDING_BY_USER, // ana li 3mlt add
-  ACCEPTED,
+  NONE = "NONE",
+  BLOCKED_BY_FRIEND = "BLOCKED_BY_FRIEND",
+  BLOCKED_BY_USER = "BLOCKED_BY_USER",
+  PENDING_BY_FRIEND = "PENDING_BY_FRIEND",
+  PENDING_BY_USER = "PENDING_BY_USER",
+  ACCEPTED = "ACCEPTED",
 }
 
 export type FriendShip = {
@@ -23,4 +23,5 @@ export type FriendShip = {
   userId: string;
   friend: User;
   friendId: string;
+  isOwner: boolean;
 };

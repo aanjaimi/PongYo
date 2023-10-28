@@ -1,11 +1,11 @@
-import { useEffect, useState, useRef } from "react";
-import Image from "next/image";
-import { useStateContext } from "@/contexts/state-context";
-import { Button } from "@/components/ui/button";
-import type { User } from "@/types/user";
-import { LogOut } from "lucide-react";
-import { env } from "@/env.mjs";
-import FriendshipStat from "@/components/friend/FriendshipStat";
+import { useEffect, useState, useRef } from 'react';
+import Image from 'next/image';
+import { useStateContext } from '@/contexts/state-context';
+import { Button } from '@/components/ui/button';
+import type { User } from '@/types/user';
+import { LogOut } from 'lucide-react';
+import { env } from '@/env.mjs';
+import FriendshipStat from '@/components/friend/FriendshipStat';
 import {
   Dialog,
   DialogTrigger,
@@ -13,14 +13,14 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import QRCode from "react-qr-code";
-import { Switch } from "@/components/ui/switch";
-import { useMutation, QueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/router";
-import { updateProfile } from "@/components/Profile/ProfileCompletion";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import QRCode from 'react-qr-code';
+import { Switch } from '@/components/ui/switch';
+import { useMutation, QueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/router';
+import { updateProfile } from '@/components/Profile/ProfileCompletion';
 
 type ProfileCoverProps = {
   isEdited: boolean;
@@ -33,12 +33,12 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
   const queryClient = new QueryClient();
   const router = useRouter();
   const [dialogOn, setDialogOn] = useState(false);
-  const [displayName, setDisplayName] = useState(state.user?.displayname);
+  const [displayname, setDisplayName] = useState(state.user?.displayname);
   const avatarRef = useRef<HTMLInputElement | null>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [qrCodeData, setQrCodeData] = useState(() => {
     if (state.user?.totp.enabled) return state.user.totp.otpauth_url;
-    return "";
+    return '';
   });
 
   useEffect(() => {
@@ -52,39 +52,39 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
   });
 
   const userMutation = useMutation({
-    mutationKey: ["users", "@me"],
+    mutationKey: ['users', '@me'],
     mutationFn: updateProfile,
     onSuccess: async (data) => {
-      dispatch({ type: "SET_USER", payload: data });
-      await queryClient.invalidateQueries(["users", "@me"]);
+      dispatch({ type: 'SET_USER', payload: data });
+      await queryClient.invalidateQueries(['users', '@me']);
     },
   });
 
   const toggleOtp = async () => {
     setOtp(!otp);
     const payload = new FormData();
-    payload.append("tfa", !otp ? "true" : "false");
+    payload.append('tfa', !otp ? 'true' : 'false');
     const user = await userMutation.mutateAsync(payload);
     if (user.totp.enabled) setQrCodeData(user.totp.otpauth_url);
   };
 
   const handleSubmit = async () => {
     const payload = new FormData();
-    if (displayName!.length != 0) payload.append("displayname", displayName!);
+    if (displayname!.length != 0) payload.append('displayname', displayname!);
     if (avatarRef.current?.files?.[0])
-      payload.append("avatar", avatarRef.current?.files?.[0] as Blob);
+      payload.append('avatar', avatarRef.current?.files?.[0] as Blob);
     await userMutation
       .mutateAsync(payload)
       .then(() => {
         setIsEdited(true);
         setDialogOn(false);
-        void queryClient.invalidateQueries(["users", "@me"]);
-        void router.push("/profile/@me");
+        void queryClient.invalidateQueries(['users', '@me']);
+        void router.push('/profile/@me');
       })
       .catch((err) => {
         console.log(err);
       });
-    await queryClient.invalidateQueries(["users", "@me"]);
+    await queryClient.invalidateQueries(['users', '@me']);
   };
 
   return (
@@ -95,7 +95,7 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
           <div className="h-[100px] w-[400px] rounded-t-2xl md:h-[150px] md:w-[600px] lg:h-[242px] lg:w-[968px]">
             <Image
               className="rounded-t-2xl"
-              src={"/cover.png"}
+              src={'/cover.png'}
               alt="API Image"
               width={968}
               height={242}
@@ -137,7 +137,7 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
                           <Input
                             id="DisplayName"
                             placeholder="DisplayName"
-                            value={displayName}
+                            value={displayname}
                             onChange={(e) => setDisplayName(e.target.value)}
                           />
                         </div>
@@ -147,8 +147,8 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
                         </div>
                         <div className="grid w-full max-w-sm items-center gap-1.5">
                           <Label className="mb-[5px] mt-[10px] w-[400px]">
-                            Two Factor Authentication is{" "}
-                            {otp ? <>Enabled</> : <>Disabled</>} now switch to{" "}
+                            Two Factor Authentication is{' '}
+                            {otp ? <>Enabled</> : <>Disabled</>} now switch to{' '}
                             {otp ? <>Disable</> : <>Enable</>}
                           </Label>
                           <Switch
@@ -177,7 +177,7 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
                       </DialogContent>
                     )}
                     <a
-                      href={env.NEXT_PUBLIC_BACKEND_ORIGIN + "/auth/logout"}
+                      href={env.NEXT_PUBLIC_BACKEND_ORIGIN + '/auth/logout'}
                       className="cursor-pointer"
                     >
                       <LogOut />
@@ -188,7 +188,7 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
             </div>
           </div>
           {/* Avatar */}
-          <div className="bottom-50 left-50 absolute md:bottom-10 md:left-20">
+          <div className="left-50 absolute bottom-[90px] md:bottom-10 md:left-20">
             <Image
               className="rounded-full"
               src={user.avatar.path}
