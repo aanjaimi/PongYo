@@ -412,6 +412,7 @@ export class ChatService {
     if (channel.isDM) {
       const otherUser = channel.members.find((member) => member.id !== user.id);
       this.chatGateway.io().to(otherUser.displayName).emit('message', message);
+      this.chatGateway.io().to(user.displayName).emit('message', message);
     } else {
       this.chatGateway.io().to(`channel-${id}`).emit('message', message);
     }
@@ -646,7 +647,7 @@ export class ChatService {
       this.chatGateway
         .io()
         .to(`channel-${id}`)
-        .emit('delete-moderator', { user: isModerator, channelId: id });
+        .emit('delete-moderator', { user: user, channelId: id });
     }
 
     // remove user from channel
