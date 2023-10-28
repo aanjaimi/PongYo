@@ -8,8 +8,6 @@ import { Socket } from 'socket.io';
 import { QueueService } from './services/redis.service';
 import { QueueType } from './services/redis.service';
 import { RedisService } from '@/redis/redis.service';
-import { Server } from 'socket.io';
-import { WebSocketServer } from '@nestjs/websockets';
 import { MatchMakerService } from './services/game.service';
 
 @Injectable()
@@ -36,8 +34,6 @@ export class GameGateway extends WsGateway {
       if (client.user === undefined) {
         return false;
       }
-      console.log("*************************");
-      console.log(client.user.id);
       client.join(client.user.id);
       this.gameMap.set(client.user.id, client);
       return true;
@@ -49,7 +45,7 @@ export class GameGateway extends WsGateway {
       if(client.user === undefined) {
         return;
       }
-      // client.leave(client.user.id);
+      client.leave(client.user.id);
       if (client.user === undefined) {
         return;
       }
@@ -97,19 +93,14 @@ export class GameGateway extends WsGateway {
   }
   @SubscribeMessage('declineInvite')
   async handleDeclineInvite(client: Socket) {
-    console.log('declineInvite');
     this.redisService.lpop(client.user.login);
-    const len = await this.redisService.llen(client.user.login);
-    console.log(len);
   }
   @SubscribeMessage('readyToPlay')
   async handleReadyToPlay(client: Socket) {
-    console.log('readyToPlay');
     this.gameMap.set(client.user.id, client);
   }
   @SubscribeMessage('busy')
   async handleBusy(client: Socket) {
-    console.log('busy');
     this.gameMap.delete(client.user.id);
   }
 }

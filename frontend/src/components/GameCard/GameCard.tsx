@@ -29,9 +29,6 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
   const [showValidation, setShowValidation] = useState(false);
   const [inviteNotify, setInviteNotify] = useState(false);
   const [friend, setFriend] = useState("");
-  const router = useRouter();
-  const { state } = useStateContext();
-  const { query } = router;
   const handleStartClick = () => {
     console.log(selectedOption);
     if (selectedOption === "Normal game") {

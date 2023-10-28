@@ -28,7 +28,7 @@ export default function Notification() {
         router.push({
           pathname: '/game',
           query: {
-            username: 'aanjaimi',
+            username: data.friend,
             startGame : true,
           },
         }).catch(err => console.log(err))

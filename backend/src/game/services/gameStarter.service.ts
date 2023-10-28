@@ -115,7 +115,7 @@ export class GameStarterService {
           const { bodyA, bodyB } = pair;
 
           const emitColorChange = (color) => {
-            player2.to(player1.user.id).emit('change-color', { color });
+            player1.to(player2.user.id).emit('change-color', { color });
             if (color === 'blue') {
               color = 'magenta';
             } else if (color === 'red') {
@@ -125,17 +125,17 @@ export class GameStarterService {
             } else if (color === 'tan') {
               color = 'red';
             }
-            player1.to(player2.user.id).emit('change-color', { color });
+            player2.to(player1.user.id).emit('change-color', { color });
           };
 
           const emitScoreUpdate = () => {
             player2.to(player1.user.id).emit('update-score', {
-              myScore: player1Score,
-              oppScore: player2Score,
-            });
-            player1.to(player2.user.id).emit('update-score', {
               myScore: player2Score,
               oppScore: player1Score,
+            });
+            player1.to(player2.user.id).emit('update-score', {
+              myScore: player1Score,
+              oppScore: player2Score,
             });
           };
 
@@ -281,6 +281,8 @@ export class GameStarterService {
                 );
               }
             }
+            this.userService.updateUserStatus(player1.user.id, 'ONLINE');
+            this.userService.updateUserStatus(player2.user.id, 'ONLINE');
             if (player1.connected) {
               player2
                 .to(player1.user.id)

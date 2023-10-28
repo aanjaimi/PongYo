@@ -8,6 +8,7 @@ import { InviteService } from './updateStatus.service';
 import { Injectable } from '@nestjs/common';
 import { QueueType } from './redis.service';
 import { Socket, Server } from 'socket.io';
+import { UserService } from './updateStatus.service';
 
 @Injectable()
 export class MatchMakerService {
@@ -19,6 +20,7 @@ export class MatchMakerService {
     private inviteService: InviteService,
     protected redisService: RedisService,
     private gameStarterService: GameStarterService,
+    private userService: UserService,
   ) {}
   async handleJoinQueue(
     client: Socket,
@@ -69,6 +71,8 @@ export class MatchMakerService {
           opp: client.user,
           isRanked: false,
         });
+        this.userService.updateUserStatus(oppnentSocket.user.id, 'IN_GAME');
+        this.userService.updateUserStatus(client.user.id, 'IN_GAME');
         this.gameStarterService.startGame(client, oppnentSocket, false, server);
       }, 1000);
       return;
@@ -119,12 +123,14 @@ export class MatchMakerService {
       setTimeout(() => {
         oppnentSocket.to(client.user.id).emit('game-start', {
           opp: oppnentSocket.user,
-          isRanked: false,
+          isRanked: true,
         });
         client.to(oppnentSocket.user.id).emit('game-start', {
           opp: client.user,
-          isRanked: false,
+          isRanked: true,
         });
+        this.userService.updateUserStatus(oppnentSocket.user.id, 'IN_GAME');
+        this.userService.updateUserStatus(client.user.id, 'IN_GAME');
         this.gameStarterService.startGame(client, oppnentSocket, true, server);
       }, 1000);
       return;
@@ -141,34 +147,36 @@ export class MatchMakerService {
     if (user === undefined) {
       return;
     }
+    if (user.status === 'IN_GAME') {
+      client.emit('already-in-Queue', {
+        msg: 'You are already in queue',
+      });
+      return;
+    }
+    if (await this.queueService.isUserInQueue(QueueType.NORMAL, user.id)) {
+      client.emit('already-in-Queue', {
+        msg: 'You are already in queue',
+      });
+      return;
+    }
+    if (await this.queueService.isUserInQueue(QueueType.RANKED, user.id)) {
+      client.emit('already-in-Queue', {
+        msg: 'You are already in queue',
+      });
+      return;
+    }
     const opponentId = await this.inviteService.handleInvite(user.id, opponent);
     console.log(opponent);
     console.log(opponentId);
-    // const opponentSocket = gameMap.get(opponentId);
     if (!opponentId) {
       client.emit('invited-fail', {
         msg: `${opponent} is not your friend`,
       });
       return;
     }
-    // if (!opponentSocket) {
-    //   client.emit('invited-fail', {
-    //     msg: `${opponent} : is not online`,
-    //   });
-    //   return;
-    // }
-    // all.forEach(async (value, key) => {
-    //   client.to(value).emit('invited-success', {
-    //     opp: opponentSocket.user,
-    //   });
-    // });
     client.emit('invited-success', {
       opp: opponentId,
     });
-    // opponentSocket.emit('invited', {
-    //   msg: `${client.user.login} invited you`,
-    //   friend: client.user.id,
-    // });
 
     client.to(opponentId).emit('invited', {
       msg: `${client.user.login} invited you`,
@@ -200,15 +208,6 @@ export class MatchMakerService {
       return;
     }
     await this.redisService.lpop(opponentSocket.user.login);
-    // client.emit('game-start', {
-    //   opp: opponentSocket.user,
-    //   isRanked: false,
-    // });
-    // opponentSocket.emit('game-start', {
-    //   opp: client.user,
-    //   isRanked: false,
-    // });
-    // this.gameStarterService.startGame(client, opponentSocket, false, server);
     console.log('game-start');
     setTimeout(() => {
       opponentSocket.to(client.user.id).emit('game-start', {
@@ -219,7 +218,9 @@ export class MatchMakerService {
         opp: client.user,
         isRanked: false,
       });
+      this.userService.updateUserStatus(opponentSocket.user.id, 'IN_GAME');
+      this.userService.updateUserStatus(client.user.id, 'IN_GAME');
       this.gameStarterService.startGame(client, opponentSocket, false, server);
-    }, 3000);
+    }, 1000);
   }
 }

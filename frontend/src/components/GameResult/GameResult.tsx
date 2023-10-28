@@ -28,7 +28,7 @@ const GameResult = ({ myScore, oppScore, oppData }: GameResultProps) => {
         <div>
           <div className="flex items-center pt-6">
             <Image
-              src={state.user?.avatar.path || '/smazouz.jpeg'}
+              src={state.user?.avatar.path}
               alt={"user login"}
               width={100}
               height={100}
@@ -59,7 +59,7 @@ const GameResult = ({ myScore, oppScore, oppData }: GameResultProps) => {
               </p>
             </div>
           <Image
-              src={oppData?.avatar.path || '/smazouz.jpeg'}
+              src={oppData?.avatar.path}
               alt={oppData?.login}
               width={100}
               height={100}

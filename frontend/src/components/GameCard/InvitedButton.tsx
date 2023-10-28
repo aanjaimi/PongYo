@@ -7,22 +7,18 @@ import { Input } from "@/components/ui/input"
 import type { User } from "@/types/user";
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/router";
-import type { GetServerSidePropsContext } from "next";
-import { set } from "zod";
+
 type InvitedButtonProps = {
   setInviteNotify: (value: boolean) => void;
   setFriend: (value: string) => void;
 };
 
 const InvitedButton = ({ setInviteNotify, setFriend }: InvitedButtonProps) => {
-  // State
   const { gameSocket } = useSocket();
   const [username, setUsername] = useState("");
   const router = useRouter();
   const { query } = router;
-  // Handle Invite Click
   const handleInviteClick = (propUserName: string) => {
-    // setInviteNotify(true);
     if (propUserName) {
       setFriend(propUserName);
       gameSocket.emit("invite", { opponent: propUserName });
@@ -31,13 +27,12 @@ const InvitedButton = ({ setInviteNotify, setFriend }: InvitedButtonProps) => {
     setFriend(username);
     gameSocket.emit("invite", { opponent: username });
   };
-  // Handle Input Change
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value);
   };
   useEffect(() => {
     if (query.username && !query.startGame) {
-      setFriend(query.username as string);
+      console.log(query);
       setUsername(query.username as string);
       handleInviteClick(query.username as string);
       router.replace({
@@ -47,6 +42,7 @@ const InvitedButton = ({ setInviteNotify, setFriend }: InvitedButtonProps) => {
       console.log("i'm here\n");
     }
     if(query.startGame && query.username){
+      console.log(query);
       setFriend(query.username as string);
       setInviteNotify(true);
       gameSocket.emit("readyToPlay");
@@ -137,7 +133,7 @@ const InvitedButton = ({ setInviteNotify, setFriend }: InvitedButtonProps) => {
       />
       <Button
         className="absolute right-0 h-10 w-[30%] rounded-full  text-white"
-        onClick={() => handleInviteClick()}
+        onClick={() => handleInviteClick(username)}
       >
         Invite
       </Button>

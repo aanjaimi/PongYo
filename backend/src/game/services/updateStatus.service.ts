@@ -4,6 +4,7 @@ import { Rank, UserStatus } from '@prisma/client';
 import { Mode } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { AchievementService } from './achievements.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class InviteService {
@@ -223,6 +224,23 @@ export class UserService {
       },
       data: {
         status: status as UserStatus,
+      },
+    });
+  }
+}
+
+@Injectable()
+export class GameService {
+  constructor(private readonly prismaService: PrismaService) {}
+
+  async getGamesLog(user: User, id: string) {
+    return await this.prismaService.game.findMany({
+      where: {
+        userId: id,
+      },
+      include: {
+        user: true,
+        opponent: true,
       },
     });
   }

@@ -7,6 +7,13 @@ import { useStateContext } from '@/contexts/state-context';
 import type { User } from '@/types/user';
 import { Card } from '@/components/ui/card';
 import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { fetcher } from '@/utils/fetcher';
+import { useRouter } from 'next/router';
+import Loading from '@/pages/Loading';
+
+
+
 type InvitationCardProps = {
   setInviteNotify: React.Dispatch<React.SetStateAction<boolean>>;
   opp: string;
@@ -14,11 +21,24 @@ type InvitationCardProps = {
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>;
   setOppData: React.Dispatch<React.SetStateAction<User>>;
 };
-const InvitationCard = ({ setInviteNotify, opp, setIsRanked,setGameStarted,setOppData }: InvitationCardProps) => {
+const getUser = async (id: string) => {
+  return (await fetcher.get<User | null>(`/users/${id}`)).data;
+};
+
+const InvitationCard = ({ setInviteNotify, opp, setIsRanked, setGameStarted, setOppData }: InvitationCardProps) => {
   const { gameSocket } = useSocket();
   const { state } = useStateContext();
+  const router = useRouter();
+  const userQuery = useQuery({
+    queryKey: ["users", opp],
+    queryFn: async () => await getUser(opp),
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   useEffect(() => {
+    console.log();
     gameSocket.on("game-start", (data: { opp: User, isRanked: boolean }) => {
       setOppData(data.opp);
       setInviteNotify(false);
@@ -28,6 +48,10 @@ const InvitationCard = ({ setInviteNotify, opp, setIsRanked,setGameStarted,setOp
     );
   }
     , []);
+
+  if (userQuery.isLoading) return <Loading />;
+
+  if (userQuery.isError) void router.push("/404");
   return (
     <Card className='flex items-center  justify-center h-screen  w-screen '>
       <div className="flex items-center  justify-between p-10 sm:gap-20 gap-6 rounded-3xl border-4 flex-col sm:flex-row">
@@ -100,7 +124,7 @@ const InvitationCard = ({ setInviteNotify, opp, setIsRanked,setGameStarted,setOp
               />
             </div>
             <div className=' pt-5'>
-              <p className="text-center sm:text-2xl text-xl font-semibold text-gray-400">Waiting for {opp} to join </p>
+              <p className="text-center sm:text-2xl text-xl font-semibold text-gray-400">Waiting for {userQuery.data?.login} to join </p>
             </div>
             <div className=" pt-8 hidden  sm:flex justify-center">
               <Button
@@ -121,14 +145,14 @@ const InvitationCard = ({ setInviteNotify, opp, setIsRanked,setGameStarted,setOp
         </motion.div>
         <div className="flex items-center flex-col">
           <Image
-            src={"/smazouz.jpeg"}
+            src={userQuery.data?.avatar.path ?? "/smazouz.jpeg"}
             alt={opp}
             width={100}
             height={100}
             className="rounded-full sm:h-40 sm:w-40 h-16 w-16"
           />
           <div className=" pt-2 flex flex-col items-center">
-            <p className="font-semibold sm:text-2xl text-xl text-gray-400" >{opp}</p>
+            <p className="font-semibold sm:text-2xl text-xl text-gray-400" >{userQuery.data?.login}</p>
           </div>
           <div className=" pt-2 flex  sm:hidden justify-center">
             <Button

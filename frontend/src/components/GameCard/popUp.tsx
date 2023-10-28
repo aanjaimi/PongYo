@@ -4,14 +4,13 @@ import { Button } from "@/components/ui/button";
 import { useSocket } from "@/contexts/socket-context";
 import { useStateContext } from "@/contexts/state-context";
 import { Card } from "@nextui-org/react";
-import { use } from "react";
 import { useEffect } from "react";
 import type { User } from "@/types/user";
 
 export type PopUpProps = {
   setIsPopupOpen: (value: boolean) => void;
   selectedOption: string;
-  setOppData: React.Dispatch<React.SetStateAction<{}>>;
+  setOppData: React.Dispatch<React.SetStateAction<User>>;
   setGameStarted: React.Dispatch<React.SetStateAction<boolean>>;
   setIsRanked: React.Dispatch<React.SetStateAction<boolean>>;
 };
