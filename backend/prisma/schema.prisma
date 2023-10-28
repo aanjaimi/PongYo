@@ -16,30 +16,53 @@ enum UserStatus {
   IN_GAME
 }
 
-model User {
-  id          String     @id @default(cuid())
-  displayName String     @unique
-  login       String     @unique
-  email       String     @unique
-  userStatus  UserStatus @default(OFFLINE) @map("user_status")
+enum Rank {
+  UNRANKED
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  EMERALD
+  DIAMOND
+  MASTER
+  GRANDMASTER
+  LEGEND
+  CHAMPION
+}
 
-  // towFactorAuth Boolean         @default(false)
-  friends              Friend[]
+model User {
+  id             String     @id @default(cuid())
+  login          String     @unique
+  email          String     @unique
+  userStatus     UserStatus @default(OFFLINE) @map("user_status")
+  displayname    String
+  status         UserStatus @default(OFFLINE) @map("status")
+  firstTwoFactor Boolean    @default(true)
+
+  totp        Json
+  isCompleted Boolean @default(false)
+
+  // friends of the User
+  friends              Friend[]       @relation("userFriends")
+  // users who are Friends with this User
+  myFriends            Friend[]       @relation("friendsOfUser")
   messages             Message[]
   senderNotification   Notification[] @relation("sender")
   receiverNotification Notification[] @relation("receiver")
-  achievement          Achievement[]
+  userGameHistory      Game[]         @relation(name: "user")
+  oppGameHistory       Game[]         @relation(name: "opponent")
+
+  achievement Achievement[]
+  avatar      Json
 
   ownedChannels Channel[]
   moderatorFor  Channel[] @relation("moderators")
   channels      Channel[] @relation("members")
-  oppositeGames Game[]    @relation("oppositeUser")
-  opponentGames Game[]    @relation("opponentUser")
   ban           Ban[]
   mute          Mute[]
 
-  log   Log?    @relation(fields: [logId], references: [id])
-  logId String? @unique
+  stat   Stat   @relation(fields: [statId], references: [id])
+  statId String @unique
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -50,18 +73,20 @@ model User {
   @@map("users")
 }
 
-enum State {
+enum FriendState {
+  NONE
   BLOCKED
   PENDING
   ACCEPTED
-  REFUSED
 }
 
 model Friend {
-  id     String @id @default(cuid())
-  state  State
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id])
+  id       String      @id @default(cuid())
+  state    FriendState
+  user     User        @relation(name: "userFriends", fields: [userId], references: [id])
+  userId   String      @map("user_id")
+  friend   User        @relation(name: "friendsOfUser", fields: [friendId], references: [id])
+  friendId String      @map("friend_id")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -88,12 +113,13 @@ enum NotifType {
   MESSAGE
   GAME_REQUEST
   FRIEND_REQUEST
+  FRIEND_ACCEPT
 }
 
 model Notification {
-  id        String    @id @default(cuid())
-  content   Json?
-  notifType NotifType @map("notif_type")
+  id      String    @id @default(cuid())
+  content Json?
+  type    NotifType @map("notif_type")
 
   sender     User   @relation(name: "sender", fields: [senderId], references: [id])
   senderId   String @map("sender_id")
@@ -112,58 +138,34 @@ enum Mode {
 }
 
 model Game {
-  id   String @id @default(cuid())
-  mode Mode
-
-  history   History @relation(fields: [historyId], references: [id])
-  historyId String  @unique
-
-  opponent   User   @relation(name: "opponentUser", fields: [opponentId], references: [id])
-  opponentId String @map("oppenent_id")
-  opposite   User   @relation(name: "oppositeUser", fields: [oppositeId], references: [id])
-  oppositeId String @map("opposite_id")
-
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  user           User     @relation(name: "user", fields: [userId], references: [id])
+  opponentId     String   @map("opponent_id")
+  opponent       User     @relation(name: "opponent", fields: [opponentId], references: [id])
+  oppnentScore   Int
+  userScore      Int
+  mode           Mode
+  userStatus     Boolean
+  opponentStatus Boolean
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   @@map("games")
 }
 
-model History {
-  id            String @id @default(cuid())
-  oppositeScore Int    @map("opposite_score")
-  opponentScore Int    @map("opponent_score")
-  game          Game?
-
-  @@map("histories")
-}
-
-enum Rank {
-  UNRANKED
-  BRONZE
-  SILVER
-  GOLD
-  PLATINUM
-  EMERALD
-  DIAMOND
-  MASTER
-  GRANDMASTER
-  CHAMPION
-}
-
-model Log {
+model Stat {
   id        String @id @unique @default(cuid())
   vectories Int
   defeats   Int
   points    Int
   rank      Rank
-
-  user User?
+  user      User?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@map("logs")
+  @@map("stats")
 }
 
 enum MessageType {
@@ -215,7 +217,7 @@ model Channel {
 }
 
 model Ban {
-  id     String @id @default(cuid())
+  id String @id @default(cuid())
 
   user      User    @relation(fields: [userId], references: [id])
   userId    String  @map("user_id")
@@ -231,7 +233,7 @@ model Ban {
 }
 
 model Mute {
-  id     String @id @default(cuid())
+  id String @id @default(cuid())
 
   user      User    @relation(fields: [userId], references: [id])
   userId    String  @map("user_id")

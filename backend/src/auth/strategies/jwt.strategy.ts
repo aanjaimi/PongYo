@@ -9,8 +9,8 @@ import { JwtAuthPayload } from '../interfaces/jwt.interface';
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(
-    private configService: ConfigService,
     private prismaService: PrismaService,
+    configService: ConfigService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -27,7 +27,9 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         login: payload.login,
       },
     });
-    if (!user) throw new UnauthorizedException();
+    if (!user) {
+      throw new UnauthorizedException();
+    }
     return user;
   }
 }

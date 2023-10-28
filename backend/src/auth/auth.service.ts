@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { Response, Request } from 'express';
+import { Request, Response } from 'express';
 import { AUTH_COOKIE_MAX_AGE, AUTH_COOKIE_NAME } from './auth.constants';
 import { JwtAuthPayload } from './interfaces/jwt.interface';
 import { RedisService } from '@/redis/redis.service';
 import { WsGateway } from '@/ws/ws.gateway';
+import { OtpCallbackDTO } from './auth.dto';
+import * as speakeasy from 'speakeasy';
 
 @Injectable()
 export class AuthService {
@@ -28,29 +30,27 @@ export class AuthService {
 
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: this.configService.get('JWT_SECRET'),
-      expiresIn: Math.ceil(AUTH_COOKIE_MAX_AGE),
+      expiresIn: AUTH_COOKIE_MAX_AGE,
     });
+    if (user.totp['enabled'])
+      await this.redisService.hset(`token-${accessToken}`, 'otp-needed', 1);
 
     res.cookie(AUTH_COOKIE_NAME, accessToken, {
       httpOnly: true,
       path: '/',
-      maxAge: Math.ceil(AUTH_COOKIE_MAX_AGE * 1e3),
+      maxAge: AUTH_COOKIE_MAX_AGE * 1e3,
     });
-    res.redirect(this.configService.get('FRONTEND_ORIGIN'));
+    res.redirect(this.configService.get('FRONTEND_ORIGIN_PROFILE'));
   }
 
   async logout(req: Request, res: Response) {
     const accessToken = req.cookies[AUTH_COOKIE_NAME];
 
-    const payload = await this.jwtService.verifyAsync<JwtAuthPayload>(
-      accessToken,
-      {
-        secret: this.configService.get('JWT_SECRET'),
-      },
+    await this.redisService.hset(
+      `token-${accessToken}`,
+      'explicit-expiration',
+      1,
     );
-
-    const ex = Math.ceil(payload.exp - Date.now() / 1000);
-    await this.redisService.set(accessToken, payload.login, 'EX', ex);
     const { user: currentUser } = req;
     const allSocketIds = Object.keys(
       await this.redisService.hgetall(currentUser.id),
@@ -75,5 +75,38 @@ export class AuthService {
         }
       });
     });
+  }
+
+  async otpCallback(
+    accessToken: string,
+    user: User,
+    { token }: OtpCallbackDTO,
+  ) {
+    const secret = user.totp['base32'];
+    console.log('Waiting');
+    const isValidToken = speakeasy.totp.verify({
+      secret,
+      token,
+      encoding: 'base32',
+    });
+    console.log(accessToken);
+    if (isValidToken)
+      await this.redisService.hset(`token-${accessToken}`, 'otp-needed', 0);
+    return { valid: isValidToken };
+  }
+
+  // TODO: remove later
+  async getToken(login: string) {
+    const payload = {
+      iss: 'Transcendence',
+      login: login,
+      sub: login,
+    } satisfies JwtAuthPayload;
+
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: this.configService.get('JWT_SECRET'),
+      expiresIn: Math.ceil(AUTH_COOKIE_MAX_AGE),
+    });
+    return { accessToken };
   }
 }

@@ -1,45 +1,29 @@
-import { PrismaClient } from '@prisma/client';
-import { users, channels, messages } from './seedData';
+// import { PrismaClient } from '@prisma/client';
+// import { users } from './seedData';
+// import { achievements } from './seedData';
+// import { games } from './seedData';
 
-const prisma = new PrismaClient();
+// const prisma = new PrismaClient();
 
-async function main() {
-  for (const user of users) {
-    if (await prisma.user.findUnique({ where: { login: user.login } })) {
-      continue;
-    }
-    await prisma.user.create({
-      data: user,
-    });
-  }
+// async function main() {
+// for (const user of users) {
+//   console.log(`Create user with login: ${user.login}`);
+//   await prisma.user.create({
+//     data: user,
+//   });
+// }
 
-  for (const channel of channels) {
-    if (await prisma.channel.findUnique({ where: { name: channel.name } })) {
-      continue;
-    }
-    await prisma.channel.create({
-      data: channel,
-    });
-  }
+// for (const achievement of achievements) {
+//   console.log(`Create achievement with name: ${achievement.name}`);
+//   await prisma.achievement.create({
+//     data: achievement,
+//   });
+// }
 
-  for (const message of messages) {
-    if (
-      await prisma.message.findFirst({ where: { content: message.content } })
-    ) {
-      continue;
-    }
-    await prisma.message.create({
-      data: message,
-    });
-  }
-}
-
-main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+// for (const game of games) {
+//   console.log(`Create game with name: ${game.name}`);
+//   await prisma.game.create({
+//     data: game,
+//   });
+// }
+// }
