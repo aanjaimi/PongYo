@@ -12,9 +12,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import type { Channel } from '@/types/Channel';
+import type { Channel } from '@/types/channel';
 import { env } from '@/env.mjs';
-import type { User } from '@/types/User';
+import type { User } from '@/types/user';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
@@ -76,7 +76,7 @@ export default function EditChannel({
       setChannelType('');
       setIsProtected(false);
     } catch (err: unknown) {
-      const error = err as { response: { data: { message: string } } }
+      const error = err as { response: { data: { message: string } } };
       toast.error(error.response.data.message, toastOptions);
     }
   };
@@ -99,7 +99,9 @@ export default function EditChannel({
           </DialogHeader>
           <form
             className="flex flex-col gap-4 py-4"
-            onSubmit={(e) => {void editChannel(e)}}
+            onSubmit={(e) => {
+              void editChannel(e);
+            }}
           >
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">

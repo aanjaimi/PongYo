@@ -1,5 +1,5 @@
-import type { Channel, mute } from '@/types/Channel';
-import type { User } from '@/types/User';
+import type { Channel, mute } from '@/types/channel';
+import type { User } from '@/types/user';
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '../ui/button';
@@ -139,7 +139,7 @@ export default function UserCard({
             <Image src="/avatar.png" alt="avatar" width={200} height={200} />
           </div>
           <h2 className="ml-[0.5rem] truncate">
-            {displayString(cardUser.displayName, nameLenght)}
+            {displayString(cardUser.displayname, nameLenght)}
           </h2>
         </div>
         <div className="mr-[1rem]">

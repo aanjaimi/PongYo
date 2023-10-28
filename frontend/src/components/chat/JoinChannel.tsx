@@ -1,5 +1,5 @@
-import { ChatType, type Channel } from '@/types/Channel';
-import type { User } from '@/types/User';
+import { ChatType, type Channel } from '@/types/channel';
+import type { User } from '@/types/user';
 import axios from 'axios';
 import React, { useState } from 'react';
 import { env } from '@/env.mjs';
@@ -25,7 +25,7 @@ export default function JoinChannel({
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const { chatSocket } = useSocket();
   const [passwordRequired, setPasswordRequired] = useState<boolean>(false);
-  const [displayName, setdisplayName] = useState<string>('');
+  const [displayname, setdisplayname] = useState<string>('');
   const [joinChannelName, setJoinChannelName] = useState<string>('');
   const [joinChannelPassword, setJoinChannelPassword] = useState<string>('');
   const toastOptions: ToastOptions<object> = {
@@ -39,7 +39,7 @@ export default function JoinChannel({
   const joinDirectMessage = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     let channel: Channel | undefined = channels.find(
-      (channel) => channel.name === displayName,
+      (channel) => channel.name === displayname,
     );
     if (channel && channel.isDM) {
       updateSelectedChannel(channel);
@@ -48,14 +48,14 @@ export default function JoinChannel({
 
     try {
       const { data }: { data: Channel } = await axios.get(
-        `${uri}/chat/directMessage?displayName=${displayName}`,
+        `${uri}/chat/directMessage?displayname=${displayname}`,
         { withCredentials: true },
       );
       channel = data;
       if (!channel) return;
 
       const name: string[] = channel.name.split('-');
-      channel.name = (name[0] === user.displayName
+      channel.name = (name[0] === user.displayname
         ? name[1]
         : name[0]) as unknown as string;
 
@@ -131,14 +131,16 @@ export default function JoinChannel({
         <div className="text-xl">Direct message:</div>
         <form
           className="ml-6 flex w-[17rem] rounded-full bg-white"
-          onSubmit={(e) => {void joinDirectMessage(e)}}
+          onSubmit={(e) => {
+            void joinDirectMessage(e);
+          }}
         >
           <Input
             type="text"
             placeholder="username..."
             className="mr-[1rem] border-[2px] border-black"
-            value={displayName}
-            onChange={(e) => setdisplayName(e.target.value)}
+            value={displayname}
+            onChange={(e) => setdisplayname(e.target.value)}
           />
           <Button>start</Button>
         </form>
@@ -147,7 +149,9 @@ export default function JoinChannel({
         <div className="text-xl">Join a channel:</div>
         <form
           className="ml-6 flex w-[17rem] flex-col rounded-full"
-          onSubmit={(e) => {void joinChannel(e)}}
+          onSubmit={(e) => {
+            void joinChannel(e);
+          }}
         >
           <div className="mb-[0.75rem] flex rounded-full bg-white">
             <Input

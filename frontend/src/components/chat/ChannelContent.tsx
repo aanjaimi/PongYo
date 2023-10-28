@@ -1,6 +1,5 @@
-import type { Channel } from '@/types/Channel';
-import type { User } from '@/types/User';
-import type { Message } from '@/types/Message';
+import type { Channel } from '@/types/channel';
+import type { User } from '@/types/user';
 import React, { useEffect, useRef, useState } from 'react';
 import ChannelInfo from './ChannelInfo';
 import CreateOrJoin from './CreateOrJoin';
@@ -10,19 +9,21 @@ import { env } from '@/env.mjs';
 import ChannelSettings from './ChannelSettings';
 import { ScrollArea } from '../ui/scroll-area';
 
+interface ChannelContentProps {
+  channel: Channel | undefined;
+  updateSelectedChannel: (arg: Channel | undefined) => void;
+  user: User;
+  channels: Channel[];
+  updateChannels: (arg: Channel[]) => void;
+}
+
 export default function ChannelContent({
   channel,
   updateSelectedChannel,
   user,
   channels,
   updateChannels,
-}: {
-  channel: Channel | undefined;
-  updateSelectedChannel: (arg: Channel | undefined) => void;
-  user: User;
-  channels: Channel[];
-  updateChannels: (arg: Channel[]) => void;
-}) {
+}: ChannelContentProps) {
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [message, setMessage] = useState<string>('');
   const [showSettings, setShowSettings] = useState<boolean>(false);
@@ -55,7 +56,7 @@ export default function ChannelContent({
     try {
       e.preventDefault();
       if (message.trim() === '' || isMuted()) return;
-      const { data }: { data: Message } = await axios.post(
+      await axios.post(
         `${uri}/chat/channel/${channel.id}/messages`,
         { content: message },
         { withCredentials: true },

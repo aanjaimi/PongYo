@@ -1,7 +1,7 @@
 import React from 'react';
-import type { Channel } from '@/types/Channel';
+import type { Channel } from '@/types/channel';
 import JoinChannel from './JoinChannel';
-import type { User } from '@/types/User';
+import type { User } from '@/types/user';
 import CreateChannel from './CreateChannel';
 
 interface CreateOrJoinProps {
@@ -17,7 +17,6 @@ export default function CreateOrJoin({
   updateChannels,
   updateSelectedChannel,
 }: CreateOrJoinProps) {
-
   return (
     <div className="flex grow flex-col">
       <div className="h-[7%]"></div>

@@ -30,7 +30,8 @@ export class ChatGateway
   async handleConnection(@ConnectedSocket() client: Socket) {
     await super.handleConnection(client);
     if (!client.user) return;
-    client.join(client.user.displayName);
+    client.join(client.user.displayname);
+    return true;
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {
@@ -40,14 +41,14 @@ export class ChatGateway
   @SubscribeMessage('join-channel')
   handleJoinChannel(client: Socket, data: any) {
     if (!client.user) return;
-    // console.log(`${client.user.displayName} join-channel =>${data.channelId}`);
+    // console.log(`${client.user.displayname} join-channel =>${data.channelId}`);
     client.join(`channel-${data.channelId}`);
   }
 
   @SubscribeMessage('leave-channel')
   handleLeaveChannel(client: Socket, data: any) {
     if (!client.user) return;
-    // console.log(`${client.user.displayName} leave-channel =>${data.channelId}`);
+    // console.log(`${client.user.displayname} leave-channel =>${data.channelId}`);
     client.leave(`channel-${data.channelId}`);
   }
 }

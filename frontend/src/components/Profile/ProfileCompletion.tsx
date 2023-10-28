@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import { useStateContext } from "@/contexts/state-context";
-import { Button } from "@/components/ui/button";
+import { useEffect, useRef, useState } from 'react';
+import { useStateContext } from '@/contexts/state-context';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -8,13 +8,13 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import type { User } from "@/types/user";
-import { QueryClient, useMutation } from "@tanstack/react-query";
-import { fetcher } from "@/utils/fetcher";
-import { useRouter } from "next/router";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import type { User } from '@/types/user';
+import { QueryClient, useMutation } from '@tanstack/react-query';
+import { fetcher } from '@/utils/fetcher';
+import { useRouter } from 'next/router';
 
 export const updateProfile = async (payload: FormData) => {
   return (await fetcher.patch<User>(`/users`, payload)).data;
@@ -26,7 +26,7 @@ type ProfileCompletionProps = {
 
 const ProfileCompletion = ({ setIsEdited }: ProfileCompletionProps) => {
   const { state, dispatch } = useStateContext();
-  const [displayName, setDisplayName] = useState(state.user?.displayname);
+  const [displayname, setDisplayName] = useState(state.user?.displayname);
   const avatarRef = useRef<HTMLInputElement | null>(null);
   const queryClient = new QueryClient();
   const router = useRouter();
@@ -36,39 +36,39 @@ const ProfileCompletion = ({ setIsEdited }: ProfileCompletionProps) => {
   }, [state]);
 
   const userMutation = useMutation({
-    mutationKey: ["users", "@me"],
+    mutationKey: ['users', '@me'],
     mutationFn: updateProfile,
     onSuccess: async (data) => {
-      dispatch({ type: "SET_USER", payload: data });
-      await queryClient.invalidateQueries(["users", "@me"]);
+      dispatch({ type: 'SET_USER', payload: data });
+      await queryClient.invalidateQueries(['users', '@me']);
     },
   });
 
   const handleSubmit = async () => {
     const payload = new FormData();
-    if (displayName!.length != 0) payload.append("displayname", displayName!);
+    if (displayname!.length != 0) payload.append('displayname', displayname!);
     if (avatarRef.current?.files?.[0])
-      payload.append("avatar", avatarRef.current?.files?.[0] as Blob);
+      payload.append('avatar', avatarRef.current?.files?.[0] as Blob);
     await userMutation
       .mutateAsync(payload)
       .then(() => {
         setIsEdited(true);
-        void queryClient.invalidateQueries(["users", "@me"]);
-        void router.push("/profile/@me");
+        void queryClient.invalidateQueries(['users', '@me']);
+        void router.push('/profile/@me');
       })
       .catch((err) => {
         console.log(err);
       });
-    await queryClient.invalidateQueries(["users", "@me"]);
+    await queryClient.invalidateQueries(['users', '@me']);
   };
 
   const handleSkip = async () => {
     const payload = new FormData();
-    payload.append("displayname", displayName!);
+    payload.append('displayname', displayname!);
     await userMutation.mutateAsync(payload);
     setIsEdited(true);
-    await queryClient.invalidateQueries(["users", "@me"]);
-    await router.push("/profile/@me");
+    await queryClient.invalidateQueries(['users', '@me']);
+    await router.push('/profile/@me');
   };
   return (
     <Card>
@@ -84,7 +84,7 @@ const ProfileCompletion = ({ setIsEdited }: ProfileCompletionProps) => {
           <Input
             id="DisplayName"
             placeholder="DisplayName"
-            value={displayName}
+            value={displayname}
             onChange={(e) => setDisplayName(e.target.value)}
           />
         </div>

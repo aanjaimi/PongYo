@@ -46,7 +46,7 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
           enabled: false,
         },
         login: profile.username,
-        displayName: profile.displayName,
+        displayname: profile.displayName,
         email: profile.emails[0].value,
         stat: {
           create: {

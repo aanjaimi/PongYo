@@ -10,7 +10,7 @@ import {
   Body,
 } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { CurrentUser } from '@/auth/auth.decorator';
+import { CurrentUser } from '@/global/global.decorators';
 import { User } from '@prisma/client';
 import { JwtAuthGuard } from '@/auth/guards/jwt.guard';
 import { CreateChannelDto } from './dto/create-channel.dto';
@@ -33,9 +33,9 @@ export class ChatController {
   @Get('directMessage')
   async getDirectMessage(
     @CurrentUser() user: User,
-    @Query('displayName') displayName: string,
+    @Query('displayname') displayname: string,
   ) {
-    const dm = await this.chatService.getDirectMessage(user, displayName);
+    const dm = await this.chatService.getDirectMessage(user, displayname);
     return dm;
   }
 

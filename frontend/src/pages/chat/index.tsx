@@ -1,4 +1,4 @@
-import type { User } from '@/types/User';
+import type { User } from '@/types/user';
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
@@ -20,7 +20,7 @@ export default function Home() {
       });
       data.channels.forEach((channel) => {
         const name: string[] = channel.name.split('-');
-        channel.name = (name[0] === data.displayName
+        channel.name = (name[0] === data.displayname
           ? name[1]
           : name[0]) as unknown as string;
       });

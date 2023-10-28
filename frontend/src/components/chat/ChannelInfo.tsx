@@ -1,4 +1,4 @@
-import type { Channel } from '@/types/Channel';
+import type { Channel } from '@/types/channel';
 import React from 'react';
 import Image from 'next/image';
 

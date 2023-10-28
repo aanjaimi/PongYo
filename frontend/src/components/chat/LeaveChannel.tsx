@@ -1,7 +1,7 @@
 import axios from 'axios';
 import React from 'react';
 import { Button } from '../ui/button';
-import type { Channel } from '@/types/Channel';
+import type { Channel } from '@/types/channel';
 import { env } from '@/env.mjs';
 
 interface LeaveChannelProps {
@@ -27,7 +27,12 @@ export default function LeaveChannel({
   };
 
   return (
-    <Button className="m-[1rem] bg-[#C83030]" onClick={() => {void leaveChannel()}}>
+    <Button
+      className="m-[1rem] bg-[#C83030]"
+      onClick={() => {
+        void leaveChannel();
+      }}
+    >
       Leave Channel
     </Button>
   );

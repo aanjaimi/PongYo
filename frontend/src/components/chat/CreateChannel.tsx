@@ -3,8 +3,8 @@ import { type ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import type { User } from '@/types/User';
-import type { Channel } from '@/types/Channel';
+import type { User } from '@/types/user';
+import type { Channel } from '@/types/channel';
 import { env } from '@/env.mjs';
 import axios from 'axios';
 import { useSocket } from '@/contexts/socket-context';
@@ -39,7 +39,11 @@ export default function CreateChannel({
 
   const createNewChannel = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (channelName === '' || (isProtected && channelPassword === '') || channelType === '')
+    if (
+      channelName === '' ||
+      (isProtected && channelPassword === '') ||
+      channelType === ''
+    )
       return toast.error('Incomplete format', toastOptions);
     try {
       console.log(channelName, channelPassword, channelType);
@@ -64,7 +68,7 @@ export default function CreateChannel({
   return (
     <form
       className="flex w-[75%] flex-col"
-      onSubmit={(e) => (void createNewChannel(e))}
+      onSubmit={(e) => void createNewChannel(e)}
     >
       <div className="my-[1rem] flex">
         <div className="text-xl">Create a channel:</div>
@@ -78,10 +82,7 @@ export default function CreateChannel({
           />
         </div>
       </div>
-      <RadioGroup
-        defaultValue=""
-        className="my-[1rem] ml-[35%] self-start"
-      >
+      <RadioGroup defaultValue="" className="my-[1rem] ml-[35%] self-start">
         <div className="flex items-center space-x-2">
           <RadioGroupItem
             value="Private"
@@ -127,9 +128,7 @@ export default function CreateChannel({
           />
         </div>
       )}
-      <Button className="mt-[1.5rem] self-center">
-        Create
-      </Button>
+      <Button className="mt-[1.5rem] self-center">Create</Button>
     </form>
   );
 }

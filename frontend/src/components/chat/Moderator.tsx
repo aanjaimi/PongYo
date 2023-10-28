@@ -11,7 +11,7 @@ import {
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
 import { env } from '@/env.mjs';
-import type { Channel } from '@/types/Channel';
+import type { Channel } from '@/types/channel';
 import { type ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
@@ -20,9 +20,7 @@ interface ModeratorProps {
   channel: Channel;
 }
 
-export default function Moderator({
-  channel,
-}: ModeratorProps) {
+export default function Moderator({ channel }: ModeratorProps) {
   const url = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [userName, setUserName] = useState<string>('');
@@ -37,7 +35,7 @@ export default function Moderator({
   const addModerator = async () => {
     try {
       const modCandidate = channel.members.find(
-        (member) => member.displayName === userName.trim(),
+        (member) => member.displayname === userName.trim(),
       );
       if (!modCandidate) return toast.error('User not found', toastOptions);
       await axios.patch(
@@ -48,7 +46,7 @@ export default function Moderator({
       setUserName('');
       setShowDialog(false);
     } catch (err: unknown) {
-      const error = err as { response: { data: { message: string } } }
+      const error = err as { response: { data: { message: string } } };
       toast.error(error.response.data.message, toastOptions);
     }
   };
@@ -56,7 +54,7 @@ export default function Moderator({
   const deleteModerator = async () => {
     try {
       const mod = channel.moderators.find(
-        (moderator) => moderator.displayName === userName.trim(),
+        (moderator) => moderator.displayname === userName.trim(),
       );
       if (!mod) return toast.error('User not found', toastOptions);
       await axios.delete(
@@ -66,7 +64,7 @@ export default function Moderator({
       setUserName('');
       setShowDialog(false);
     } catch (err) {
-      const error = err as { response: { data: { message: string } } }
+      const error = err as { response: { data: { message: string } } };
       toast.error(error.response.data.message, toastOptions);
     }
   };
@@ -98,10 +96,21 @@ export default function Moderator({
             </div>
           </div>
           <DialogFooter>
-            <Button className="bg-[#C83030]" onClick={() => {void deleteModerator()}}>
+            <Button
+              className="bg-[#C83030]"
+              onClick={() => {
+                void deleteModerator();
+              }}
+            >
               delete moderator
             </Button>
-            <Button onClick={() => {void addModerator()}}>add moderator</Button>
+            <Button
+              onClick={() => {
+                void addModerator();
+              }}
+            >
+              add moderator
+            </Button>
           </DialogFooter>
         </DialogContent>
       )}

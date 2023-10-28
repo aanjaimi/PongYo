@@ -1,4 +1,4 @@
-import type { Channel } from '@/types/Channel';
+import type { Channel } from '@/types/channel';
 import React from 'react';
 import Image from 'next/image';
 import { Card } from '../ui/card';
@@ -7,7 +7,7 @@ const displayLastMessage = (channel: Channel) => {
   if (channel.messages.length > 0) {
     const lastMessage = channel.messages[channel.messages.length - 1];
     if (lastMessage)
-      return `${lastMessage.user.displayName}: ${lastMessage.content}`;
+      return `${lastMessage.user.displayname}: ${lastMessage.content}`;
     else return '';
   } else {
     return '';
@@ -61,7 +61,7 @@ export default function ChannelsList({
             </div>
             <div className="relative flex h-[100%] grow py-[0.3rem] ">
               <h3 className="">{displayString(channel.name, 15)}</h3>
-              <p className="absolute top-6 text-[10px] truncate max-w-[100%]">
+              <p className="absolute top-6 max-w-[100%] truncate text-[10px]">
                 {displayLastMessage(channel)}
               </p>
             </div>

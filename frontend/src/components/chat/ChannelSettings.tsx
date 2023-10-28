@@ -1,5 +1,5 @@
-import type { Channel } from '@/types/Channel';
-import type { User } from '@/types/User';
+import type { Channel } from '@/types/channel';
+import type { User } from '@/types/user';
 import React, { useState } from 'react';
 import Image from 'next/image';
 // import axios from 'axios';

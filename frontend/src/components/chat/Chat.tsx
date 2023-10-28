@@ -1,6 +1,6 @@
-import type { User } from '@/types/User';
-import type { Channel, mute, ban } from '@/types/Channel';
-import type { Message } from '@/types/Message';
+import type { User } from '@/types/user';
+import type { Channel, mute, ban } from '@/types/channel';
+import type { Message } from '@/types/message';
 import React, { useEffect, useState } from 'react';
 import ChannelsList from './ChannelsList';
 import ChannelContent from './ChannelContent';
@@ -34,11 +34,10 @@ export default function Chat({ user }: { user: User }) {
         setChannels([...channels]);
       } else if (!channel && data.channel.isDM) {
         const dmName: string[] = data.channel.name.split('-');
-        data.channel.name = (dmName[0] === user.displayName
+        data.channel.name = (dmName[0] === user.displayname
           ? dmName[1]
           : dmName[0]) as unknown as string;
-        if (data.userId !== user.id)
-          data.channel.msgNotification = true;
+        if (data.userId !== user.id) data.channel.msgNotification = true;
         setChannels([data.channel, ...channels]);
         if (selectedChannel?.id === data.channel.id) {
           setSelectedChannel(data.channel);
@@ -160,29 +159,39 @@ export default function Chat({ user }: { user: User }) {
       setChannels([...channels]);
     });
 
-    chatSocket.on('add-moderator', (data: { user: User; channelId: string }) => {
-      const channel = channels.find((channel) => channel.id === data.channelId);
-      if (!channel) return;
-      const updatedModerators = [...channel.moderators, data.user];
-      channel.moderators = updatedModerators;
-      if (selectedChannel?.id === channel.id) {
-        setSelectedChannel(channel);
-      }
-      setChannels([...channels]);
-    });
+    chatSocket.on(
+      'add-moderator',
+      (data: { user: User; channelId: string }) => {
+        const channel = channels.find(
+          (channel) => channel.id === data.channelId,
+        );
+        if (!channel) return;
+        const updatedModerators = [...channel.moderators, data.user];
+        channel.moderators = updatedModerators;
+        if (selectedChannel?.id === channel.id) {
+          setSelectedChannel(channel);
+        }
+        setChannels([...channels]);
+      },
+    );
 
-    chatSocket.on('delete-moderator', (data: { user: User; channelId: string }) => {
-      const channel = channels.find((channel) => channel.id === data.channelId);
-      if (!channel) return;
-      const updatedModerators = channel.moderators.filter(
-        (moderator) => moderator.id !== data.user.id,
-      );
-      channel.moderators = updatedModerators;
-      if (selectedChannel?.id === channel.id) {
-        setSelectedChannel(channel);
-      }
-      setChannels([...channels]);
-    });
+    chatSocket.on(
+      'delete-moderator',
+      (data: { user: User; channelId: string }) => {
+        const channel = channels.find(
+          (channel) => channel.id === data.channelId,
+        );
+        if (!channel) return;
+        const updatedModerators = channel.moderators.filter(
+          (moderator) => moderator.id !== data.user.id,
+        );
+        channel.moderators = updatedModerators;
+        if (selectedChannel?.id === channel.id) {
+          setSelectedChannel(channel);
+        }
+        setChannels([...channels]);
+      },
+    );
 
     return () => {
       chatSocket.off('message');

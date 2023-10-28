@@ -74,13 +74,13 @@ export class ChatService {
     });
   }
 
-  async getDirectMessage(currentUser: User, displayName: string) {
+  async getDirectMessage(currentUser: User, displayname: string) {
     // check the current user and other user
-    if (currentUser.displayName === displayName)
+    if (currentUser.displayname === displayname)
       throw new HttpException('Cannot DM yourself', HttpStatus.BAD_REQUEST);
 
     const otherUser = await this.prismaService.user.findUnique({
-      where: { displayName },
+      where: { displayname },
     });
 
     // check if other user exists
@@ -131,7 +131,7 @@ export class ChatService {
         updatedAt: true,
       },
       data: {
-        name: `${currentUser.displayName}-${otherUser.displayName}`,
+        name: `${currentUser.displayname}-${otherUser.displayname}`,
         type: RoomType.PRIVATE,
         isDM: true,
         members: {
@@ -411,8 +411,8 @@ export class ChatService {
     // check if channel is a dm
     if (channel.isDM) {
       const otherUser = channel.members.find((member) => member.id !== user.id);
-      this.chatGateway.io().to(otherUser.displayName).emit('message', message);
-      this.chatGateway.io().to(user.displayName).emit('message', message);
+      this.chatGateway.io().to(otherUser.displayname).emit('message', message);
+      this.chatGateway.io().to(user.displayname).emit('message', message);
     } else {
       this.chatGateway.io().to(`channel-${id}`).emit('message', message);
     }
@@ -434,7 +434,7 @@ export class ChatService {
             user: {
               select: {
                 id: true,
-                displayName: true,
+                displayname: true,
               },
             },
           },

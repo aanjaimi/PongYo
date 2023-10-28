@@ -1,5 +1,5 @@
-import type { Channel } from '@/types/Channel';
-import type { User } from '@/types/User';
+import type { Channel } from '@/types/channel';
+import type { User } from '@/types/user';
 import React from 'react';
 import UserCard from './UserCard';
 import OwnerCard from './OwnerCard';
@@ -28,7 +28,7 @@ export default function ChannelSettingsContent({
   };
 
   return (
-    <ScrollArea className="grow flex flex-col">
+    <ScrollArea className="flex grow flex-col">
       <div className="grown my-[0.5rem] flex items-center px-[5rem]">
         <h2>Owner</h2>
         <div className="mx-[1rem] h-[0] grow rounded-full border border-black"></div>
@@ -42,14 +42,13 @@ export default function ChannelSettingsContent({
       )}
       {channel.moderators.map((moderator) => (
         <ModeratorCard
-        key={moderator.id}
-        channel={channel}
-        channels={channels}
-        updateChannels={updateChannels}
-        isModerator={isModerator}
-        isOwner={isOwner}
-        cardUser={moderator}
-        user={user}
+          key={moderator.id}
+          channel={channel}
+          channels={channels}
+          updateChannels={updateChannels}
+          isOwner={isOwner}
+          cardUser={moderator}
+          user={user}
         />
       ))}
       <div className="grown my-[0.5rem] flex items-center px-[5rem]">

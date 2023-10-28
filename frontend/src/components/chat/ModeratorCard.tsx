@@ -1,5 +1,5 @@
-import type { Channel, mute } from '@/types/Channel';
-import type { User } from '@/types/User';
+import type { Channel, mute } from '@/types/channel';
+import type { User } from '@/types/user';
 import React from 'react';
 import Image from 'next/image';
 import { Button } from '../ui/button';
@@ -13,7 +13,6 @@ interface UserCardProps {
   channel: Channel;
   channels: Channel[];
   updateChannels: (arg: Channel[]) => void;
-  isModerator: () => boolean;
   isOwner: () => boolean;
   cardUser: User;
   user: User;
@@ -23,7 +22,6 @@ export default function ModeratorCard({
   channel,
   channels,
   updateChannels,
-  isModerator,
   isOwner,
   cardUser,
   user,
@@ -139,51 +137,49 @@ export default function ModeratorCard({
             <Image src="/avatar.png" alt="avatar" width={200} height={200} />
           </div>
           <h2 className="ml-[0.5rem] truncate">
-            {displayString(cardUser.displayName, nameLenght)}
+            {displayString(cardUser.displayname, nameLenght)}
           </h2>
         </div>
         <div className="mr-[1rem]">
-          {showDetails &&
-            user.id !== cardUser.id &&
-            (isOwner()) && (
-              <>
-                {isMuted() ? (
-                  <Button
-                    className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#1E5D6C]"
-                    onClick={() => {
-                      void unMute();
-                    }}
-                  >
-                    Unmute
-                  </Button>
-                ) : (
-                  <Button
-                    className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#1E5D6C]"
-                    onClick={() => {
-                      void mute();
-                    }}
-                  >
-                    mute
-                  </Button>
-                )}
+          {showDetails && user.id !== cardUser.id && isOwner() && (
+            <>
+              {isMuted() ? (
                 <Button
-                  className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#bd6d1c]"
+                  className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#1E5D6C]"
                   onClick={() => {
-                    void kick();
+                    void unMute();
                   }}
                 >
-                  Kick
+                  Unmute
                 </Button>
+              ) : (
                 <Button
-                  className="h-[1.7rem] w-[3.7rem] bg-[#C83030]"
+                  className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#1E5D6C]"
                   onClick={() => {
-                    void ban();
+                    void mute();
                   }}
                 >
-                  Ban
+                  mute
                 </Button>
-              </>
-            )}
+              )}
+              <Button
+                className="mr-[0.5rem] h-[1.7rem] w-[3.7rem] bg-[#bd6d1c]"
+                onClick={() => {
+                  void kick();
+                }}
+              >
+                Kick
+              </Button>
+              <Button
+                className="h-[1.7rem] w-[3.7rem] bg-[#C83030]"
+                onClick={() => {
+                  void ban();
+                }}
+              >
+                Ban
+              </Button>
+            </>
+          )}
         </div>
       </Card>
     </div>
