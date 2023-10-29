@@ -1,6 +1,6 @@
 import type { Achievements } from "./achievement";
 import type { Game } from "./game";
-import type { FriendShip } from "./friend";
+import type { FriendShip } from "./friendship";
 import type { Stat } from "./stat";
 import type { Channel } from './channel';
 
@@ -43,3 +43,5 @@ export type User = {
   };
   channels: Channel[];
 };
+
+

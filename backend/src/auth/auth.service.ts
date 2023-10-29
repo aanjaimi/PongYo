@@ -40,6 +40,7 @@ export class AuthService {
       path: '/',
       maxAge: AUTH_COOKIE_MAX_AGE * 1e3,
     });
+
     res.redirect(this.configService.get('FRONTEND_ORIGIN_PROFILE'));
   }
 
@@ -89,7 +90,6 @@ export class AuthService {
       token,
       encoding: 'base32',
     });
-    console.log(accessToken);
     if (isValidToken)
       await this.redisService.hset(`token-${accessToken}`, 'otp-needed', 0);
     return { valid: isValidToken };

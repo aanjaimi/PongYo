@@ -6,6 +6,8 @@ import type { User } from '@/types/user';
 import { LogOut } from 'lucide-react';
 import { env } from '@/env.mjs';
 import FriendshipStat from '@/components/friend/FriendshipStat';
+import { type ToastOptions, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   Dialog,
   DialogTrigger,
@@ -21,6 +23,7 @@ import { Switch } from '@/components/ui/switch';
 import { useMutation, QueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { updateProfile } from '@/components/Profile/ProfileCompletion';
+import type { AxiosError } from 'axios';
 
 type ProfileCoverProps = {
   isEdited: boolean;
@@ -40,6 +43,13 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
     if (state.user?.totp.enabled) return state.user.totp.otpauth_url;
     return '';
   });
+  const toastOptions: ToastOptions<object> = {
+    position: 'bottom-right',
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    theme: 'dark',
+  };
 
   useEffect(() => {
     setIsOwner(state.user?.id === user.id);
@@ -81,8 +91,10 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
         void queryClient.invalidateQueries(['users', '@me']);
         void router.push('/profile/@me');
       })
-      .catch((err) => {
-        console.log(err);
+      .catch((err: AxiosError) => {
+        const error = err as { response: { data: { message: string } } };
+        if (err.response?.status === 403)
+          toast.error(error.response.data.message, toastOptions);
       });
     await queryClient.invalidateQueries(['users', '@me']);
   };

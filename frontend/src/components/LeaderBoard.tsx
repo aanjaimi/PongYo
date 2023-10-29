@@ -12,24 +12,30 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import Loading from "@/pages/Loading";
 import { useRouter } from "next/router";
+import type { ApiResponse } from "@/types/common";
+import { EmptyView } from "./empty";
 
-const getUsers = async () => {
-  return (await fetcher.get<User[] | []>(`/users`)).data;
+const getUsers = async (page = 0) => {
+  return (await fetcher.get<ApiResponse<User[]>>(`/users`, {
+    params: { page },
+  })).data;
 };
 
 const LeaderBoard = () => {
   const router = useRouter();
-  const userQuery = useQuery({
+  const leaderBoardQuery = useQuery({
     queryKey: ["users"],
-    queryFn: async () => await getUsers(),
+    queryFn: async () => getUsers(),
     onError: (error) => {
-      console.log(error);
+      console.log('error: ', error);
     },
   });
 
-  if (userQuery.isLoading) return <Loading />;
+  if (leaderBoardQuery.isLoading) return <Loading />;
 
-  if (userQuery.isError) void router.push("/404");
+  if (leaderBoardQuery.isError) return void router.push("/404");
+
+  const users = leaderBoardQuery.data?.data;
 
   return (
     <div
@@ -56,7 +62,13 @@ const LeaderBoard = () => {
             </TableHead>
           </TableRow>
         </TableHeader>
-        {userQuery.data?.map((user, index) => {
+        {!users?.length && (
+          <EmptyView
+            title="No notifications"
+            message="You don't have any notifications yet"
+          ></EmptyView>
+        )}
+        {users?.map((user, index) => {
           return (
             <TableBody
               key={user.id}
@@ -66,10 +78,10 @@ const LeaderBoard = () => {
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{user.displayname}</TableCell>
                 <TableCell>
-                  {user.stat.vectories}/{user.stat.defeats}
+                  {user.stat?.vectories}/{user.stat?.defeats}
                 </TableCell>
-                <TableCell>{user.stat.rank}</TableCell>
-                <TableCell>{user.stat.points}</TableCell>
+                <TableCell>{user.stat?.rank}</TableCell>
+                <TableCell>{user.stat?.points}</TableCell>
               </TableRow>
             </TableBody>
           );

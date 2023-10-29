@@ -13,6 +13,7 @@ import { MinioModule } from './minio/minio.module';
 import { FriendModule } from './friends/friends.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationsModule } from './notifications/notifications.module';
+import { GameModule } from './game/game.module';
 import { AchievementModule } from './achievement/achievement.module';
 
 @Module({
@@ -26,6 +27,7 @@ import { AchievementModule } from './achievement/achievement.module';
     }),
     ChatModule,
     AuthModule,
+    GameModule,
     UserModule,
     RedisModule.forRootAsync({
       inject: [ConfigService],

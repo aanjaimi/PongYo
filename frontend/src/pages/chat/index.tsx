@@ -100,7 +100,7 @@ export default function Home() {
           <Chat user={user} blocks={blockedUsers} />
         </div>
       </div>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
     </div>
   );
 }

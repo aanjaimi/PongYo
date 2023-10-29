@@ -155,12 +155,13 @@ model Game {
 }
 
 model Stat {
-  id        String @id @unique @default(cuid())
-  vectories Int
-  defeats   Int
-  points    Int
-  rank      Rank
-  user      User?
+  id           String @id @unique @default(cuid())
+  vectories    Int
+  defeats      Int
+  points       Int
+  rowVectories Int
+  rank         Rank
+  user         User?
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

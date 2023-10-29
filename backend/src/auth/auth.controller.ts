@@ -24,6 +24,7 @@ export class AuthController {
   @Get('42')
   @UseGuards(FortyTwoGuard)
   fortyTwoLogin() {
+    console.log('42 login');
     // ? INFO: this function will redirect to intra login page !
   }
 
@@ -45,7 +46,6 @@ export class AuthController {
     @CurrentUser() user: User,
     @Body() body: OtpCallbackDTO,
   ) {
-    console.log('otpCallback', accessToken, user, body);
     return this.authService.otpCallback(accessToken, user, body);
   }
 
