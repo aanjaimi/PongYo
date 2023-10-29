@@ -6,7 +6,7 @@ import { User } from '@prisma/client';
 
 @Controller('/games')
 @UseGuards(JwtAuthGuard)
-export class AchievementController {
+export class GameController {
   constructor(private gameService: GameService) {}
 
   @Get(':id')

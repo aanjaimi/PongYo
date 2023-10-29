@@ -60,7 +60,7 @@ export default function ChannelsList({
               />
             </div>
             <div className="relative flex h-[100%] grow py-[0.3rem] ">
-              <h3 className="">{displayString(channel.name, 15)}</h3>
+              <h3 className="">{displayString(channel.name, 13)}</h3>
               <p className="absolute top-6 max-w-[100%] truncate text-[10px]">
                 {displayLastMessage(channel)}
               </p>
