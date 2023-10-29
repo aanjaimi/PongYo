@@ -1,14 +1,15 @@
-import React, { useState } from "react";
-import type { User } from "@/types/user";
-import { fetcher } from "@/utils/fetcher";
-import type { GetServerSidePropsContext } from "next";
-import ProfileContent from "@/components/Profile/ProfileContent";
+import React, { useState } from 'react';
+import type { User } from '@/types/user';
+import { fetcher } from '@/utils/fetcher';
+import type { GetServerSidePropsContext } from 'next';
+import ProfileContent from '@/components/Profile/ProfileContent';
+import { ToastContainer } from 'react-toastify';
 
 export type ProfileProps = {
   user: User;
 };
 export const getServerSideProps = async (
-  context: GetServerSidePropsContext
+  context: GetServerSidePropsContext,
 ) => {
   const { id } = context.params as { id: string };
   try {
@@ -16,7 +17,7 @@ export const getServerSideProps = async (
     const user = (
       await fetcher.get<User>(`/users/${id}`, {
         headers: {
-          Cookie: cookie ?? "",
+          Cookie: cookie ?? '',
         },
       })
     ).data;
@@ -28,7 +29,7 @@ export const getServerSideProps = async (
   } catch (err) {
     return {
       redirect: {
-        destination: "/404",
+        destination: '/404',
         permanent: false,
       },
     };
@@ -39,12 +40,13 @@ export default function Profile({ user }: ProfileProps) {
   const [isEdited, setIsEdited] = useState(user.isCompleted);
 
   return (
-    <div className="flex flex-grow flex-col w-full h-full">
+    <div className="flex h-full w-full flex-grow flex-col">
       <ProfileContent
         user={user}
         isEdited={isEdited}
         setIsEdited={setIsEdited}
       />
+      <ToastContainer />
     </div>
   );
 }
