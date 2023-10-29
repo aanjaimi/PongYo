@@ -8,9 +8,6 @@ services:
     env_file: "backend/.env"
     volumes:
       - "db-data:/var/lib/postgresql/data"
-    # ports:
-    # - "3030:5432" # TODO: change port in production!
-    # add volume for db
 
   backend:
     container_name: transcendence-backend
@@ -18,8 +15,6 @@ services:
       context: backend
     depends_on: [db, minio, redis]
     restart: on-failure
-    volumes:
-      - "./backend:/app"
 
   frontend:
     container_name: transcendence-frontend
@@ -30,16 +25,16 @@ services:
     container_name: transcendence-redis
     image: redis
     restart: on-failure
-    command: redis-server --requirepass ${REDIS_PASSWORD}
     env_file: "backend/.env"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
       - "6379:6379"
   minio:
     image: minio/minio
     container_name: minio-storage
-    # ports:
-    #   - "9001:9001"
-    #   - "9000:9000" # for the minio api
+    ports:
+      - "9001:9001"
+      - "9000:9000" # for the minio api
     env_file: "backend/.env"
     command: 'server /data --console-address ":9001"'
     restart: on-failure
@@ -55,6 +50,7 @@ services:
     ports:
       - "80:80"
     depends_on: [backend]
+
 volumes:
   minio-data:
   redis-data:
