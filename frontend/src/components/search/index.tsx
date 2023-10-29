@@ -53,7 +53,7 @@ function Search() {
   if (searchQuery.isError) return void router.push('/404');
   const pages = searchQuery.data?.pages;
   return (
-    <div className="relative w-[400px]">
+    <div className="relative w-[400px] z-[10]">
       <Input
         className="w-full"
         type="search"
