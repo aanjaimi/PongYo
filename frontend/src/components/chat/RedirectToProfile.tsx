@@ -15,15 +15,11 @@ export default function Redirect({
   const otherUser = channel.members.find((member) => member.id !== user.id);
   const router = useRouter();
   const redirectToGame = () => {
-    router
-      .push(`/game?username=${otherUser?.login}`)
-      .catch((err) => console.log(err));
+    void router.push(`/game?username=${otherUser?.login}`);
   };
 
   const redirectToProfile = () => {
-    router
-      .push(`/profile/${otherUser?.login}`)
-      .catch((err) => console.log(err));
+    void router.push(`/profile/${otherUser?.login}`);
   };
 
   if (!otherUser) {

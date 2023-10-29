@@ -14,8 +14,9 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { EmptyView } from '../empty';
 import { useStateContext } from '@/contexts/state-context';
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useSocket } from '@/contexts/socket-context';
 
 const getFriendRequests = async (page = 0) => {
   return (
@@ -29,6 +30,7 @@ const getFriendRequests = async (page = 0) => {
 
 const FriendSendRequests = () => {
   const router = useRouter();
+  const { notifSocket } = useSocket();
   const { state } = useStateContext();
   const friendQuery = useInfiniteQuery(
     ['friends-requested'],
@@ -41,6 +43,12 @@ const FriendSendRequests = () => {
       enabled: state.auth_status === 'authenticated',
     },
   );
+
+  useEffect(() => {
+    notifSocket.on('notification', async () => {
+      await friendQuery.refetch();
+    });
+  }, [friendQuery, notifSocket]);
 
   if (friendQuery.isLoading) return <Loading />;
 

@@ -48,7 +48,12 @@ export class UserService {
           },
         },
       ],
-      include: {
+      select: {
+        displayname: true,
+        login: true,
+        id: true,
+        avatar: true,
+        status: true,
         stat: true,
       },
     });
@@ -91,6 +96,13 @@ export class UserService {
 
     return await this.prismaService.user.update({
       where: { id: user.id },
+      select: {
+        displayname: true,
+        login: true,
+        id: true,
+        avatar: true,
+        status: true,
+      },
       data: {
         ...rest,
         ...(path && {

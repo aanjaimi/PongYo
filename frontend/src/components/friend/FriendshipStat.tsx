@@ -86,9 +86,6 @@ const FriendshipStat = ({ user }: FriendshipStatProps) => {
     onSuccess: (data) => {
       setFriendShipStatus(getFriendShipStatus(currUser!.id, data));
     },
-    onError: (err) => {
-      console.error(err);
-    },
   });
 
   const handleBlock = async () => {

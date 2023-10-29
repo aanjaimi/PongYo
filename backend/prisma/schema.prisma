@@ -34,10 +34,8 @@ model User {
   id             String     @id @default(cuid())
   login          String     @unique
   email          String     @unique
-  userStatus     UserStatus @default(OFFLINE) @map("user_status")
   displayname    String     @unique
   status         UserStatus @default(OFFLINE) @map("status")
-  firstTwoFactor Boolean    @default(true)
 
   totp        Json
   isCompleted Boolean @default(false)

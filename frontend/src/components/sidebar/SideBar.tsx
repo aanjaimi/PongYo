@@ -20,7 +20,7 @@ const SideBar = () => {
           <Link href="/game">
             <Gamepad2 className="hidden sm:block" />
           </Link>
-          <Link href="/friends">
+          <Link href="/friend">
             <Contact2 className="hidden sm:block" />
           </Link>
           <Link href="/chat">

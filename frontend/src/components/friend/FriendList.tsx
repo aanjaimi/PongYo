@@ -1,12 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Loading from '@/pages/Loading';
 import type { User } from '@/types/user';
 import { fetcher } from '@/utils/fetcher';
@@ -16,12 +11,13 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import type { ApiResponse } from '@/types/common';
 import { EmptyView } from '../empty';
 import Link from 'next/link';
+import { useSocket } from '@/contexts/socket-context';
 
 const getFriends = async (page = 0) => {
   return (
     await fetcher.get<
       ApiResponse<
-        Pick<User, 'displayname' | 'avatar' | 'id' | 'login' | 'userStatus'>[]
+        Pick<User, 'displayname' | 'avatar' | 'id' | 'login' | 'status'>[]
       >
     >(`/friends?state=ACCEPTED`, {
       params: { page, limit: 1 },
@@ -32,6 +28,7 @@ const getFriends = async (page = 0) => {
 const FriendList = () => {
   const router = useRouter();
   const { state } = useStateContext();
+  const { notifSocket } = useSocket();
   const friendQuery = useInfiniteQuery(
     ['friends-list'],
     ({ pageParam = 0 }) => getFriends(pageParam as number),
@@ -44,6 +41,12 @@ const FriendList = () => {
     },
   );
 
+  useEffect(() => {
+    notifSocket.on('notification', async () => {
+      await friendQuery.refetch();
+    });
+  }, [friendQuery, notifSocket]);
+
   if (friendQuery.isLoading) return <Loading />;
 
   if (friendQuery.isError) return void router.push('/404');
@@ -52,7 +55,9 @@ const FriendList = () => {
   return (
     <Card className="h-[50%] w-[30%]">
       <CardHeader>
-        <CardTitle className="flex capitalize justify-center">Friends List</CardTitle>
+        <CardTitle className="flex justify-center capitalize">
+          Friends List
+        </CardTitle>
       </CardHeader>
       <CardContent className="grid max-h-[calc(100vh-72px-72px)] gap-6 overflow-y-auto">
         {!pages[0]?.data.length && (
@@ -66,9 +71,7 @@ const FriendList = () => {
           <React.Fragment key={idx}>
             {page.data.map((friend) => (
               <Link key={friend.login} href={`/profile/${friend.id}`}>
-                <div
-                  className="flex items-center justify-between space-x-4"
-                >
+                <div className="flex items-center justify-between space-x-4">
                   <div>
                     <div className="flex items-center space-x-4">
                       <Avatar>
@@ -80,6 +83,9 @@ const FriendList = () => {
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {friend.login}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {friend.status}
                         </p>
                       </div>
                     </div>

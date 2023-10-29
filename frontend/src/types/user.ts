@@ -21,7 +21,7 @@ export type User = {
   displayname: string;
   login: string;
   email: string;
-  userStatus: UserStatus;
+  status: UserStatus;
   stat: Stat;
   isCompleted: boolean;
   achievement: Achievements[];

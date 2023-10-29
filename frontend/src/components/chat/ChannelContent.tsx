@@ -76,7 +76,7 @@ export default function ChannelContent({
       setMessage('');
       (e.target as HTMLFormElement).reset();
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

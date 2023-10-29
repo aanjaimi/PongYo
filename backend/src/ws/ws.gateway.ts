@@ -44,16 +44,19 @@ export class WsGateway implements OnGatewayConnection, OnGatewayDisconnect {
           secret: this.configService.get('JWT_SECRET'),
         },
       );
-      const user = await this.prismaService.user.findUnique({
+      const user = await this.prismaService.user.update({
         where: { login },
+        data: {
+          status: 'ONLINE',
+        },
       });
-      if (!user) throw new WsException('user not exists.'); // ?INFO: for security reasons, perhaps it's unnecessary to inform the user about what has occurred.
       client.user = user; // ?INFO: inject the current user into each successfully connected socket client.
       await this.redisService.hset(
         user.id,
         client.id,
         JSON.stringify({ timestamp: Date.now() }),
       );
+      client.broadcast.emit('notification', { type: 'USER_STATUS' });
       return true;
     } catch (err) {
       if (err instanceof JsonWebTokenError) err = new WsException(err.message);

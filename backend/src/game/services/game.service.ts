@@ -58,8 +58,10 @@ export class MatchMakerService {
       if (oppnentSocket === undefined) {
         return;
       }
+      // await this.queueService.remove
       client.emit('queue-joined');
       setTimeout(() => {
+
         oppnentSocket.to(client.user.id).emit('game-start', {
           opp: oppnentSocket.user,
           isRanked: false,
@@ -70,6 +72,7 @@ export class MatchMakerService {
         });
         this.userService.updateUserStatus(oppnentSocket.user.id, 'IN_GAME');
         this.userService.updateUserStatus(client.user.id, 'IN_GAME');
+        this.queueService.remove(QueueType.NORMAL, oppnentSocket.user.id);
         this.gameStarterService.startGame(client, oppnentSocket, false, server);
       }, 500);
       return;
@@ -125,6 +128,7 @@ export class MatchMakerService {
         });
         this.userService.updateUserStatus(oppnentSocket.user.id, 'IN_GAME');
         this.userService.updateUserStatus(client.user.id, 'IN_GAME');
+        this.queueService.remove(QueueType.NORMAL, oppnentSocket.user.id);
         this.gameStarterService.startGame(client, oppnentSocket, true, server);
       }, 500);
       return;
@@ -169,8 +173,6 @@ export class MatchMakerService {
     client.emit('invited-success', {
       opp: opponentId,
     });
-    console.log("user has been invited");
-    console.log(opponentId);
     client.to(opponentId).emit('invited', {
       msg: `${client.user.login} invited you`,
       friend: client.user.id,
@@ -210,6 +212,6 @@ export class MatchMakerService {
       this.userService.updateUserStatus(opponentSocket.user.id, 'IN_GAME');
       this.userService.updateUserStatus(client.user.id, 'IN_GAME');
       this.gameStarterService.startGame(client, opponentSocket, false, server);
-    }, 500);
+    }, 3000);
   }
 }

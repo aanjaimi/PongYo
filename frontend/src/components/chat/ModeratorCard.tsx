@@ -61,7 +61,7 @@ export default function ModeratorCard({
       channel.mutes = updatedMutes;
       updateChannels([...channels]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -76,7 +76,7 @@ export default function ModeratorCard({
       channel.mutes = updatedMutes;
       updateChannels([...channels]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -95,7 +95,7 @@ export default function ModeratorCard({
       channel.members = updatedMembers;
       updateChannels([...channels]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -111,7 +111,7 @@ export default function ModeratorCard({
       channel.members = updatedMembers;
       updateChannels([...channels]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

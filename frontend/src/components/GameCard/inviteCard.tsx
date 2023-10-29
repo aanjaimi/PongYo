@@ -31,9 +31,6 @@ const InvitationCard = ({ setInviteNotify, opp, setIsRanked, setGameStarted, set
   const userQuery = useQuery({
     queryKey: ["users", opp],
     queryFn: async () => await getUser(opp),
-    onError: (error) => {
-      console.log(error);
-    },
   });
 
   useEffect(() => {
@@ -128,7 +125,6 @@ const InvitationCard = ({ setInviteNotify, opp, setIsRanked, setGameStarted, set
               <Button
                 className="  flex h-[40px] w-[140px] rounded-full   text-2xl"
                 onClick={() => {
-                  console.log("cancel");
                   setInviteNotify(false)
                     ;
                   gameSocket.emit("declineInvite");

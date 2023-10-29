@@ -60,7 +60,12 @@ export class AchievementService {
         where: {
           id: playerId,
         },
-        include: {
+        select: {
+          displayname: true,
+          login: true,
+          id: true,
+          avatar: true,
+          status: true,
           achievement: {
             where: { name: achievement.name }, // Check if the achievement already exists
           },
