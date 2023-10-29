@@ -8,10 +8,11 @@ import { UserService } from './services/updateStatus.service';
 import { QueueService } from './services/redis.service';
 import { AchievementService } from './services/achievements.service';
 import { MatchMakerService } from './services/game.service';
-
+import { GameController } from './game.controller';
+import { GameService } from './services/updateStatus.service';
 @Module({
   exports: [GameGateway],
-  controllers: [],
+  controllers: [GameController],
   providers: [
     GameGateway,
     GameStarterService,
@@ -20,6 +21,7 @@ import { MatchMakerService } from './services/game.service';
     QueueService,
     AchievementService,
     MatchMakerService,
+    GameService,
   ],
 })
 export class GameModule {}

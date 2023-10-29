@@ -87,7 +87,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-col">
       {/* Header component */}
       {/* <div className="h-[4rem] w-full bg-[#000000]"></div> */}
       <div className="flex grow flex-row">
