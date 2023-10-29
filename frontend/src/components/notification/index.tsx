@@ -2,6 +2,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -22,7 +23,7 @@ import { Button } from '../ui/button';
 const getNotifications = async (page = 0) => {
   return (
     await fetcher.get<ApiResponse<Notification[]>>(`/notifications`, {
-      params: { page, limit: 4 },
+      params: { page, limit: 2 },
     })
   ).data;
 };
@@ -71,7 +72,7 @@ export function Notifications() {
         <CardDescription>all notifications</CardDescription>
       </CardHeader>
       <CardContent className="grid h-[200px] w-[200px] gap-1 overflow-scroll sm:w-[400px]">
-        {!pages.length && (
+        {!pages[0]?.data.length && (
           <EmptyView
             title="No notifications"
             message="You don't have any notifications yet"
@@ -109,6 +110,7 @@ export function Notifications() {
             ))}
           </React.Fragment>
         ))}
+
         {notificationQuery.hasNextPage && (
           <Button
             onClick={() => void notificationQuery.fetchNextPage()}
