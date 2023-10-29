@@ -8,6 +8,8 @@ import axios from 'axios';
 import { env } from '@/env.mjs';
 import ChannelSettings from './ChannelSettings';
 import { ScrollArea } from '../ui/scroll-area';
+import type { FriendShip } from '@/types/friend';
+import type { Message } from '@/types/message';
 
 interface ChannelContentProps {
   channel: Channel | undefined;
@@ -15,6 +17,9 @@ interface ChannelContentProps {
   user: User;
   channels: Channel[];
   updateChannels: (arg: Channel[]) => void;
+  showSettings: boolean;
+  setShowSettings: (arg: boolean) => void;
+  blocks: FriendShip[];
 }
 
 export default function ChannelContent({
@@ -23,11 +28,18 @@ export default function ChannelContent({
   user,
   channels,
   updateChannels,
+  showSettings,
+  setShowSettings,
+  blocks,
 }: ChannelContentProps) {
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [message, setMessage] = useState<string>('');
-  const [showSettings, setShowSettings] = useState<boolean>(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const hideMessage = (message: Message) => {
+    if (message.userId === user.id) return false;
+    return blocks.some((block) => block.id === message.userId);
+  }
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -40,6 +52,7 @@ export default function ChannelContent({
         channels={channels}
         updateChannels={updateChannels}
         updateSelectedChannel={updateSelectedChannel}
+        blocks={blocks}
       />
     );
 
@@ -89,7 +102,7 @@ export default function ChannelContent({
       {/* channel messages container*/}
       <div className="pb-10px flex h-[86%] flex-col justify-end">
         <ScrollArea className="grow py-[0.5rem]">
-          {channel?.messages?.map((message) => (
+          {channel?.messages?.map((message) => (!hideMessage(message) &&
             <div
               className={`chat ml-[0.75rem] justify-self-end rounded-md ${
                 message.userId === user.id ? 'chat-end mr-[1rem]' : 'chat-start'
@@ -99,7 +112,7 @@ export default function ChannelContent({
               <div className="avatar chat-image">
                 <div className="w-7 rounded-full">
                   <Image
-                    src="/avatar.png"
+                    src={message.user.avatar.path}
                     alt="avatar"
                     width={200}
                     height={200}

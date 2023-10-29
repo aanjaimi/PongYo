@@ -11,6 +11,8 @@ import { PrismaService } from '@/prisma/prisma.service';
 import { ChatGateway } from './chat.gateway';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
+import { FriendService } from '@/friends/friends.service';
+import { ChangeOwnerDto } from './dto/change-owner.dto';
 
 @Injectable()
 export class ChatService {
@@ -18,6 +20,7 @@ export class ChatService {
     private readonly prismaService: PrismaService,
     private readonly chatGateway: ChatGateway,
     private readonly configService: ConfigService,
+    private readonly friendService: FriendService,
   ) {}
 
   private async updateMutesAndBans(channel: Channel) {
@@ -85,6 +88,14 @@ export class ChatService {
 
     // check if other user exists
     if (!otherUser)
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    // check if there is no block between the two users
+    const blocks = await this.friendService.getUserFriendShip(
+      currentUser.id,
+      otherUser.id,
+    );
+    if (blocks.state === 'BLOCKED')
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
     // check if dm exists
@@ -459,6 +470,61 @@ export class ChatService {
     return channel.messages;
   }
 
+  async changeOwner(user: User, id: string, changeOwnerDto: ChangeOwnerDto) {
+    const { userId } = changeOwnerDto;
+    const channel = await this.prismaService.channel.findUnique({
+      where: { id },
+      select: {
+        owner: true,
+        members: true,
+        isDM: true,
+      },
+    });
+
+    // check if channel exists
+    if (!channel) {
+      throw new HttpException('Channel not found', 404);
+    }
+
+    // check if channel is a dm
+    if (channel.isDM) {
+      throw new HttpException('Cannot change owner in DM', 403);
+    }
+
+    // check if user is owner
+    if (channel.owner.id !== user.id) {
+      throw new HttpException('You are not the owner', 403);
+    }
+
+    // check if user is not the owner
+    if (channel.owner.id === userId) {
+      throw new HttpException('this user is already the owner', 403);
+    }
+
+    // check if user is not a member
+    const isMember = channel.members.find((member) => member.id === userId);
+    if (!isMember) {
+      throw new HttpException('User is not a member', 403);
+    }
+
+    // change owner
+    await this.prismaService.channel.update({
+      where: { id },
+      data: {
+        owner: {
+          connect: { id: userId },
+        },
+      },
+    });
+
+    console.log(isMember);
+
+    this.chatGateway
+      .io()
+      .to(`channel-${id}`)
+      .emit('change-owner', { user: isMember, channelId: id });
+  }
+
   async update(user: User, id: string, createChannelDto: CreateChannelDto) {
     const { name, type, password } = createChannelDto;
 
@@ -466,12 +532,18 @@ export class ChatService {
       where: { id },
       select: {
         owner: true,
+        isDM: true,
       },
     });
 
     // check if channel exists
     if (!channel) {
       throw new HttpException('Channel not found', 404);
+    }
+
+    // check if channel is a dm
+    if (channel.isDM) {
+      throw new HttpException('Cannot update DM', 403);
     }
 
     // check if channel name is already taken

@@ -8,12 +8,14 @@ import { type ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import type { FriendShip } from '@/types/friend';
 
 interface JoinChannelProps {
   user: User;
   channels: Channel[];
   updateChannels: (arg: Channel[]) => void;
   updateSelectedChannel: (arg: Channel | undefined) => void;
+  blocks: FriendShip[];
 }
 
 export default function JoinChannel({
@@ -21,6 +23,7 @@ export default function JoinChannel({
   channels,
   updateChannels,
   updateSelectedChannel,
+  blocks,
 }: JoinChannelProps) {
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const { chatSocket } = useSocket();

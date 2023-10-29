@@ -3,12 +3,14 @@ import type { Channel } from '@/types/channel';
 import JoinChannel from './JoinChannel';
 import type { User } from '@/types/user';
 import CreateChannel from './CreateChannel';
+import type { FriendShip } from '@/types/friend';
 
 interface CreateOrJoinProps {
   user: User;
   channels: Channel[];
   updateChannels: (arg: Channel[]) => void;
   updateSelectedChannel: (arg: Channel | undefined) => void;
+  blocks: FriendShip[];
 }
 
 export default function CreateOrJoin({
@@ -16,6 +18,7 @@ export default function CreateOrJoin({
   channels,
   updateChannels,
   updateSelectedChannel,
+  blocks,
 }: CreateOrJoinProps) {
   return (
     <div className="flex grow flex-col">
@@ -32,6 +35,7 @@ export default function CreateOrJoin({
           channels={channels}
           updateChannels={updateChannels}
           updateSelectedChannel={updateSelectedChannel}
+          blocks={blocks}
         />
         {/* Or Seperator */}
         <div className="my-[2rem] flex w-full items-center">

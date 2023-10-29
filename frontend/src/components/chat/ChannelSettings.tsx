@@ -10,6 +10,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import LeaveChannel from './LeaveChannel';
 import Moderator from './Moderator';
+import ChangeOwnership from './ChangeOwnership';
 
 interface channelSettingsProps {
   channel: Channel;
@@ -76,8 +77,8 @@ export default function ChannelSettings({
           {channel.name}
         </h1>
         {/* Separator */}
-        <div className="mx-[2rem] my-[1rem] rounded-full border border-black"></div>
-        <form
+        {/* <div className="mx-[2rem] my-[1rem] rounded-full border border-black"></div> */}
+        {/* <form
           className="my-[0.5rem] ml-6 flex self-center rounded-full bg-white"
           onSubmit={(e) => inviteUser(e)}
         >
@@ -89,7 +90,7 @@ export default function ChannelSettings({
             onChange={(e) => setUserName(e.target.value)}
           />
           <Button className="">invite</Button>
-        </form>
+        </form> */}
         <ChannelSettingsContent
           channel={channel}
           channels={channels}
@@ -107,7 +108,9 @@ export default function ChannelSettings({
                 setShowSettings={setShowSettings}
               />
             ) : (
-              <Button className="m-[1rem]">delete channel</Button>
+              <ChangeOwnership
+                channel={channel}
+              />
             )}
           </div>
         </div>
