@@ -1,14 +1,13 @@
-import React, { useEffect } from "react";
-import NavBar from "./navbar/NavBar";
-import SideBar from "./sidebar/SideBar";
-import { useStateContext } from "@/contexts/state-context";
-import Otp from "./Otp";
-import { useSocket } from "@/contexts/socket-context";
-import { toast } from "react-toastify";
-import router from "next/router";
-import { ToastContainer } from "react-toastify";
+import React, { useEffect } from 'react';
+import NavBar from './navbar/NavBar';
+import SideBar from './sidebar/SideBar';
+import { useStateContext } from '@/contexts/state-context';
+import Otp from './Otp';
+import { useSocket } from '@/contexts/socket-context';
+import { toast } from 'react-toastify';
+import router from 'next/router';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -22,25 +21,27 @@ export default function Layout({ children }: LayoutProps) {
   const { notifSocket, chatSocket, gameSocket } = useSocket();
 
   useEffect(() => {
-    const inviteNotify = (data: { msg: string, friend: string }) => {
+    const inviteNotify = (data: { msg: string; friend: string }) => {
       toast(data.msg, {
-        position: "top-center",
+        position: 'top-center',
         autoClose: 5000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "dark",
+        theme: 'dark',
         onClick: () => {
-          gameSocket.emit("acceptInvite", { opponent: data.friend });
-          router.push({
-            pathname: '/game',
-            query: {
-              username: data.friend,
-              startGame: true,
-            },
-          }).catch(err => console.log(err))
+          gameSocket.emit('acceptInvite', { opponent: data.friend });
+          router
+            .push({
+              pathname: '/game',
+              query: {
+                username: data.friend,
+                startGame: true,
+              },
+            })
+            .catch((err) => console.log(err));
         },
       });
     };
@@ -48,16 +49,16 @@ export default function Layout({ children }: LayoutProps) {
       if (!notifSocket.connected) notifSocket.connect();
       if (!chatSocket.connected) chatSocket.connect();
       if (!gameSocket.connected) gameSocket.connect();
-      gameSocket.on("invited", (data: { msg: string, friend: string }) => {
+      gameSocket.on('invited', (data: { msg: string; friend: string }) => {
         inviteNotify({ msg: data.msg, friend: data.friend });
       });
       return () => {
-        gameSocket.off("invited", inviteNotify);
-      }
+        gameSocket.off('invited', inviteNotify);
+      };
     }
   }, [auth_status, notifSocket, chatSocket, gameSocket]);
 
-  if (auth_status === "otp")
+  if (auth_status === 'otp')
     return (
       <div className="flex h-screen w-screen">
         <Otp />
@@ -65,7 +66,6 @@ export default function Layout({ children }: LayoutProps) {
     );
 
   if (auth_status === 'authenticated') {
-
     return (
       <div className="flex h-screen w-screen flex-col">
         <NavBar />
@@ -74,7 +74,6 @@ export default function Layout({ children }: LayoutProps) {
           <div className="h-full w-full">{children}</div>
         </div>
         <ToastContainer />
-
       </div>
     );
   }

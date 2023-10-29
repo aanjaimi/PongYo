@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { env } from "@/env.mjs";
-import { createContext, useContext, useEffect, useReducer } from "react";
+import { env } from '@/env.mjs';
+import { createContext, useContext, useEffect, useReducer } from 'react';
 import io, {
   type ManagerOptions,
   type SocketOptions,
   type Socket,
-} from "socket.io-client";
-import { useStateContext } from "./state-context";
+} from 'socket.io-client';
+import { useStateContext } from './state-context';
 
 type SocketContextProps = {
   notifSocket: Socket;
@@ -43,22 +43,22 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
       const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
       const opts = {
         withCredentials: true,
-        transports: ["websocket"],
+        transports: ['websocket'],
         autoConnect: state.auth_status === 'authenticated',
       } satisfies Partial<ManagerOptions & SocketOptions>;
 
       const [notifSocket, chatSocket, gameSocket] = [
         // TODO: pass opts from provider!
-        io(uri + "/notification", opts),
-        io(uri + "/chat", opts), // ! TODO:  avoid double slash in path!
-        io(uri + "/game", opts),
+        io(uri + '/notification', opts),
+        io(uri + '/chat', opts), // ! TODO:  avoid double slash in path!
+        io(uri + '/game', opts),
       ];
       return {
         notifSocket,
         chatSocket,
         gameSocket,
       } satisfies SocketContextProps;
-    }
+    },
   );
 
   useEffect(() => {

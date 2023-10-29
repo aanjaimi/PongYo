@@ -31,6 +31,7 @@ async function bootstrap() {
   app.enableCors(Object.assign(corsOptions)); // nestjs updating the origin property
   app.useWebSocketAdapter(new SocketIoAdapter(app, corsOptions));
 
+  app.setGlobalPrefix('/api');
   // TODO: add morgan !
   // TODO: use helmet for security reasons!
 

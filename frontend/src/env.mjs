@@ -1,5 +1,5 @@
-import { createEnv } from "@t3-oss/env-nextjs";
-import { z } from "zod";
+import { createEnv } from '@t3-oss/env-nextjs';
+import { z } from 'zod';
 
 export const env = createEnv({
   /**
@@ -7,7 +7,7 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    NODE_ENV: z.enum(["development", "test", "production"]),
+    NODE_ENV: z.enum(['development', 'test', 'production']),
   },
 
   /**
@@ -17,6 +17,7 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_BACKEND_ORIGIN: z.string(),
+    NEXT_PUBLIC_DOCKER_BACKEND_ORIGIN: z.string(),
     // NEXT_PUBLIC_CLIENTVAR: z.string().min(1),
   },
 
@@ -26,6 +27,8 @@ export const env = createEnv({
    */
   runtimeEnv: {
     NEXT_PUBLIC_BACKEND_ORIGIN: process.env.NEXT_PUBLIC_BACKEND_ORIGIN,
+    NEXT_PUBLIC_DOCKER_BACKEND_ORIGIN:
+      process.env.NEXT_PUBLIC_DOCKER_BACKEND_ORIGIN,
     NODE_ENV: process.env.NODE_ENV,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
