@@ -5,11 +5,13 @@ import type { User } from "@/types/user";
 
 const Home = () => {
   const [gameStarted, setGameStarted] = useState(false);
+  const [isRanked, setIsRanked] = useState(false);
   const [oppData, setOppData] = useState({} as User)
 
   return (
-    <div>
-      {gameStarted ? <Game oppData={oppData} /> : <GameCard setGameStarted={setGameStarted} setOppData={setOppData} />}
+    <div className="w-full h-full">
+      {gameStarted ? <Game oppData={oppData} isRanked={isRanked} /> :
+        <GameCard setGameStarted={setGameStarted} setOppData={setOppData} setIsRanked={setIsRanked} />}
     </div>
   );
 };

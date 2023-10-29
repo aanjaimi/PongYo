@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserQueryDTO, UserUpdateDTO } from './users.dto';
 import { Prisma, User } from '@prisma/client';
@@ -12,32 +12,55 @@ export class UserService {
 
   async getUsers(userId: string, query: UserQueryDTO) {
     const where = {
-      ...(query.login && {
-        OR: [
-          { login: { contains: query.login } },
-          { displayname: { contains: query.login } },
-        ],
-      }),
+      AND: [
+        {
+          ...(query.login && {
+            OR: [
+              { login: { contains: query.login, mode: 'insensitive' } },
+              { displayname: { contains: query.login, mode: 'insensitive' } },
+            ],
+          }),
+        },
+        {
+          friends: {
+            none: {
+              friendId: userId,
+              state: 'BLOCKED',
+            },
+          },
+        },
+      ],
     } satisfies Prisma.UserWhereInput;
 
-    const [totalCount, users] = await this.prismaService.$transaction([
-      this.prismaService.user.count({ where }),
-      this.prismaService.user.findMany({
-        where,
-        skip: query.getSkip(),
-        take: query.limit,
-        // TODO: add sorting by rank!
-        orderBy: {
-          updatedAt: 'desc',
+    const users = await this.prismaService.user.findMany({
+      where,
+      skip: query.getSkip(),
+      take: query.limit,
+      orderBy: [
+        {
+          stat: {
+            rank: 'desc',
+          },
         },
-      }),
-    ]);
-    return buildPagination(users, query.limit, totalCount);
+        {
+          stat: {
+            points: 'desc',
+          },
+        },
+      ],
+      include: {
+        stat: true,
+      },
+    });
+    return buildPagination(users, query.limit);
   }
 
-  async getUser(userId: string, otherId: string) {
-    if (otherId === '@me') otherId = userId;
-    const { friend: user } = await friendChecking.bind(this)(userId, otherId);
+  async getUser(currUser: User, otherId: string) {
+    if (['@me', currUser.id, currUser.login].includes(otherId)) return currUser;
+    const { friend: user } = await friendChecking.bind(this)(
+      currUser.id,
+      otherId,
+    );
     return user;
   }
 
@@ -59,6 +82,13 @@ export class UserService {
       totp = Object.assign(totp, payload);
     }
 
+    const existantUser = await this.prismaService.user.findUnique({
+      where: { displayname: rest.displayname },
+    });
+    if (existantUser && existantUser.id !== user.id) {
+      throw new HttpException('Displayname already taken', 403);
+    }
+
     return await this.prismaService.user.update({
       where: { id: user.id },
       data: {
@@ -69,7 +99,8 @@ export class UserService {
             minio: true,
           },
         }),
-        totp,
+        ...(tfa !== undefined && { totp }), // TODO: check this !
+        isCompleted: true,
       },
     });
   }

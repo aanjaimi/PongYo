@@ -17,6 +17,7 @@ import { User } from '@prisma/client';
 import { UserQueryDTO, UserUpdateDTO } from './users.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CurrentUser } from '@/global/global.decorators';
+import { IgnoreOtp } from '@/auth/auth.decorators';
 @Controller('/users')
 @UseGuards(JwtAuthGuard)
 export class UserController {
@@ -28,8 +29,9 @@ export class UserController {
   }
 
   @Get(':id')
+  @IgnoreOtp()
   async findOne(@CurrentUser() user: User, @Param('id') login: string) {
-    return await this.userService.getUser(user.id, login);
+    return await this.userService.getUser(user, login);
   }
   @Patch()
   @UseInterceptors(FileInterceptor('avatar'))

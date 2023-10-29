@@ -28,6 +28,6 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs"
-  ],
+, "../_Sidebar.tsx", "../_Navbar.tsx"  ],
   "exclude": ["node_modules"]
 }

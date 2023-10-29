@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 export default function Home() {
   const router = useRouter();
   return (
-    <div className="flex h-screen w-screen items-center justify-center">
+    <div className="flex h-full w-full items-center justify-center">
       <div className="flex h-[420px] w-[350px] flex-col items-center justify-center rounded-[63px] border font-['outfit'] sm:h-[385px] sm:w-[541px]">
         <div className="mb-[40px] flex h-[84px] w-[65px] justify-center">
           <Image src={"/logo.png"} alt="image" width={500} height={500} />

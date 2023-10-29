@@ -1,88 +1,82 @@
 import React, { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSocket } from "@/contexts/socket-context";
 import type { ChangeEvent } from "react";
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { useRouter } from "next/router";
 
-const InvitedButton = () => {
-  // State
+type InvitedButtonProps = {
+  setInviteNotify: (value: boolean) => void;
+  setFriend: (value: string) => void;
+};
+
+const InvitedButton = ({ setInviteNotify, setFriend }: InvitedButtonProps) => {
   const { gameSocket } = useSocket();
   const [username, setUsername] = useState("");
-
-  // Handle Invite Click
-  const handleInviteClick = () => {
-    console.log("event 1");
-    gameSocket.emit("invite", { username });
+  const router = useRouter();
+  const { query } = router;
+  const handleInviteClick = (propUserName: string) => {
+    if (propUserName) {
+      setFriend(propUserName);
+      gameSocket.emit("invite", { opponent: propUserName });
+      return;
+    }
+    setFriend(username);
+    gameSocket.emit("invite", { opponent: username });
   };
-
-  // Handle Input Change
-  const handleInputChange = (event:ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     setUsername(event.target.value);
   };
-
   useEffect(() => {
-    const invitedSuccessHandler = (data:{msg:string}) => {
-      console.log(data);
-      notifySuccess(data.msg);
+    const handleInviteClick = (propUserName: string) => {
+      if (propUserName) {
+        setFriend(propUserName);
+        gameSocket.emit("invite", { opponent: propUserName });
+        return;
+      }
+      setFriend(username);
+      gameSocket.emit("invite", { opponent: username });
     };
+    if (query.username && !query.startGame) {
+      setUsername(query.username as string);
+      handleInviteClick(query.username as string);
+      router.replace({
+        pathname: router.pathname,
+        query: {},
+      }).catch((err) => console.error(err));
+    }
+    if(query.startGame && query.username){
+      setFriend(query.username as string);
+      setInviteNotify(true);
+      gameSocket.emit("readyToPlay");
+      router.replace({
+        pathname: router.pathname,
+        query: {},
+      }).catch((err) => console.error(err));
+    }
+    const invitedSuccessHandler = () => {
 
-    const invitedHandler = (data:{msg:string, friend:string}) => {
-      console.log(data);
-      inviteNotify(data);
+      setInviteNotify(true);
+      gameSocket.emit("readyToPlay");
+
     };
-
-    const invitedFailHandler = (data:{msg:string}) => {
-      console.log(data);
+    const invitedFailHandler = (data: { msg: string }) => {
       notifyError(data.msg);
     };
 
     gameSocket.on("invited-success", invitedSuccessHandler);
     gameSocket.on("invited-fail", invitedFailHandler);
-    gameSocket.on("invited", invitedHandler);
-
     return () => {
       gameSocket.off("invited-success", invitedSuccessHandler);
       gameSocket.off("invited-fail", invitedFailHandler);
-      gameSocket.off("invited", invitedHandler);
     };
-  }, [gameSocket]);
+  }, [gameSocket, query, router, setFriend, setInviteNotify,username]);
 
-  const inviteNotify = (data:{msg:string, friend:string}) => {
-    toast(data.msg, {
-      position: "top-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-      onClick: () => {
-        console.log("Toast clicked!");
-        gameSocket.emit("acceptInvite", { friend : data.friend});
-        // setGameStarted(true);
-      },
-    });
-  };
-
-  // Notify Success
-  const notifySuccess = (message:string) => {
-    toast.success(message, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    });
-  };
-
-  // Notify Error
-  const notifyError = (message:string) => {
+  const notifyError = (message: string) => {
     toast.error(message, {
-      position: "top-right",
+      position: "top-left",
       autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,
@@ -95,23 +89,21 @@ const InvitedButton = () => {
 
   return (
     <div className="relative mx-auto flex w-[70%]">
-      <input
+      <Input
         type="text"
         placeholder="Enter username"
-        className="h-10 w-[100%] rounded-full bg-gray-500 pl-4 focus:outline-none"
+        className="h-10 w-[100%] rounded-full pl-4 focus:outline-none text-black text-xl"
         value={username}
         onChange={handleInputChange}
-        maxLength={22}
+        maxLength={23}
       />
-      <button
-        className="absolute right-0 h-10 w-[30%] rounded-full bg-blue-500 text-white"
-        onClick={handleInviteClick}
+      <Button
+        className="absolute right-0 h-10 w-[30%] rounded-full  text-white"
+        onClick={() => handleInviteClick(username)}
       >
         Invite
-      </button>
-      <ToastContainer />
+      </Button>
     </div>
   );
 };
-
 export default InvitedButton;

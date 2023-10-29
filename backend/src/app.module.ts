@@ -2,16 +2,19 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validationSchema, validationOptions } from '@/config/validation.joi';
+import { ChatModule } from './chat/chat.module';
 import { AuthModule } from './auth/auth.module';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from './users/users.module';
 import { RedisModule } from './redis/redis.module';
-import { GameModule } from './game/game.module';
+// import { GameModule } from './game/game.module';
 import { WsModule } from './ws/ws.module';
 import { MinioModule } from './minio/minio.module';
 import { FriendModule } from './friends/friends.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { NotificationsModule } from './notifications/notifications.module';
+import { GameModule } from './game/game.module';
+import { AchievementModule } from './achievement/achievement.module';
 
 @Module({
   imports: [
@@ -22,7 +25,9 @@ import { NotificationsModule } from './notifications/notifications.module';
       validationSchema,
       validationOptions,
     }),
+    ChatModule,
     AuthModule,
+    GameModule,
     UserModule,
     RedisModule.forRootAsync({
       inject: [ConfigService],
@@ -34,7 +39,7 @@ import { NotificationsModule } from './notifications/notifications.module';
         };
       },
     }),
-    GameModule,
+    // GameModule,
     WsModule,
     EventEmitterModule.forRoot({ global: true }),
     MinioModule.forRootAsync({
@@ -51,6 +56,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     }),
     FriendModule,
     NotificationsModule,
+    AchievementModule,
   ],
   controllers: [],
   providers: [],

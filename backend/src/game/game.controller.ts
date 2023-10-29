@@ -1,20 +1,16 @@
-// friends.controller.ts
-// import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-// import { FriendsService } from './friends.service';
-// import { BadRequestException } from '@nestjs/common';
-// import { JwtAuthGuard } from '@/auth/guards/jwt.guard';
-// import { CurrentUser } from '@/auth/auth.decorator';
-// import { User } from '@prisma/client';
+import { Controller, Get, UseGuards, Param } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { GameService } from './services/updateStatus.service';
+import { CurrentUser } from '@/global/global.decorators';
+import { User } from '@prisma/client';
 
-// @Controller('game')
-// @UseGuards(JwtAuthGuard)
-// export class GameController {
-//   constructor(private readonly friendsService: FriendsService) {}
-//   @Get('search')
-//   async searchFriends(@Query('username') username: string) {
-//     if (!username) {
-//       throw new BadRequestException('Username parameter is required');
-//     }
-//     return await this.friendsService.searchFriendsByUsername(username);
-//   }
-// }
+@Controller('/games')
+@UseGuards(JwtAuthGuard)
+export class AchievementController {
+  constructor(private gameService: GameService) {}
+
+  @Get(':id')
+  async findAll(@CurrentUser() user: User, @Param('id') id: string) {
+    return await this.gameService.getGamesLog(user, id);
+  }
+}

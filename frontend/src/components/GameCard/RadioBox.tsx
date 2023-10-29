@@ -1,5 +1,10 @@
 import React from "react";
-import type {RadioButtonProps} from "../gameTypes/types";
+type RadioButtonProps = {
+  value: string;
+  label: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
 const RadioButton = ({ value, label, onChange }:RadioButtonProps) => {
   return (
     <div className="flex space-x-4">

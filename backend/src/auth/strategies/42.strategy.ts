@@ -4,13 +4,14 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { FortyTwoProfile } from '../interfaces/42.interface';
-import { User } from '@prisma/client';
+import { Stat, User } from '@prisma/client';
 
 type UserWithAvatar = User & {
   avatar: {
     minio: boolean;
     path: string;
   };
+  stat: Stat;
 };
 
 @Injectable()
@@ -53,9 +54,11 @@ export class FortyTwoStrategy extends PassportStrategy(Strategy, '42') {
             defeats: 0,
             points: 0,
             rank: 'UNRANKED',
+            rowVectories: 0,
           },
         },
       },
+      include: { stat: true },
       update: {},
     })) as UserWithAvatar;
 

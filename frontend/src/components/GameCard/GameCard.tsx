@@ -1,26 +1,37 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect} from "react";
 import InvitedButton from "./InvitedButton";
 import Divider from "./Divider";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
 import PopUp from "./popUp";
 import { useSocket } from "@/contexts/socket-context";
 import CustomModal from "./CustomModal";
 import { toast } from "react-toastify";
 import type { User } from "@/types/user";
 import type { ChangeEvent } from "react";
-import type { GameCardProps } from "../gameTypes/types";
+import InvitationCard from "./inviteCard";
+import {
+  Card, CardTitle,
+} from "@/components/ui/card"
 
-const GameCard = ({ setGameStarted, setOppData }: GameCardProps) => {
+
+type GameCardProps = {
+  setGameStarted: React.Dispatch<React.SetStateAction<boolean>>;
+  setOppData: React.Dispatch<React.SetStateAction<User>>;
+  setIsRanked: React.Dispatch<React.SetStateAction<boolean>>;
+};
+const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) => {
   const { gameSocket } = useSocket();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [showValidation, setShowValidation] = useState(false);
-
+  const [inviteNotify, setInviteNotify] = useState(false);
+  const [friend, setFriend] = useState("");
   const handleStartClick = () => {
     if (selectedOption === "Normal game") {
-      console.log("Normal game clicked");
+      setIsRanked(false);
       gameSocket.emit("join-queue");
     } else if (selectedOption === "Ranked game") {
+      setIsRanked(true);
       gameSocket.emit("join-ranked-queue");
     } else {
       setShowValidation(true);
@@ -49,50 +60,50 @@ const GameCard = ({ setGameStarted, setOppData }: GameCardProps) => {
   };
 
   useEffect(() => {
+
     const handleAlreadyInQueue = (data: { msg: string }) => {
-      console.log(data);
       notifyError(data.msg);
     };
 
     const handleQueueJoined = () => {
+      gameSocket.emit("readyToPlay");
       setIsPopupOpen(true);
-    };
-
-    const handleGameStart = (data: { opp: User }) => {
-      console.log("gameStart");
-      console.log(data);
-      setOppData(data.opp);
-      setGameStarted(true);
-      setIsPopupOpen(false);
     };
 
     gameSocket.on("already-in-Queue", handleAlreadyInQueue);
     gameSocket.on("queue-joined", handleQueueJoined);
-    gameSocket.on("game-start", handleGameStart);
-
     return () => {
       gameSocket.off("already-in-Queue", handleAlreadyInQueue);
-      gameSocket.off("game-start", handleGameStart);
       gameSocket.off("queue-joined", handleQueueJoined);
     };
-  }, []);
+  }, [gameSocket, setIsPopupOpen]);
 
   return (
-    <div className="flex h-screen w-screen flex-col items-center justify-center">
+    <Card className="flex h-full   flex-col items-center justify-center grow ">
+      {inviteNotify && (
+        <InvitationCard
+          setInviteNotify={setInviteNotify}
+          opp={friend}
+          setIsRanked={setIsRanked}
+          setGameStarted={setGameStarted}
+          setOppData={setOppData}
+        />
+      )}
       {isPopupOpen && (
         <PopUp
+          setOppData={setOppData}
+          setIsRanked={setIsRanked}
+          setGameStarted={setGameStarted}
           setIsPopupOpen={setIsPopupOpen}
           selectedOption={selectedOption}
         />
       )}
 
-      {!isPopupOpen && (
-        <div className="flex h-[450px] w-[500px] flex-col rounded-xl bg-[#33437D]">
-          <div className="pt-7">
-            <h1 className="pl-5 text-3xl text-white "> Start A Game :</h1>
-          </div>
-          <div className="flex space-x-16 pl-16 pt-5 text-sm text-white">
-            <div className="space-x-4">
+      {!isPopupOpen && !inviteNotify && (
+        <div className="flex sm:h-[450px] sm:w-[500px] w-[320px] h-[350px]  flex-col rounded-xl bg-white border-4 text-black ">
+          <CardTitle className="sm:text-3xl text-xl sm:pt-5 sm:pl-5 pt-2 pl-2">Start A Game :</CardTitle>
+          <div className="flex space-x-16 sm:pl-16 pl-4 pt-5 text-sm text-black ">
+            <div className="sm:space-x-4 space-x-2">
               <input
                 type="radio"
                 id="normalGame"
@@ -101,9 +112,10 @@ const GameCard = ({ setGameStarted, setOppData }: GameCardProps) => {
                 checked={selectedOption === "Normal game"}
                 onChange={handleChange}
               />
-              <label htmlFor="normalGame">Normal game</label>
+              <label className="sm:text-lg " htmlFor="normalGame">Normal game
+              </label>
             </div>
-            <div className="space-x-4">
+            <div className="sm:space-x-4 space-x-2">
               <input
                 type="radio"
                 id="rankedGame"
@@ -112,31 +124,27 @@ const GameCard = ({ setGameStarted, setOppData }: GameCardProps) => {
                 checked={selectedOption === "Ranked game"}
                 onChange={handleChange}
               />
-              <label htmlFor="rankedGame">Ranked game</label>
+              <label className="sm:text-lg" htmlFor="rankedGame">Ranked game</label>
             </div>
           </div>
 
-          <div className="mt-8 flex w-full items-center justify-center text-xl text-white">
+          <div className="mt-8 flex w-full items-center justify-center text-xl ">
             <Button
-              className="flex h-[40px] w-[140px] rounded-full bg-blue-500 text-2xl"
+              className="flex sm:h-[40px] sm:w-[140px] rounded-full  text-2xl"
               onClick={handleStartClick}
             >
               Start
             </Button>
           </div>
           <Divider />
-          <div className="mt-10 flex">
-            <h1 className="pl-5 text-3xl text-white "> INVITE YOUR FRIEND :</h1>
-          </div>
-          <div className="mt-6 flex items-center pt-2 text-xl text-white">
-            <InvitedButton />
+          <CardTitle className="sm:text-3xl text-xl pt-5 pl-5">Invite A Friend :</CardTitle>
+          <div className="sm:mt-6 flex items-center pt-2 text-xl text-white">
+            <InvitedButton setInviteNotify={setInviteNotify} setFriend={setFriend} />
           </div>
         </div>
       )}
-
-      {/* Display the custom validation modal */}
       {showValidation && <CustomModal onClose={handleCloseValidation} />}
-    </div>
+    </Card>
   );
 };
 

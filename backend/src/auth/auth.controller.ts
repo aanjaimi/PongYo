@@ -14,7 +14,6 @@ import { FortyTwoGuard } from './guards/42.guard';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { User } from '@prisma/client';
 import { OtpCallbackDTO } from './auth.dto';
-import * as qrCode from 'qrcode';
 import { AccessToken, CurrentUser } from '@/global/global.decorators';
 import { OptAuthGuard } from './guards/otp.guard';
 
@@ -25,6 +24,7 @@ export class AuthController {
   @Get('42')
   @UseGuards(FortyTwoGuard)
   fortyTwoLogin() {
+    console.log('42 login');
     // ? INFO: this function will redirect to intra login page !
   }
 
@@ -33,8 +33,8 @@ export class AuthController {
   async fortyTwoCallback(@Req() req: Request, @Res() res: Response) {
     this.authService.fortyTwoCallback(req.user, res);
   }
-  @Get('logout')
   @UseGuards(JwtAuthGuard)
+  @Get('logout')
   async logout(@Req() req: Request, @Res() res: Response) {
     this.authService.logout(req, res);
   }
@@ -60,17 +60,7 @@ export class AuthController {
   @UseGuards(OptAuthGuard)
   @Get('me')
   async me(@CurrentUser() user: User) {
-    const otpauthUrl = user.totp['otpauth_url'];
-    const data = await qrCode.toDataURL(otpauthUrl);
-    return `
-    <span>${user.displayname}</span>
-    <img src="${data}"/>
-
-    <form action="/auth/otp" method="POST">
-      <input type="text" name="token" placeholder="enter otp code"/>
-      <submit />
-    </form>
-    `;
+    return user;
   }
 
   // TODO: remove later

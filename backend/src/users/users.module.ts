@@ -15,7 +15,7 @@ import { MinioStorage } from '@/minio/minio.storage';
           storage: new MinioStorage(minioService),
           limits: {
             files: 1, // allow only 1 file per request
-            fileSize: 5 * (1024 * 1024), // 5 MB (max file size)
+            fileSize: 10 * (1024 * 1024), // 10 MB (max file size)
           },
         };
       },
