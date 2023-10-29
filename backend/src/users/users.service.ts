@@ -16,8 +16,8 @@ export class UserService {
         {
           ...(query.login && {
             OR: [
-              { login: { contains: query.login } },
-              { displayname: { contains: query.login } },
+              { login: { contains: query.login, mode: 'insensitive' } },
+              { displayname: { contains: query.login, mode: 'insensitive' } },
             ],
           }),
         },

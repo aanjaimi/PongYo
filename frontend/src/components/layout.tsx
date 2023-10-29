@@ -41,7 +41,7 @@ export default function Layout({ children }: LayoutProps) {
         <NavBar />
         <div className="flex h-full w-full">
           <SideBar />
-          <div className="h-full w-full">{children}</div>
+          <div className="h-full w-full z-[-1]">{children}</div>
         </div>
       </div>
     );
