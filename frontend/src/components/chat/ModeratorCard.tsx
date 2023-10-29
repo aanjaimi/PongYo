@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { useState } from 'react';
-import axios from 'axios';
+import { fetcher } from '@/utils/fetcher';
 import { env } from '@/env.mjs';
 import { displayString } from './ChannelsList';
 
@@ -43,13 +43,12 @@ export default function ModeratorCard({
 
   const mute = async () => {
     try {
-      const { data }: { data: mute } = await axios.patch(
+      const { data } = await fetcher.patch<mute>(
         `${uri}/chat/channel/${channel.id}/mutes`,
         {
           userId: cardUser.id,
           muteDuration: 3600000,
         },
-        { withCredentials: true },
       );
       const oldMute = channel.mutes.find((mute) => mute.userId === cardUser.id);
       if (oldMute) {
@@ -68,9 +67,8 @@ export default function ModeratorCard({
 
   const unMute = async () => {
     try {
-      await axios.delete(
+      await fetcher.delete(
         `${uri}/chat/channel/${channel.id}/mutes?userId=${cardUser.id}`,
-        { withCredentials: true },
       );
       const updatedMutes = channel.mutes.filter(
         (mute) => mute.userId !== cardUser.id,
@@ -84,13 +82,12 @@ export default function ModeratorCard({
 
   const ban = async () => {
     try {
-      await axios.patch(
+      await fetcher.patch(
         `${uri}/chat/channel/${channel.id}/bans`,
         {
           userId: cardUser.id,
           banDuration: 3600000,
         },
-        { withCredentials: true },
       );
       const updatedMembers = channel.members.filter(
         (member) => member.id !== cardUser.id,
@@ -104,8 +101,7 @@ export default function ModeratorCard({
 
   const kick = async () => {
     try {
-      console.log('kick');
-      await axios.delete(
+      await fetcher.delete(
         `${uri}/chat/channel/${channel.id}/kicks?userId=${cardUser.id}`,
         { withCredentials: true },
       );
@@ -134,7 +130,13 @@ export default function ModeratorCard({
       >
         <div className="ml-[1rem] flex items-center">
           <div className="mr-[0.5rem] w-[3rem] rounded-full">
-            <Image src={cardUser.avatar.path} alt="avatar" width={200} height={200} className="rounded-full" />
+            <Image
+              src={cardUser.avatar.path}
+              alt="avatar"
+              width={200}
+              height={200}
+              className="rounded-full"
+            />
           </div>
           <h2 className="ml-[0.5rem] truncate">
             {displayString(cardUser.displayname, nameLenght)}

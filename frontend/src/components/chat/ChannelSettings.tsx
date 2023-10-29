@@ -2,7 +2,7 @@ import type { Channel } from '@/types/channel';
 import type { User } from '@/types/user';
 import React, { useState } from 'react';
 import Image from 'next/image';
-// import axios from 'axios';
+// import { fetcher } from '@/utils/fetcher';
 // import { env } from '@/env.mjs';
 import ChannelSettingsContent from './ChannelSettingsContent';
 import EditChannel from './EditChannel';
@@ -31,18 +31,6 @@ export default function ChannelSettings({
 }: channelSettingsProps) {
   // const url = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [userName, setUserName] = useState<string>('');
-
-  const inviteUser = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // axios
-    //   .post(`${url}/invitePath???`, {}, { withCredentials: true })
-    //   .then((data) => {
-    //     console.log(data);
-    //   })
-    //   .catch((err) => console.log(err));
-    setUserName('');
-    e.currentTarget.reset();
-  };
 
   return (
     <>
@@ -76,21 +64,6 @@ export default function ChannelSettings({
         <h1 className="my-[0.5rem] text-center text-2xl font-bold">
           {channel.name}
         </h1>
-        {/* Separator */}
-        {/* <div className="mx-[2rem] my-[1rem] rounded-full border border-black"></div> */}
-        {/* <form
-          className="my-[0.5rem] ml-6 flex self-center rounded-full bg-white"
-          onSubmit={(e) => inviteUser(e)}
-        >
-          <Input
-            type="text"
-            placeholder="username..."
-            className="mr-[1rem] w-[15rem] border-[2px] border-black"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-          />
-          <Button className="">invite</Button>
-        </form> */}
         <ChannelSettingsContent
           channel={channel}
           channels={channels}
@@ -108,9 +81,7 @@ export default function ChannelSettings({
                 setShowSettings={setShowSettings}
               />
             ) : (
-              <ChangeOwnership
-                channel={channel}
-              />
+              <ChangeOwnership channel={channel} />
             )}
           </div>
         </div>

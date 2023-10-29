@@ -1,6 +1,6 @@
 import { ChatType, type Channel } from '@/types/channel';
 import type { User } from '@/types/user';
-import axios from 'axios';
+import { fetcher } from '@/utils/fetcher';
 import React, { useState } from 'react';
 import { env } from '@/env.mjs';
 import { useSocket } from '@/contexts/socket-context';
@@ -50,9 +50,8 @@ export default function JoinChannel({
     } else if (channel) return;
 
     try {
-      const { data }: { data: Channel } = await axios.get(
-        `${uri}/chat/directMessage?displayname=${displayname}`,
-        { withCredentials: true },
+      const { data } = await fetcher.get<Channel>(
+        `/chat/directMessage?displayname=${displayname}`,
       );
       channel = data;
       if (!channel) return;
@@ -81,9 +80,8 @@ export default function JoinChannel({
 
     try {
       if (!passwordRequired) {
-        const { data }: { data: Channel } = await axios.get(
-          `${uri}/chat/channel?name=${joinChannelName}`,
-          { withCredentials: true },
+        const { data } = await fetcher.get<Channel>(
+          `/chat/channel?name=${joinChannelName}`,
         );
         channel = data;
         if (channel.type === ChatType.PROTECTED) {
@@ -91,10 +89,9 @@ export default function JoinChannel({
           channel = undefined;
           return;
         } else {
-          const { data }: { data: Channel } = await axios.patch(
-            `${uri}/chat/channel/${channel.id}/join`,
+          const { data } = await fetcher.patch<Channel>(
+            `/chat/channel/${channel.id}/join`,
             { password: '' },
-            { withCredentials: true },
           );
           channel = data;
         }
@@ -102,16 +99,14 @@ export default function JoinChannel({
         if (!joinChannelPassword)
           return toast.error("Password can't be empty", toastOptions);
         {
-          const { data }: { data: Channel } = await axios.get(
-            `${uri}/chat/channel?name=${joinChannelName}`,
-            { withCredentials: true },
+          const { data } = await fetcher.get<Channel>(
+            `/chat/channel?name=${joinChannelName}`,
           );
           channel = data;
         }
-        const { data }: { data: Channel } = await axios.patch(
-          `${uri}/chat/channel/${channel.id}/join`,
+        const { data } = await fetcher.patch<Channel>(
+          `/chat/channel/${channel.id}/join`,
           { password: joinChannelPassword },
-          { withCredentials: true },
         );
         channel = data;
       }

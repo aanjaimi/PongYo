@@ -14,7 +14,7 @@ import { env } from '@/env.mjs';
 import type { Channel } from '@/types/channel';
 import { type ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import axios from 'axios';
+import { fetcher } from '@/utils/fetcher';
 
 interface ModeratorProps {
   channel: Channel;
@@ -38,10 +38,9 @@ export default function Moderator({ channel }: ModeratorProps) {
         (member) => member.displayname === userName.trim(),
       );
       if (!modCandidate) return toast.error('User not found', toastOptions);
-      await axios.patch(
+      await fetcher.patch(
         `${url}/chat/channel/${channel.id}/moderators`,
         { userId: modCandidate?.id },
-        { withCredentials: true },
       );
       setUserName('');
       setShowDialog(false);
@@ -57,9 +56,8 @@ export default function Moderator({ channel }: ModeratorProps) {
         (moderator) => moderator.displayname === userName.trim(),
       );
       if (!mod) return toast.error('User not found', toastOptions);
-      await axios.delete(
+      await fetcher.delete(
         `${url}/chat/channel/${channel.id}/moderators?userId=${mod.id}`,
-        { withCredentials: true },
       );
       setUserName('');
       setShowDialog(false);

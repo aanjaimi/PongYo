@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { useState } from 'react';
-import axios from 'axios';
+import { fetcher } from '@/utils/fetcher';
 import { env } from '@/env.mjs';
 import { displayString } from './ChannelsList';
 
@@ -45,14 +45,13 @@ export default function UserCard({
 
   const mute = async () => {
     try {
-      const { data }: { data: mute } = await axios.patch(
-        `${uri}/chat/channel/${channel.id}/mutes`,
+      const { data } = await fetcher.patch<mute>(
+        `/chat/channel/${channel.id}/mutes`,
         {
           userId: cardUser.id,
           // mute duration 1 min
           muteDuration: 60000,
         },
-        { withCredentials: true },
       );
       const oldMute = channel.mutes.find((mute) => mute.userId === cardUser.id);
       if (oldMute) {
@@ -71,9 +70,8 @@ export default function UserCard({
 
   const unMute = async () => {
     try {
-      await axios.delete(
-        `${uri}/chat/channel/${channel.id}/mutes?userId=${cardUser.id}`,
-        { withCredentials: true },
+      await fetcher.delete(
+        `/chat/channel/${channel.id}/mutes?userId=${cardUser.id}`,
       );
       const updatedMutes = channel.mutes.filter(
         (mute) => mute.userId !== cardUser.id,
@@ -87,13 +85,12 @@ export default function UserCard({
 
   const ban = async () => {
     try {
-      await axios.patch(
-        `${uri}/chat/channel/${channel.id}/bans`,
+      await fetcher.patch(
+        `/chat/channel/${channel.id}/bans`,
         {
           userId: cardUser.id,
           banDuration: 3600000,
         },
-        { withCredentials: true },
       );
       const updatedMembers = channel.members.filter(
         (member) => member.id !== cardUser.id,
@@ -107,10 +104,8 @@ export default function UserCard({
 
   const kick = async () => {
     try {
-      console.log('kick');
-      await axios.delete(
-        `${uri}/chat/channel/${channel.id}/kicks?userId=${cardUser.id}`,
-        { withCredentials: true },
+      await fetcher.delete(
+        `/chat/channel/${channel.id}/kicks?userId=${cardUser.id}`,
       );
       const updatedMembers = channel.members.filter(
         (member) => member.id !== cardUser.id,
