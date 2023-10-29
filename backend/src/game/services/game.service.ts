@@ -169,6 +169,8 @@ export class MatchMakerService {
     client.emit('invited-success', {
       opp: opponentId,
     });
+    console.log("user has been invited");
+    console.log(opponentId);
     client.to(opponentId).emit('invited', {
       msg: `${client.user.login} invited you`,
       friend: client.user.id,

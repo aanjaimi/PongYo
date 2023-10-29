@@ -14,7 +14,7 @@ import { env } from '@/env.mjs';
 import { type ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import type { Channel } from '@/types/channel';
-import axios from 'axios';
+import { fetcher } from '@/utils/fetcher';
 
 interface ModeratorProps {
   channel: Channel;
@@ -34,15 +34,13 @@ export default function ChangeOwnership({ channel }: ModeratorProps) {
 
   const changeOwner = async () => {
     try {
-      console.log('channel', channel);
       const newOwner = channel.members.find(
         (member) => member.displayname === userName.trim(),
       );
       if (!newOwner) return toast.error('User not found', toastOptions);
-      await axios.patch(
-        `${url}/chat/channel/${channel.id}/owner`,
+      await fetcher.patch(
+        `/chat/channel/${channel.id}/owner`,
         { userId: newOwner?.id },
-        { withCredentials: true },
       );
       setUserName('');
       setShowDialog(false);

@@ -4,12 +4,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import ChannelInfo from './ChannelInfo';
 import CreateOrJoin from './CreateOrJoin';
 import Image from 'next/image';
-import axios from 'axios';
 import { env } from '@/env.mjs';
 import ChannelSettings from './ChannelSettings';
 import { ScrollArea } from '../ui/scroll-area';
 import type { FriendShip } from '@/types/friend';
 import type { Message } from '@/types/message';
+import { fetcher } from '@/utils/fetcher';
 
 interface ChannelContentProps {
   channel: Channel | undefined;
@@ -69,10 +69,9 @@ export default function ChannelContent({
     try {
       e.preventDefault();
       if (message.trim() === '' || isMuted()) return;
-      await axios.post(
-        `${uri}/chat/channel/${channel.id}/messages`,
+      await fetcher.post(
+        `/chat/channel/${channel.id}/messages`,
         { content: message },
-        { withCredentials: true },
       );
       setMessage('');
       (e.target as HTMLFormElement).reset();
@@ -93,6 +92,7 @@ export default function ChannelContent({
   ) : (
     <div className="flex h-[100%] w-[75%] flex-col">
       <ChannelInfo
+        user={user}
         channel={channel}
         updateSelectedChannel={updateSelectedChannel}
         setShowSettings={setShowSettings}
