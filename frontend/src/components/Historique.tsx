@@ -11,6 +11,7 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import Loading from '@/pages/Loading';
 import { useRouter } from 'next/router';
+import { EmptyView } from './empty';
 
 const getGames = async (id: string) => {
   return (await fetcher.get<Game[]>(`/games/${id}`)).data;
@@ -37,6 +38,12 @@ const Historique = ({ user }: HistoryProps) => {
 	return (
 		<div style={{overflow: 'auto', maxHeight: '359px' }} className="grow mt-[10px]">
 			<h1 className="my-[10px] flex items-center justify-center font-bold">Match histories</h1>
+			{!gameHistoryQuery.data?.length && (
+          <EmptyView
+            title="No game histories"
+            message="You don't have any game histories yet"
+          ></EmptyView>
+        )}
 			{gameHistoryQuery.data?.map((game) => (
 				<div key={game.id} className="flex justify-center mb-[20px]">
 					<HoverCard>

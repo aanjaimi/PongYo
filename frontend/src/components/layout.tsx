@@ -4,6 +4,7 @@ import SideBar from "./sidebar/SideBar";
 import { useStateContext } from "@/contexts/state-context";
 import Otp from "./Otp";
 import { useSocket } from "@/contexts/socket-context";
+import { ToastContainer } from "react-toastify";
 
 type LayoutProps = {
   children: React.ReactNode;

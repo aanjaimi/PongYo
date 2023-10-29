@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserQueryDTO, UserUpdateDTO } from './users.dto';
 import { Prisma, User } from '@prisma/client';
@@ -83,6 +83,13 @@ export class UserService {
         issuer: user.login,
       });
       totp = Object.assign(totp, payload);
+    }
+
+    const existantUser = await this.prismaService.user.findUnique({
+      where: { displayname: rest.displayname },
+    });
+    if (existantUser && existantUser.id !== user.id) {
+      throw new HttpException('Displayname already taken', 403);
     }
 
     return await this.prismaService.user.update({

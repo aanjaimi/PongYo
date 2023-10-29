@@ -7,6 +7,7 @@ import { fetcher } from '@/utils/fetcher';
 import type { Achievements } from '@/types/achievement';
 import { useRouter } from 'next/router';
 import Loading from '@/pages/Loading';
+import { EmptyView } from './empty';
 
 type AchievementProps = {
 	user: User;
@@ -32,10 +33,15 @@ const Achievement = ({ user }: AchievementProps) => {
 
 	return (
 		<div style={{overflow: 'auto', maxHeight: '359px' }} className="grow font-bold">
-			<h1 className="mt-[10px] flex items-center justify-center">List of ahievements</h1>
+			<h1 className="mt-[10px] flex items-center justify-center">List of achievements</h1>
+			{!achievementQuery.data?.length && (
+          <EmptyView
+            title="No achievements"
+            message="You don't have any achievements yet"
+          ></EmptyView>
+        )}
 			<Table>
 				<TableBody className="flex flex-col justify-center items-center mt-[20px]">
-					{/* map through achievements */}
 					{achievementQuery.data?.map((ach) => (
 						<TableRow key={ach.id} className="bg-[#2B3954] border rounded-[15px] flex justify-center items-center mb-[20px] w-[90%]">
 							<TableCell className="w-[127px] md:w-[194px] lg:w-[312px]"><Image alt="" src="/achievements/1.png" width={25} height={25}/></TableCell>

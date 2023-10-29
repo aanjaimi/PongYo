@@ -45,7 +45,6 @@ export class AuthController {
     @CurrentUser() user: User,
     @Body() body: OtpCallbackDTO,
   ) {
-    console.log('otpCallback', accessToken, user, body);
     return this.authService.otpCallback(accessToken, user, body);
   }
 

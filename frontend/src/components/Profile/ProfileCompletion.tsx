@@ -15,6 +15,9 @@ import type { User } from '@/types/user';
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { fetcher } from '@/utils/fetcher';
 import { useRouter } from 'next/router';
+import { type ToastOptions, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import type { AxiosError } from 'axios';
 
 export const updateProfile = async (payload: FormData) => {
   return (await fetcher.patch<User>(`/users`, payload)).data;
@@ -26,10 +29,17 @@ type ProfileCompletionProps = {
 
 const ProfileCompletion = ({ setIsEdited }: ProfileCompletionProps) => {
   const { state, dispatch } = useStateContext();
-  const [displayname, setDisplayName] = useState(state.user?.displayname);
+  const [displayname, setDisplayName] = useState(() => state.user?.displayname);
   const avatarRef = useRef<HTMLInputElement | null>(null);
   const queryClient = new QueryClient();
   const router = useRouter();
+  const toastOptions: ToastOptions<object> = {
+    position: 'bottom-right',
+    autoClose: 5000,
+    hideProgressBar: false,
+    closeOnClick: true,
+    theme: 'dark',
+  };
 
   useEffect(() => {
     if (state) setDisplayName(state.user?.displayname);
@@ -56,16 +66,24 @@ const ProfileCompletion = ({ setIsEdited }: ProfileCompletionProps) => {
         void queryClient.invalidateQueries(['users', '@me']);
         void router.push('/profile/@me');
       })
-      .catch((err) => {
-        console.log(err);
+      .catch((err: AxiosError) => {
+        const error = err as { response: { data: { message: string } } };
+        if (err.response?.status === 403)
+          toast.error(error.response.data.message, toastOptions);
       });
     await queryClient.invalidateQueries(['users', '@me']);
   };
 
   const handleSkip = async () => {
     const payload = new FormData();
-    payload.append('displayname', displayname!);
-    await userMutation.mutateAsync(payload);
+    const disp = state?.user?.displayname;
+    payload.append('displayname', disp!);
+    await userMutation.mutateAsync(payload)
+    .catch((err: AxiosError) => {
+      const error = err as { response: { data: { message: string } } };
+      if (err.response?.status === 403)
+        toast.error(error.response.data.message, toastOptions);
+    });
     setIsEdited(true);
     await queryClient.invalidateQueries(['users', '@me']);
     await router.push('/profile/@me');

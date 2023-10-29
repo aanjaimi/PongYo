@@ -11,7 +11,6 @@ import { useStateContext } from "@/contexts/state-context";
 import { useRouter } from "next/router";
 
 async function verifyOtp(token: string) {
-  console.log(token);
   return (await fetcher.post<{ valid: boolean }>("/auth/otp", { token })).data;
 }
 
