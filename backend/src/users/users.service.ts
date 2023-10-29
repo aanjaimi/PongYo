@@ -32,19 +32,16 @@ export class UserService {
       ],
     } satisfies Prisma.UserWhereInput;
 
-    const [totalCount, users] = await this.prismaService.$transaction([
-      this.prismaService.user.count({ where }),
-      this.prismaService.user.findMany({
-        where,
-        skip: query.getSkip(),
-        take: query.limit,
-        // TODO: add sorting by rank!
-        orderBy: {
-          updatedAt: 'desc',
-        },
-      }),
-    ]);
-    return buildPagination(users, query.limit, totalCount);
+    const users = await this.prismaService.user.findMany({
+      where,
+      skip: query.getSkip(),
+      take: query.limit,
+      // TODO: add sorting by rank!
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+    return buildPagination(users, query.limit);
   }
 
   async getUser(currUser: User, otherId: string) {
