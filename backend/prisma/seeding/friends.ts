@@ -27,6 +27,7 @@ export const getAvailableUsers = (users: _User[]) =>
               points: 0,
               rank: 'UNRANKED',
               vectories: 0,
+              rowVectories: 0,
             },
           },
         },

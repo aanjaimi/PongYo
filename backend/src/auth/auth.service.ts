@@ -40,6 +40,7 @@ export class AuthService {
       path: '/',
       maxAge: AUTH_COOKIE_MAX_AGE * 1e3,
     });
+
     res.redirect(this.configService.get('FRONTEND_ORIGIN_PROFILE'));
   }
 
