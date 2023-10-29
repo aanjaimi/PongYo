@@ -189,7 +189,7 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
                       </DialogContent>
                     )}
                     <a
-                      href={env.NEXT_PUBLIC_BACKEND_ORIGIN + '/auth/logout'}
+                      href={env.NEXT_PUBLIC_BACKEND_ORIGIN + '/api/auth/logout'}
                       className="cursor-pointer"
                     >
                       <LogOut />

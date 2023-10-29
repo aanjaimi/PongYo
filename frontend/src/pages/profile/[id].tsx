@@ -4,6 +4,7 @@ import { fetcher } from '@/utils/fetcher';
 import type { GetServerSidePropsContext } from 'next';
 import ProfileContent from '@/components/Profile/ProfileContent';
 import { ToastContainer } from 'react-toastify';
+import { env } from '@/env.mjs';
 
 export type ProfileProps = {
   user: User;
@@ -16,6 +17,7 @@ export const getServerSideProps = async (
     const cookie = context.req.headers.cookie;
     const user = (
       await fetcher.get<User>(`/users/${id}`, {
+        baseURL: `${env.NEXT_PUBLIC_DOCKER_BACKEND_ORIGIN}/api/`,
         headers: {
           Cookie: cookie ?? '',
         },
