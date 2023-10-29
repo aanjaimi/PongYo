@@ -86,9 +86,9 @@ export class ChatController {
   changeOwner(
     @CurrentUser() user: User,
     @Param('id') id: string,
-    @Body() ChangeOwnerDto: ChangeOwnerDto,
+    @Body() changeOwnerDto: ChangeOwnerDto,
   ) {
-    return this.chatService.changeOwner(user, id, ChangeOwnerDto);
+    return this.chatService.changeOwner(user, id, changeOwnerDto);
   }
 
   @Patch('/channel/:id')
