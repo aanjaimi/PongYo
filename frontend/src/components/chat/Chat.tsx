@@ -7,13 +7,15 @@ import ChannelContent from './ChannelContent';
 import { ScrollArea } from '../ui/scroll-area';
 import { useSocket } from '@/contexts/socket-context';
 import { Card } from '@/components/ui/card';
+import type { FriendShip } from '@/types/friend';
 
-export default function Chat({ user }: { user: User }) {
+export default function Chat({ user, blocks }: { user: User, blocks: FriendShip[] }) {
   const { chatSocket } = useSocket();
   const [channels, setChannels] = useState<Channel[]>(user.channels);
   const [selectedChannel, setSelectedChannel] = useState<Channel | undefined>(
     undefined,
   );
+  const [showSettings, setShowSettings] = useState<boolean>(false);
 
   useEffect(() => {
     chatSocket.on('message', (data: { channel: Channel } & Message) => {
@@ -231,9 +233,13 @@ export default function Chat({ user }: { user: User }) {
         <div className="ml-1 rounded-l-full border border-black"></div>
         <ScrollArea className="h-[93%]">
           <ChannelsList
+            user={user}
             channels={channels}
             updateSelectedChannel={updateSelectedChannel}
             selectedChannel={selectedChannel}
+            showSettings={showSettings}
+            setShowSettings={setShowSettings}
+            blocks={blocks}
           />
         </ScrollArea>
       </div>
@@ -245,6 +251,9 @@ export default function Chat({ user }: { user: User }) {
         user={user}
         channels={channels}
         updateChannels={updateChannels}
+        showSettings={showSettings}
+        setShowSettings={setShowSettings}
+        blocks={blocks}
       />
     </Card>
   );

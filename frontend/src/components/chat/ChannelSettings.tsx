@@ -76,8 +76,8 @@ export default function ChannelSettings({
           {channel.name}
         </h1>
         {/* Separator */}
-        <div className="mx-[2rem] my-[1rem] rounded-full border border-black"></div>
-        <form
+        {/* <div className="mx-[2rem] my-[1rem] rounded-full border border-black"></div> */}
+        {/* <form
           className="my-[0.5rem] ml-6 flex self-center rounded-full bg-white"
           onSubmit={(e) => inviteUser(e)}
         >
@@ -89,7 +89,7 @@ export default function ChannelSettings({
             onChange={(e) => setUserName(e.target.value)}
           />
           <Button className="">invite</Button>
-        </form>
+        </form> */}
         <ChannelSettingsContent
           channel={channel}
           channels={channels}

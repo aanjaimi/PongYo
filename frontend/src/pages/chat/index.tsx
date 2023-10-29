@@ -6,11 +6,13 @@ import Chat from '@/components/chat/Chat';
 import { useSocket } from '@/contexts/socket-context';
 import { env } from '@/env.mjs';
 import { ToastContainer } from 'react-toastify';
+import type { FriendShip } from '@/types/friend';
 
 export default function Home() {
   const { chatSocket } = useSocket();
   const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [user, setUser] = useState<User | null>(null);
+  const [blockedUsers, setBlockedUsers] = useState<FriendShip[] | null>(null);
 
   const userQuery = useQuery({
     queryKey: ['userData'],
@@ -31,6 +33,21 @@ export default function Home() {
     //   router.push('/').catch((err) => console.log(err));
     //   console.log(err);
     // },
+  });
+
+  const blockedUsersQuery = useQuery({
+    queryKey: ['blockedUsers'],
+    queryFn: async () => {
+      const {
+        data,
+      }: { data: { data: FriendShip[]; limit: number; pages: number } } =
+        await axios.get(uri + '/friends?state=BLOCKED', {
+          withCredentials: true,
+        });
+      console.log(data.data);
+      setBlockedUsers(data.data);
+      return data;
+    },
   });
 
   useEffect(() => {
@@ -59,15 +76,15 @@ export default function Home() {
     };
   }, [user, chatSocket]);
 
-  if (userQuery.isLoading) {
+  if (userQuery.isLoading || blockedUsersQuery.isLoading) {
     return <div className="h-screen w-screen">Loading...</div>;
   }
 
-  if (userQuery.isError) {
+  if (userQuery.isError || blockedUsersQuery.isError) {
     return <div className="h-screen w-screen">Error</div>;
   }
 
-  if (!user) {
+  if (!user || !blockedUsers) {
     // router.push('/').catch((err) => console.log(err));
     return <div className="h-screen w-screen">Redirecting...</div>;
   }
@@ -80,7 +97,7 @@ export default function Home() {
         {/* Sidebar component */}
         {/* <div className="w-[4rem] bg-[#252525]"></div> */}
         <div className="ml-[3rem] mt-[3rem] flex grow justify-center">
-          <Chat user={user} />
+          <Chat user={user} blocks={blockedUsers} />
         </div>
       </div>
       <ToastContainer />

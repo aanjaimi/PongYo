@@ -134,7 +134,7 @@ export default function ModeratorCard({
       >
         <div className="ml-[1rem] flex items-center">
           <div className="mr-[0.5rem] w-[3rem] rounded-full">
-            <Image src="/avatar.png" alt="avatar" width={200} height={200} />
+            <Image src={cardUser.avatar.path} alt="avatar" width={200} height={200} className="rounded-full" />
           </div>
           <h2 className="ml-[0.5rem] truncate">
             {displayString(cardUser.displayname, nameLenght)}
