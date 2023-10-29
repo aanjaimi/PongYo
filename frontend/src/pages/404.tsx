@@ -4,7 +4,7 @@ import Link from "next/link";
 const NotFound = () => {
   return (
     <main>
-      <div className="mx-auto flex h-screen max-w-screen-xl items-center justify-start px-4 md:px-8">
+      <div className="mx-auto flex h-screen w-screen-xl items-center justify-start px-4 md:px-8">
         <div className="mx-auto max-w-lg space-y-3 text-center">
           <h3 className="text-4xl font-semibold text-gray-800 sm:text-5xl">
             Page not found

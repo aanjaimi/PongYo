@@ -16,8 +16,8 @@ export class UserService {
         {
           ...(query.login && {
             OR: [
-              { login: { contains: query.login } },
-              { displayname: { contains: query.login } },
+              { login: { contains: query.login, mode: 'insensitive' } },
+              { displayname: { contains: query.login, mode: 'insensitive' } },
             ],
           }),
         },
@@ -32,30 +32,27 @@ export class UserService {
       ],
     } satisfies Prisma.UserWhereInput;
 
-    const [totalCount, users] = await this.prismaService.$transaction([
-      this.prismaService.user.count({ where }),
-      this.prismaService.user.findMany({
-        where,
-        skip: query.getSkip(),
-        take: query.limit,
-        orderBy: [
-          {
-            stat: {
-              rank: 'desc',
-            },
+    const users = await this.prismaService.user.findMany({
+      where,
+      skip: query.getSkip(),
+      take: query.limit,
+      orderBy: [
+        {
+          stat: {
+            rank: 'desc',
           },
-          {
-            stat: {
-              points: 'desc',
-            },
-          },
-        ],
-        include: {
-          stat: true,
         },
-      }),
-    ]);
-    return buildPagination(users, query.limit, totalCount);
+        {
+          stat: {
+            points: 'desc',
+          },
+        },
+      ],
+      include: {
+        stat: true,
+      },
+    });
+    return buildPagination(users, query.limit);
   }
 
   async getUser(currUser: User, otherId: string) {

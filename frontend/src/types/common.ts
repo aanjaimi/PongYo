@@ -1,9 +1,9 @@
 export enum Buttons {
-  PROFILE = "Profile",
-  GAME = "Game",
-  FRIENDS = "Friends",
-  CHAT = "Chat",
-  PARAM = "Param",
+  PROFILE = 'Profile',
+  GAME = 'Game',
+  FRIENDS = 'Friends',
+  CHAT = 'Chat',
+  PARAM = 'Param',
 }
 
 export type CommonDate = {
@@ -14,5 +14,4 @@ export type CommonDate = {
 export type ApiResponse<T> = {
   data: T;
   limit: number;
-  pages: number;
 };

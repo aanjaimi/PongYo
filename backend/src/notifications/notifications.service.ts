@@ -13,19 +13,16 @@ export class NotificationsService {
       receiverId: userId,
       type: query.type,
     } satisfies Prisma.NotificationWhereInput;
-    console.log(where);
-    const [totalCount, notifications] = await this.prismaService.$transaction([
-      this.prismaService.notification.count({ where }),
-      this.prismaService.notification.findMany({
-        where,
-        skip: query.getSkip(),
-        take: query.limit,
-        include: { sender: true },
-        orderBy: {
-          updatedAt: 'desc',
-        },
-      }),
-    ]);
-    return buildPagination(notifications, query.limit, totalCount);
+    const data = await this.prismaService.notification.findMany({
+      where,
+      skip: query.getSkip(),
+      take: query.limit,
+      include: { sender: true },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+
+    return buildPagination(data, query.limit);
   }
 }
