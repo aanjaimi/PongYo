@@ -19,6 +19,7 @@ import { MuteUserDto } from './dto/mute-user.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { AddModeratorDto } from './dto/add-moderator.dto';
 import { CreateMessageDto } from './dto/create-message.dto';
+import { ChangeOwnerDto } from './dto/change-owner.dto';
 
 @Controller('chat')
 @UseGuards(JwtAuthGuard)
@@ -79,6 +80,15 @@ export class ChatController {
   @Get('/channel/:id/messages')
   findMessages(@CurrentUser() user: User, @Param('id') id: string) {
     return this.chatService.findMessages(user, id);
+  }
+
+  @Patch('/channel/:id/owner')
+  changeOwner(
+    @CurrentUser() user: User,
+    @Param('id') id: string,
+    @Body() ChangeOwnerDto: ChangeOwnerDto,
+  ) {
+    return this.chatService.changeOwner(user, id, ChangeOwnerDto);
   }
 
   @Patch('/channel/:id')
