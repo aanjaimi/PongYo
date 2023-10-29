@@ -3,7 +3,6 @@ import type { User } from '@/types/user';
 import { fetcher } from '@/utils/fetcher';
 import type { GetServerSidePropsContext } from 'next';
 import ProfileContent from '@/components/Profile/ProfileContent';
-import { ToastContainer } from 'react-toastify';
 import { env } from '@/env.mjs';
 
 export type ProfileProps = {
@@ -48,7 +47,6 @@ export default function Profile({ user }: ProfileProps) {
         isEdited={isEdited}
         setIsEdited={setIsEdited}
       />
-      <ToastContainer />
     </div>
   );
 }

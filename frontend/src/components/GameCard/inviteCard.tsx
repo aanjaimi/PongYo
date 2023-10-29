@@ -37,7 +37,6 @@ const InvitationCard = ({ setInviteNotify, opp, setIsRanked, setGameStarted, set
   });
 
   useEffect(() => {
-    console.log();
     gameSocket.on("game-start", (data: { opp: User, isRanked: boolean }) => {
       setOppData(data.opp);
       setInviteNotify(false);

@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import type { User } from '@/types/user';
 import type { Channel } from '@/types/channel';
 import { env } from '@/env.mjs';
-import axios from 'axios';
+import { fetcher } from '@/utils/fetcher';
 import { useSocket } from '@/contexts/socket-context';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
@@ -46,16 +46,11 @@ export default function CreateChannel({
     )
       return toast.error('Incomplete format', toastOptions);
     try {
-      console.log(channelName, channelPassword, channelType);
-      const { data }: { data: Channel } = await axios.post(
-        `${uri}/chat/Channel`,
-        {
-          name: channelName,
-          password: channelPassword,
-          type: channelType,
-        },
-        { withCredentials: true },
-      );
+      const { data } = await fetcher.post<Channel>(`${uri}/chat/Channel`, {
+        name: channelName,
+        password: channelPassword,
+        type: channelType,
+      });
       chatSocket.emit('join-channel', { channelId: data.id });
       updateChannels([data, ...channels]);
       updateSelectedChannel(data);

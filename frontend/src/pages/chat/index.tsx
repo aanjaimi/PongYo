@@ -1,11 +1,10 @@
 import type { User } from '@/types/user';
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import Chat from '@/components/chat/Chat';
 import { useSocket } from '@/contexts/socket-context';
 import { env } from '@/env.mjs';
-import { ToastContainer } from 'react-toastify';
+import { fetcher } from '@/utils/fetcher';
 import type { FriendShip } from '@/types/friend';
 
 export default function Home() {
@@ -17,9 +16,7 @@ export default function Home() {
   const userQuery = useQuery({
     queryKey: ['userData'],
     queryFn: async () => {
-      const { data }: { data: User } = await axios.get(uri + '/chat/me', {
-        withCredentials: true,
-      });
+      const { data } = await fetcher.get<User>('/chat/me');
       data.channels.forEach((channel) => {
         const name: string[] = channel.name.split('-');
         channel.name = (name[0] === data.displayname
@@ -29,22 +26,18 @@ export default function Home() {
       setUser(data);
       return data;
     },
-    // onError: (err) => {
-    //   router.push('/').catch((err) => console.log(err));
-    //   console.log(err);
-    // },
   });
 
   const blockedUsersQuery = useQuery({
     queryKey: ['blockedUsers'],
     queryFn: async () => {
-      const {
-        data,
-      }: { data: { data: FriendShip[]; limit: number; pages: number } } =
-        await axios.get(uri + '/friends?state=BLOCKED', {
-          withCredentials: true,
-        });
-      console.log(data.data);
+      const { data } = await fetcher.get<{
+        data: FriendShip[];
+        limit: number;
+        pages: number;
+      }>(uri + '/friends?state=BLOCKED', {
+        withCredentials: true,
+      });
       setBlockedUsers(data.data);
       return data;
     },
@@ -85,12 +78,16 @@ export default function Home() {
   }
 
   if (!user || !blockedUsers) {
-    // router.push('/').catch((err) => console.log(err));
-    return <div className="h-screen w-screen">Redirecting...</div>;
+    if (!user)
+      return <div className="h-screen w-screen">Redirecting...user</div>;
+    if (!blockedUsers)
+      return (
+        <div className="h-screen w-screen">Redirecting...blockedUsers</div>
+      );
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-col">
       {/* Header component */}
       {/* <div className="h-[4rem] w-full bg-[#000000]"></div> */}
       <div className="flex grow flex-row">

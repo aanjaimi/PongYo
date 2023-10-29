@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { type ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Image from 'next/image';
-import axios from 'axios';
+import { fetcher } from '@/utils/fetcher';
 import {
   Dialog,
   DialogContent,
@@ -55,14 +55,13 @@ export default function EditChannel({
     try {
       if (channelName.length > 30)
         return toast.error('Channel name too long', toastOptions);
-      const { data }: { data: Channel } = await axios.patch(
+      const { data } = await fetcher.patch<Channel>(
         `${uri}/chat/Channel/${channel.id}`,
         {
           name: channelName,
           password: channelPassword,
           type: channelType,
         },
-        { withCredentials: true },
       );
       const updatedChannels = channels.map((channel) => {
         if (channel.id === data.id) return data;

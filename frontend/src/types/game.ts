@@ -8,8 +8,8 @@ enum Mode {
 export type Game = {
   id: string;
   mode: Mode;
+  userId: string;
   opponentId: string;
-  oppositeId: string;
   user: User;
   opponent: User;
   oppnentScore: number;

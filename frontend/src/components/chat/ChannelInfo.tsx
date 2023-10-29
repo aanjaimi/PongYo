@@ -1,14 +1,18 @@
 import type { Channel } from '@/types/channel';
 import React from 'react';
 import Image from 'next/image';
+import Redirect from './RedirectToProfile';
+import type { User } from '@/types/user';
 
 interface channelInfoProps {
+  user: User;
   channel: Channel | undefined;
   updateSelectedChannel: (arg: Channel | undefined) => void;
   setShowSettings: (arg: boolean) => void;
 }
 
 export default function ChannelInfo({
+  user,
   channel,
   updateSelectedChannel,
   setShowSettings,
@@ -18,7 +22,9 @@ export default function ChannelInfo({
       {channel && (
         <>
           <div>
-            {!channel.isDM && (
+            {channel.isDM ? (
+              <Redirect user={user} channel={channel} />
+            ) : (
               <button
                 className="ml-[1rem] w-[2rem]"
                 onClick={() => setShowSettings(true)}
