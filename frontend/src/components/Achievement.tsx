@@ -13,8 +13,8 @@ type AchievementProps = {
 	user: User;
 };
 
-const getAchievements = async (id: string): Promise<Achievements[] | []> => {
-	return (await fetcher.get<Achievements[] | []>(`/achievements/${id}`)).data;
+const getAchievements = async (id: string): Promise<Achievements[]> => {
+	return (await fetcher.get<Achievements[]>(`/achievements/${id}`)).data;
 }
 
 const Achievement = ({ user }: AchievementProps) => {
