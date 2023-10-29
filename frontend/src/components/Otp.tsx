@@ -31,7 +31,6 @@ const Otp = () => {
     },
     onError: () => {
       state.auth_status = false;
-      console.log("error");
     },
   });
 

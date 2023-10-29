@@ -14,10 +14,7 @@ import { useRouter } from 'next/router';
 import { EmptyView } from './empty';
 
 const getGames = async (id: string): Promise<Game[]> => {
-	console.log('id: ', id);
-  const users = await fetcher.get<Game[]>(`/games/${id}`);
-	console.log('users: ', users.data);
-	return users.data;
+  return (await fetcher.get<Game[]>(`/games/${id}`)).data;
 };
 
 type HistoryProps = {
@@ -29,11 +26,8 @@ const Historique = ({ user }: HistoryProps) => {
   const gameHistoryQuery = useQuery({
     queryKey: ['games', user.id],
     queryFn: async ({ queryKey: [, id] }) => await getGames(id!),
-		onSuccess: (data) => {
-			console.log('dataaaaa: ', data);
-		},
     onError: (error) => {
-      console.log('errorrrrrr: ', error);
+      console.log(error);
     },
   });
 

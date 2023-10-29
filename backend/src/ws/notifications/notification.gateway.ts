@@ -6,6 +6,8 @@ import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { RedisService } from '@/redis/redis.service';
 import { SendNotificationPayload } from './notification.interface';
+import { Socket } from 'socket.io';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 
 @WebSocketGateway({ namespace: 'notification' })
 export class NotificationGateway extends WsGateway {
@@ -31,5 +33,17 @@ export class NotificationGateway extends WsGateway {
       senderId,
       timestamp: new Date(),
     });
+  }
+
+  async handleDisconnect(client: Socket) {
+    super.handleDisconnect(client);
+    const connectedSockets = await this.redisService.hgetall(client.user.id);
+    if (!connectedSockets) {
+      this.prismaService.user.update({
+        where: { id: client.user.id },
+        data: { status: 'OFFLINE' },
+      });
+      client.broadcast.emit('notification', { type: 'USER_STATUS' });
+    }
   }
 }

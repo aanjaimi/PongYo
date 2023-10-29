@@ -8,6 +8,8 @@ type UserDataProps = {
 
 const UserData = ({ user, isEdited }: UserDataProps) => {
 
+  console.log('user: ', user);
+
   const vectories = user?.stat?.vectories == null ? 0 : user?.stat.vectories;
   const defeats = user?.stat?.defeats == null ? 0 : user?.stat.defeats;
   const points = user?.stat?.points == null ? 0 : user?.stat.points;

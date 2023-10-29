@@ -25,10 +25,6 @@ export class InviteService {
     if (!user) {
       throw new Error('User not found');
     }
-    console.log("list of logged user's friends");
-    user.friends.forEach((f) => {
-      console.log(f.friend.login);
-    });
     const isFriend = user.friends.find((f) => f.friend.login === friend);
     if (!isFriend) {
       return undefined;

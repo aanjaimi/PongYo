@@ -16,7 +16,6 @@ export class GameStarterService {
     isRanked: boolean,
     server: Server,
   ) {
-    
     await this.delay(5060);
     let player1Score = 0;
     let player2Score = 0;
@@ -68,10 +67,28 @@ export class GameStarterService {
     const runner = Runner.create();
     Runner.run(runner, engine);
     Events.on(engine, 'beforeUpdate', () => {
+      const resetBallPosition = () => {
+        Body.setPosition(ball, { x: 325, y: 375 });
+        player2
+          .to(player1.user.id)
+          .emit('update-ball-position', { x: 325, y: 375 });
+        player1
+          .to(player2.user.id)
+          .emit('update-ball-position', { x: 325, y: 375 });
+      };
+
       const ballPosition = {
         x: ball.position.x,
         y: ball.position.y,
       };
+      if (
+        ballPosition.y > 751 ||
+        ballPosition.y < -1 ||
+        ballPosition.x > 651 ||
+        ballPosition.x < -1
+      ) {
+        resetBallPosition();
+      }
       player1.to(player2.user.id).emit('update-ball-position', ballPosition);
       ballPosition.y = 750 - ballPosition.y;
       player2.to(player1.user.id).emit('update-ball-position', ballPosition);
@@ -87,6 +104,7 @@ export class GameStarterService {
       Body.setPosition(opponentPaddle, position);
       position.y = 750 - position.y;
       player2.to(player1.user.id).emit('update-opponent-position', position);
+      
     });
     if (!isGameOver) {
       Events.on(engine, 'collisionStart', (event) => {
@@ -186,7 +204,12 @@ export class GameStarterService {
             emitScoreUpdate();
             resetBallPosition();
           }
-          if (player1Score >= 10 || player2Score >= 10) {
+          if (
+            player1Score >= 10 ||
+            player2Score >= 10 ||
+            player1.connected === false ||
+            player2.connected === false
+          ) {
             isGameOver = true;
             Runner.stop(runner);
             Engine.clear(engine);
