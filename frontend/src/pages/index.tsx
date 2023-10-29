@@ -2,8 +2,37 @@
 
 import { Button } from '@/components/ui/button';
 import { env } from '@/env.mjs';
+import { type User } from '@/types/user';
+import { fetcher } from '@/utils/fetcher';
+import { type GetServerSidePropsContext } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
+
+export const getServerSideProps = async (
+  context: GetServerSidePropsContext,
+) => {
+  try {
+    const cookie = context.req.headers.cookie;
+    (
+      await fetcher.get<User>(`/users/@me`, {
+        baseURL: `${env.NEXT_PUBLIC_DOCKER_BACKEND_ORIGIN}/api/`,
+        headers: {
+          Cookie: cookie ?? '',
+        },
+      })
+    ).data;
+    return {
+      redirect: {
+        destination: '/profile/@me',
+        permanent: false,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {},
+    };
+  }
+};
 
 export default function Home() {
   const router = useRouter();

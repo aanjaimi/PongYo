@@ -1,4 +1,0 @@
-
-
-all:
-	npm run dev

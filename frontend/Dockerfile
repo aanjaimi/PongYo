@@ -11,7 +11,7 @@ COPY . .
 
 
 # TODO: uncommnet this !
-# RUN yarn build
+RUN yarn build
 
 # use start instead of dev in production
-CMD [ "yarn", "dev"]
+CMD [ "yarn", "start"]
