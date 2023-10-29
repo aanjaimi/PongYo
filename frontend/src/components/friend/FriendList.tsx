@@ -1,5 +1,4 @@
-import React, { useEffect } from 'react';
-import { useSocket } from '@/contexts/socket-context';
+import React from 'react';
 import { Avatar, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -12,7 +11,6 @@ import Loading from '@/pages/Loading';
 import type { User } from '@/types/user';
 import { fetcher } from '@/utils/fetcher';
 import { useRouter } from 'next/router';
-import { UserStatus } from '@/types/user';
 import { useStateContext } from '@/contexts/state-context';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import type { ApiResponse } from '@/types/common';

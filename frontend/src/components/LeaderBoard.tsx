@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import type { User } from "@/types/user";
 import { fetcher } from "@/utils/fetcher";
 import {
