@@ -10,6 +10,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import LeaveChannel from './LeaveChannel';
 import Moderator from './Moderator';
+import ChangeOwnership from './ChangeOwnership';
 
 interface channelSettingsProps {
   channel: Channel;
@@ -107,7 +108,9 @@ export default function ChannelSettings({
                 setShowSettings={setShowSettings}
               />
             ) : (
-              <Button className="m-[1rem]">delete channel</Button>
+              <ChangeOwnership
+                channel={channel}
+              />
             )}
           </div>
         </div>

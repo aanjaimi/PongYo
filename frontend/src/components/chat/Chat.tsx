@@ -129,6 +129,14 @@ export default function Chat({ user, blocks }: { user: User, blocks: FriendShip[
       setChannels([...channels]);
     });
 
+    chatSocket.on('change-owner', (data: { user: User, channelId: string }) => {
+      const channel = channels.find((channel) => channel.id === data.channelId);
+      if (!channel) return;
+      channel.ownerId = data.user.id;
+      channel.owner = data.user;
+      setChannels([...channels]);
+    });
+
     chatSocket.on('update', (data: Channel) => {
       const updatedChannels = channels.map((channel) => {
         if (channel.id === data.id) return data;
