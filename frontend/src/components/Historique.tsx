@@ -26,9 +26,6 @@ const Historique = ({ user }: HistoryProps) => {
   const gameHistoryQuery = useQuery({
     queryKey: ['games', user.id],
     queryFn: async ({ queryKey: [, id] }) => await getGames(id!),
-    onError: (error) => {
-      console.log(error);
-    },
   });
 
   if (gameHistoryQuery.isLoading) return <Loading />;

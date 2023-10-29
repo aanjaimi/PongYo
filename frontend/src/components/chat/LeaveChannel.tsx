@@ -20,7 +20,7 @@ export default function LeaveChannel({
       await fetcher.delete(`/chat/channel/${channel.id}/leave`);
       setShowSettings(false);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

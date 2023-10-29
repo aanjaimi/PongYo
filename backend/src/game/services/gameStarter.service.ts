@@ -104,7 +104,6 @@ export class GameStarterService {
       Body.setPosition(opponentPaddle, position);
       position.y = 750 - position.y;
       player2.to(player1.user.id).emit('update-opponent-position', position);
-      
     });
     if (!isGameOver) {
       Events.on(engine, 'collisionStart', (event) => {
@@ -210,6 +209,14 @@ export class GameStarterService {
             player1.connected === false ||
             player2.connected === false
           ) {
+            if (player1.connected === false) {
+              player1Score = 0;
+              player2Score = 10;
+            }
+            if (player2.connected === false) {
+              player1Score = 10;
+              player2Score = 0;
+            }
             isGameOver = true;
             Runner.stop(runner);
             Engine.clear(engine);
@@ -243,43 +250,43 @@ export class GameStarterService {
             if (isRanked) {
               if (player1Score > player2Score) {
                 updateRankStats(
-                  player1.user.id,
-                  player1Score,
-                  10,
-                  true,
                   player2.user.id,
                   player2Score,
+                  10,
+                  true,
+                  player1.user.id,
+                  player1Score,
                   -5,
                   false,
                 );
                 updateRankStats(
-                  player2.user.id,
-                  player2Score,
-                  -5,
-                  false,
                   player1.user.id,
                   player1Score,
+                  -5,
+                  false,
+                  player2.user.id,
+                  player2Score,
                   10,
                   true,
                 );
               } else {
                 updateRankStats(
-                  player1.user.id,
-                  player1Score,
-                  -5,
-                  false,
                   player2.user.id,
                   player2Score,
+                  -5,
+                  false,
+                  player1.user.id,
+                  player1Score,
                   10,
                   true,
                 );
                 updateRankStats(
-                  player2.user.id,
-                  player2Score,
-                  10,
-                  true,
                   player1.user.id,
                   player1Score,
+                  10,
+                  true,
+                  player2.user.id,
+                  player2Score,
                   -5,
                   false,
                 );

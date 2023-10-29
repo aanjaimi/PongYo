@@ -5,31 +5,20 @@ import { Mode } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
 import { AchievementService } from './achievements.service';
 import { User } from '@prisma/client';
+import { friendChecking } from '@/friends/friends.helpers';
 
 @Injectable()
 export class InviteService {
   constructor(private prisma: PrismaService) {}
   async handleInvite(userId: string, friend: string) {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
-      select: {
-        friends: {
-          include: {
-            friend: true,
-          },
-        },
-      },
-    });
-    if (!user) {
-      throw new Error('User not found');
-    }
-    const isFriend = user.friends.find((f) => f.friend.login === friend);
-    if (!isFriend) {
-      return undefined;
-    }
-    return isFriend.friendId;
+    // TODO: smazouz test this !
+    const { friendShip, friendId } = await friendChecking(
+      userId,
+      friend,
+      this.prisma,
+    );
+    if (friendShip && friendShip.state === 'ACCEPTED') return friendId;
+    return undefined;
   }
 }
 @Injectable()

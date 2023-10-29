@@ -173,8 +173,6 @@ export class MatchMakerService {
     client.emit('invited-success', {
       opp: opponentId,
     });
-    console.log("user has been invited");
-    console.log(opponentId);
     client.to(opponentId).emit('invited', {
       msg: `${client.user.login} invited you`,
       friend: client.user.id,
@@ -214,6 +212,6 @@ export class MatchMakerService {
       this.userService.updateUserStatus(opponentSocket.user.id, 'IN_GAME');
       this.userService.updateUserStatus(client.user.id, 'IN_GAME');
       this.gameStarterService.startGame(client, opponentSocket, false, server);
-    }, 500);
+    }, 3000);
   }
 }

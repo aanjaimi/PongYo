@@ -51,7 +51,12 @@ export async function friendChecking(
   if (!prisma) prisma = this.prismaService;
   const friend = await prisma.user.findFirst({
     where: { ...loginOrId(friendId) },
-    include: {
+    select: {
+      displayname: true,
+      login: true,
+      id: true,
+      avatar: true,
+      status: true,
       stat: true,
       achievement: true,
       userGameHistory: true,

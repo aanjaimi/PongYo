@@ -22,9 +22,6 @@ const Achievement = ({ user }: AchievementProps) => {
 	const achievementQuery = useQuery({
 		queryKey: ["achievements", user.id],
 		queryFn: async ({ queryKey: [, id] }) => await getAchievements(id!),
-		onError: (error) => {
-			console.log(error);
-		}
 	});
 
 	if (achievementQuery.isLoading) return <Loading />;

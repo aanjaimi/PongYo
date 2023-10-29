@@ -17,7 +17,7 @@ const getFriends = async (page = 0) => {
   return (
     await fetcher.get<
       ApiResponse<
-        Pick<User, 'displayname' | 'avatar' | 'id' | 'login' | 'userStatus'>[]
+        Pick<User, 'displayname' | 'avatar' | 'id' | 'login' | 'status'>[]
       >
     >(`/friends?state=ACCEPTED`, {
       params: { page, limit: 1 },
@@ -83,6 +83,9 @@ const FriendList = () => {
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {friend.login}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {friend.status}
                         </p>
                       </div>
                     </div>

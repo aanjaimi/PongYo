@@ -26,9 +26,6 @@ const LeaderBoard = () => {
   const leaderBoardQuery = useQuery({
     queryKey: ["users"],
     queryFn: async () => getUsers(),
-    onError: (error) => {
-      console.log(error);
-    },
   });
 
   if (leaderBoardQuery.isLoading) return <Loading />;

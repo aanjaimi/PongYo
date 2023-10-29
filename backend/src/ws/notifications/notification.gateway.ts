@@ -37,9 +37,9 @@ export class NotificationGateway extends WsGateway {
 
   async handleDisconnect(client: Socket) {
     super.handleDisconnect(client);
-    const connectedSockets = await this.redisService.hgetall(client.user.id);
-    if (!connectedSockets) {
-      this.prismaService.user.update({
+    const connectedSockets = await this.redisService.getUserSockets(client.id);
+    if (!connectedSockets.length) {
+      await this.prismaService.user.update({
         where: { id: client.user.id },
         data: { status: 'OFFLINE' },
       });

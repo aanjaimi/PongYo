@@ -118,7 +118,6 @@ export default function JoinChannel({
       updateSelectedChannel(channel);
     } catch (err: unknown) {
       const error = err as { response: { data: { message: string } } };
-      console.log('error');
       toast.error(error.response.data.message, toastOptions);
     }
   };
