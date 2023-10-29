@@ -94,21 +94,19 @@ export class FriendService {
       login: true,
       id: true,
       avatar: true,
+      userStatus: true,
     } satisfies Prisma.UserSelect;
 
-    const [totalCount, users] = await this.prismaService.$transaction([
-      this.prismaService.friend.count({ where }),
-      this.prismaService.friend.findMany({
-        where,
-        skip: query.getSkip(),
-        take: query.limit,
-        orderBy: { updatedAt: 'desc' },
-        include: {
-          user: { select },
-          friend: { select },
-        },
-      }),
-    ]);
+    const users = await this.prismaService.friend.findMany({
+      where,
+      skip: query.getSkip(),
+      take: query.limit,
+      orderBy: { updatedAt: 'desc' },
+      include: {
+        user: { select },
+        friend: { select },
+      },
+    });
 
     return buildPagination(
       users.map((friendShip) => ({
@@ -118,7 +116,6 @@ export class FriendService {
           : friendShip.user),
       })),
       query.limit,
-      totalCount,
     );
   }
 

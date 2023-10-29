@@ -90,7 +90,6 @@ export class AuthService {
       token,
       encoding: 'base32',
     });
-    console.log(accessToken);
     if (isValidToken)
       await this.redisService.hset(`token-${accessToken}`, 'otp-needed', 0);
     return { valid: isValidToken };

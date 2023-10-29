@@ -1,6 +1,7 @@
 import React from "react";
 import ProfileCompletion from "./ProfileCompletion";
 
+
 type ProfileEditProps = {
   isEdited: boolean;
   setIsEdited: React.Dispatch<React.SetStateAction<boolean>>;

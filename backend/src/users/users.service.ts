@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserQueryDTO, UserUpdateDTO } from './users.dto';
 import { Prisma, User } from '@prisma/client';
@@ -16,8 +16,8 @@ export class UserService {
         {
           ...(query.login && {
             OR: [
-              { login: { contains: query.login } },
-              { displayname: { contains: query.login } },
+              { login: { contains: query.login, mode: 'insensitive' } },
+              { displayname: { contains: query.login, mode: 'insensitive' } },
             ],
           }),
         },
@@ -32,19 +32,27 @@ export class UserService {
       ],
     } satisfies Prisma.UserWhereInput;
 
-    const [totalCount, users] = await this.prismaService.$transaction([
-      this.prismaService.user.count({ where }),
-      this.prismaService.user.findMany({
-        where,
-        skip: query.getSkip(),
-        take: query.limit,
-        // TODO: add sorting by rank!
-        orderBy: {
-          updatedAt: 'desc',
+    const users = await this.prismaService.user.findMany({
+      where,
+      skip: query.getSkip(),
+      take: query.limit,
+      orderBy: [
+        {
+          stat: {
+            rank: 'desc',
+          },
         },
-      }),
-    ]);
-    return buildPagination(users, query.limit, totalCount);
+        {
+          stat: {
+            points: 'desc',
+          },
+        },
+      ],
+      include: {
+        stat: true,
+      },
+    });
+    return buildPagination(users, query.limit);
   }
 
   async getUser(currUser: User, otherId: string) {
@@ -72,6 +80,13 @@ export class UserService {
         issuer: user.login,
       });
       totp = Object.assign(totp, payload);
+    }
+
+    const existantUser = await this.prismaService.user.findUnique({
+      where: { displayname: rest.displayname },
+    });
+    if (existantUser && existantUser.id !== user.id) {
+      throw new HttpException('Displayname already taken', 403);
     }
 
     return await this.prismaService.user.update({
