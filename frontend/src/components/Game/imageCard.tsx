@@ -3,16 +3,17 @@ export interface ImageProps {
 	sideclass: string;
 	className: string;
 	score: number;
+	image: string;
 }
 
-export default function ImageCard({ sideclass, className, score }: ImageProps) {
+export default function ImageCard({ sideclass, className, score , image}: ImageProps) {
 	return (
 		<div className={`${sideclass}`}>
 
 			<div className={className} >
 				<div className='flex justify-center sm:flex-col space-x-1'>
 					<Image
-						src="/smazouz.jpeg"
+						src={image}
 						alt="pong"
 						className="rounded-full h-12 w-12 sm:w-14 sm:h-14 lg:w-20 lg:h-20"
 						width={75}

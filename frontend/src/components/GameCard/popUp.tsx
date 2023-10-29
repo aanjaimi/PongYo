@@ -19,18 +19,19 @@ const PopUp = ({ setIsPopupOpen, selectedOption, setOppData, setGameStarted, set
   const { gameSocket } = useSocket();
   const { state } = useStateContext();
 
-  const handleGameStart = (data: { opp: User, isRanked: boolean }) => {
-    setGameStarted(true);
-    setIsRanked(data.isRanked);
-    setOppData(data.opp);
-  };
+
   useEffect(() => {
+    const handleGameStart = (data: { opp: User, isRanked: boolean }) => {
+      setGameStarted(true);
+      setIsRanked(data.isRanked);
+      setOppData(data.opp);
+    };
     gameSocket.on("game-start", handleGameStart);
     return () => {
       gameSocket.off("game-start", handleGameStart);
     };
   }
-    , []);
+    , [gameSocket, setGameStarted, setIsRanked, setOppData]);
   return (
     <Card className=" fixed z-10 flex  flex-col  rounded-lg bg-[#ffffff33] text-black shadow-2xl ">
       {/* First Part */}
@@ -46,7 +47,7 @@ const PopUp = ({ setIsPopupOpen, selectedOption, setOppData, setGameStarted, set
           <h2 className="mt-4 text-center text-xl font-semibold">
             {state.user?.login}
           </h2>
-          <p className="text-center text-gray-500">{"zobi"}</p>
+          {/* <p className="text-center text-gray-500">{state.user?.stat.rank}</p> */}
         </div>
         <div className=" flex  flex-col ">
           <div className=" flex h-full items-end justify-center">

@@ -58,9 +58,6 @@ export class MatchMakerService {
       if (oppnentSocket === undefined) {
         return;
       }
-      if (oppnentSocket) {
-        console.log('oppnentSocket');
-      }
       client.emit('queue-joined');
       setTimeout(() => {
         oppnentSocket.to(client.user.id).emit('game-start', {
@@ -74,7 +71,7 @@ export class MatchMakerService {
         this.userService.updateUserStatus(oppnentSocket.user.id, 'IN_GAME');
         this.userService.updateUserStatus(client.user.id, 'IN_GAME');
         this.gameStarterService.startGame(client, oppnentSocket, false, server);
-      }, 1000);
+      }, 500);
       return;
     }
     client.emit('queue-joined');
@@ -116,9 +113,6 @@ export class MatchMakerService {
       if (oppnentSocket === undefined) {
         return;
       }
-      if (oppnentSocket) {
-        console.log('oppnentSocket');
-      }
       client.emit('queue-joined');
       setTimeout(() => {
         oppnentSocket.to(client.user.id).emit('game-start', {
@@ -132,7 +126,7 @@ export class MatchMakerService {
         this.userService.updateUserStatus(oppnentSocket.user.id, 'IN_GAME');
         this.userService.updateUserStatus(client.user.id, 'IN_GAME');
         this.gameStarterService.startGame(client, oppnentSocket, true, server);
-      }, 1000);
+      }, 500);
       return;
     }
     client.emit('queue-joined');
@@ -166,8 +160,6 @@ export class MatchMakerService {
       return;
     }
     const opponentId = await this.inviteService.handleInvite(user.id, opponent);
-    console.log(opponent);
-    console.log(opponentId);
     if (!opponentId) {
       client.emit('invited-fail', {
         msg: `${opponent} is not your friend`,
@@ -177,7 +169,6 @@ export class MatchMakerService {
     client.emit('invited-success', {
       opp: opponentId,
     });
-
     client.to(opponentId).emit('invited', {
       msg: `${client.user.login} invited you`,
       friend: client.user.id,
@@ -190,15 +181,12 @@ export class MatchMakerService {
     gameMap: Map<string, Socket>,
     server: Server,
   ) {
-    console.log('handleInvite');
     const opponentSocket = gameMap.get(opponent);
     if (opponentSocket === undefined) {
-      console.log('not online');
       return;
     }
     const len = await this.redisService.llen(opponentSocket.user.login);
     if (len === 0) {
-      console.log('not invited');
       return;
     }
     if (await this.queueService.isUserInQueue(QueueType.RANKED, opponent)) {
@@ -208,7 +196,6 @@ export class MatchMakerService {
       return;
     }
     await this.redisService.lpop(opponentSocket.user.login);
-    console.log('game-start');
     setTimeout(() => {
       opponentSocket.to(client.user.id).emit('game-start', {
         opp: opponentSocket.user,
@@ -221,6 +208,6 @@ export class MatchMakerService {
       this.userService.updateUserStatus(opponentSocket.user.id, 'IN_GAME');
       this.userService.updateUserStatus(client.user.id, 'IN_GAME');
       this.gameStarterService.startGame(client, opponentSocket, false, server);
-    }, 1000);
+    }, 500);
   }
 }

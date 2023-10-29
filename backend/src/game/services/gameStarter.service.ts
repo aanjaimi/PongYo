@@ -16,26 +16,7 @@ export class GameStarterService {
     isRanked: boolean,
     server: Server,
   ) {
-    player1.on('disconnect', () => {
-      if (isGameOver) return;
-      console.log(' player1 disconnected');
-      player2Score = 10;
-      player1Score = 0;
-      player1.to(player2.user.id).emit('update-score', {
-        myScore: player2Score,
-        oppScore: 0,
-      });
-    });
-    player2.on('disconnect', () => {
-      if (isGameOver) return;
-      console.log(' player2 disconnected');
-      player1Score = 10;
-      player2Score = 0;
-      player1.to(player1.user.id).emit('update-score', {
-        myScore: player1Score,
-        oppScore: 0,
-      });
-    });
+    
     await this.delay(5060);
     let player1Score = 0;
     let player2Score = 0;

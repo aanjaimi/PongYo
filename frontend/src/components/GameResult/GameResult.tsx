@@ -23,12 +23,12 @@ const GameResult = ({ myScore, oppScore, oppData }: GameResultProps) => {
       ? { color: "gold", textClass: "text-yellow-300", resoult: "Winner" }
       : { color: "silver", textClass: "text-gray-300", resoult: "Loser" };
   return (
-    <div className="flex w-screen h-screen justify-center items-center">
+    <div className="flex w-full h-full justify-center items-center">
       <div className="flex justify-around items-center text-black sm:h-[230px] sm:w-[700px] h-[500px] text-lg rounded-3xl p-4 flex-col sm:flex-row border-4 ">
         <div>
           <div className="flex items-center pt-6">
             <Image
-              src={state.user?.avatar.path}
+              src={state.user?.avatar.path ?? ""}
               alt={"user login"}
               width={100}
               height={100}

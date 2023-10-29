@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import type { User } from "@/types/user";
 import { useRouter } from 'next/router';
 import { useSocket } from "@/contexts/socket-context";
+import { useStateContext } from "@/contexts/state-context";
 
 
 type GameProps = {
@@ -14,24 +15,14 @@ type GameProps = {
 	isRanked: boolean;
 };
 const Game = ({ oppData, isRanked }: GameProps) => {
-	const router = useRouter();
-	const { query } = router;
-	console.log(query);
-	if (!query.opp) {
-
-		return <div className="w-screen h-screen ">
-			<div className="flex items-center justify-center h-screen">
-				<h1 className="text-9xl text-black">404</h1>
-				<h1 className="text-3xl text-black">Page not found</h1>
-			</div>
-		</div>;
-	}
-
 	const [isGameOver, setIsGameOver] = React.useState(false);
 	const [myScore, setMyScore] = useState(0);
 	const [oppScore, setOppScore] = useState(0);
 	const [countdown, setCountdown] = useState(5);
 	const { gameSocket } = useSocket();
+	const router = useRouter();
+	const { query } = router;
+	const {state } = useStateContext();
 
 	useEffect(() => {
 		if (!gameSocket.connected) {
@@ -45,7 +36,21 @@ const Game = ({ oppData, isRanked }: GameProps) => {
 			}
 		}, 1000);
 		return () => clearInterval(timer);
-	}, [countdown]);
+	}, [countdown, gameSocket]);
+
+	if (!query.opp) {
+
+		return <div className="w-screen h-screen ">
+			<div className="flex items-center justify-center h-screen">
+				<h1 className="text-9xl text-black">404</h1>
+				<h1 className="text-3xl text-black">Page not found</h1>
+			</div>
+		</div>;
+	}
+
+
+
+
 
 	return (
 		<Card className="flex justify-center items-center grow bg-white border">
@@ -63,6 +68,8 @@ const Game = ({ oppData, isRanked }: GameProps) => {
 						sideclass="h-full flex-col justify-start sm:w-auto w-full sm:flex  "
 						className="mx-8 flex flex-col  justify-end items-end sm:justify-center  h-full sm:h-[50%] "
 						score={myScore}
+						image={state.user?.avatar?.path ?? ""}
+
 					/>
 					<div className="flex items-center justify-center px-2 py-3 sm:py-20">
 						<GameCanvas
@@ -76,10 +83,11 @@ const Game = ({ oppData, isRanked }: GameProps) => {
 						sideclass="h-full flex-col justify-end sm:w-auto w-full sm:flex"
 						className="mx-8 flex flex-col items-start justify-center sm:h-[50%]"
 						score={oppScore}
+						image={oppData.avatar?.path}
 					/>
 				</div>
 			)}
-			{isGameOver && <GameResult myScore={myScore} oppScore={query.oppData} oppData={oppData} />}
+			{isGameOver && <GameResult myScore={myScore} oppScore={oppScore} oppData={oppData} />}
 		</Card>
 	);
 };

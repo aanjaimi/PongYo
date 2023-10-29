@@ -5,7 +5,6 @@ import axios from 'axios';
 import Chat from '@/components/chat/Chat';
 import { useSocket } from '@/contexts/socket-context';
 import { env } from '@/env.mjs';
-import { ToastContainer } from 'react-toastify';
 
 export default function Home() {
   const { chatSocket } = useSocket();
@@ -83,7 +82,7 @@ export default function Home() {
           <Chat user={user} />
         </div>
       </div>
-      <ToastContainer />
+      {/* <ToastContainer /> */}
     </div>
   );
 }

@@ -33,7 +33,7 @@ export class InviteService {
     if (!isFriend) {
       return undefined;
     }
-    return isFriend.id;
+    return isFriend.friendId;
   }
 }
 @Injectable()

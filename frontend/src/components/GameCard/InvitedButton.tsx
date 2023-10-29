@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSocket } from "@/contexts/socket-context";
 import type { ChangeEvent } from "react";
 import { Input } from "@/components/ui/input"
-import type { User } from "@/types/user";
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/router";
 
@@ -31,18 +30,24 @@ const InvitedButton = ({ setInviteNotify, setFriend }: InvitedButtonProps) => {
     setUsername(event.target.value);
   };
   useEffect(() => {
+    const handleInviteClick = (propUserName: string) => {
+      if (propUserName) {
+        setFriend(propUserName);
+        gameSocket.emit("invite", { opponent: propUserName });
+        return;
+      }
+      setFriend(username);
+      gameSocket.emit("invite", { opponent: username });
+    };
     if (query.username && !query.startGame) {
-      console.log(query);
       setUsername(query.username as string);
       handleInviteClick(query.username as string);
       router.replace({
         pathname: router.pathname,
         query: {},
       }).catch((err) => console.error(err));
-      console.log("i'm here\n");
     }
     if(query.startGame && query.username){
-      console.log(query);
       setFriend(query.username as string);
       setInviteNotify(true);
       gameSocket.emit("readyToPlay");
@@ -51,15 +56,11 @@ const InvitedButton = ({ setInviteNotify, setFriend }: InvitedButtonProps) => {
         query: {},
       }).catch((err) => console.error(err));
     }
-    const invitedSuccessHandler = (data: { opp: User }) => {
+    const invitedSuccessHandler = () => {
 
       setInviteNotify(true);
       gameSocket.emit("readyToPlay");
 
-    };
-    const invitedHandler = (data: { msg: string, friend: string }) => {
-      inviteNotify(data);
-      setFriend(data.friend);
     };
     const invitedFailHandler = (data: { msg: string }) => {
       notifyError(data.msg);
@@ -67,50 +68,15 @@ const InvitedButton = ({ setInviteNotify, setFriend }: InvitedButtonProps) => {
 
     gameSocket.on("invited-success", invitedSuccessHandler);
     gameSocket.on("invited-fail", invitedFailHandler);
-    gameSocket.on("invited", invitedHandler);
-
     return () => {
       gameSocket.off("invited-success", invitedSuccessHandler);
       gameSocket.off("invited-fail", invitedFailHandler);
-      gameSocket.off("invited", invitedHandler);
     };
-  }, []);
+  }, [gameSocket, query, router, setFriend, setInviteNotify,username]);
 
-  const inviteNotify = (data: { msg: string, friend: string }) => {
-    toast(data.msg, {
-      position: "top-center",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-      onClick: () => {
-        gameSocket.emit("acceptInvite", { opponent: data.friend });
-        setInviteNotify(true);
-      },
-    });
-  };
-
-  // Notify Success
-  const notifySuccess = (message: string) => {
-    toast.success(message, {
-      position: "top-right",
-      autoClose: 5000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "dark",
-    });
-  };
-
-  // Notify Error
   const notifyError = (message: string) => {
     toast.error(message, {
-      position: "top-right",
+      position: "top-left",
       autoClose: 5000,
       hideProgressBar: false,
       closeOnClick: true,
@@ -137,9 +103,7 @@ const InvitedButton = ({ setInviteNotify, setFriend }: InvitedButtonProps) => {
       >
         Invite
       </Button>
-      <ToastContainer />
     </div>
   );
 };
-
 export default InvitedButton;

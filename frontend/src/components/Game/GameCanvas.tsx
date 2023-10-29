@@ -164,7 +164,7 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore, isRanked }: GameCa
         canvas.removeEventListener("mousemove", handleMousemove);
       }
     };
-  }, []);
+  }, [gameSocket, dispatch, isRanked, setIsGameOver, setMyScore, setOppScore]);
   return (
     <div>
       <canvas ref={canvasRef} className="h-full w-full rounded-3xl border-4" />

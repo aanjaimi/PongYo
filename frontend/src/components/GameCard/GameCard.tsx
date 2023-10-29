@@ -1,20 +1,17 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect} from "react";
 import InvitedButton from "./InvitedButton";
 import Divider from "./Divider";
 import { Button } from "@/components/ui/button"
 import PopUp from "./popUp";
 import { useSocket } from "@/contexts/socket-context";
 import CustomModal from "./CustomModal";
-import { useStateContext } from "@/contexts/state-context";
 import { toast } from "react-toastify";
 import type { User } from "@/types/user";
 import type { ChangeEvent } from "react";
 import InvitationCard from "./inviteCard";
-import { useRouter } from "next/router";
 import {
   Card, CardTitle,
 } from "@/components/ui/card"
-import { stat } from "fs";
 
 
 type GameCardProps = {
@@ -30,9 +27,7 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
   const [inviteNotify, setInviteNotify] = useState(false);
   const [friend, setFriend] = useState("");
   const handleStartClick = () => {
-    console.log(selectedOption);
     if (selectedOption === "Normal game") {
-      console.log("join-queue");
       setIsRanked(false);
       gameSocket.emit("join-queue");
     } else if (selectedOption === "Ranked game") {
@@ -81,10 +76,10 @@ const GameCard = ({ setGameStarted, setOppData, setIsRanked }: GameCardProps) =>
       gameSocket.off("already-in-Queue", handleAlreadyInQueue);
       gameSocket.off("queue-joined", handleQueueJoined);
     };
-  }, []);
+  }, [gameSocket, setIsPopupOpen]);
 
   return (
-    <Card className="flex h-screen   flex-col items-center justify-center grow ">
+    <Card className="flex h-full   flex-col items-center justify-center grow ">
       {inviteNotify && (
         <InvitationCard
           setInviteNotify={setInviteNotify}

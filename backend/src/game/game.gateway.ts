@@ -30,7 +30,6 @@ export class GameGateway extends WsGateway {
 
   async handleConnection(client: Socket): Promise<boolean> {
     return super.handleConnection(client).then(() => {
-      console.log('game connection');
       if (client.user === undefined) {
         return false;
       }
@@ -41,7 +40,6 @@ export class GameGateway extends WsGateway {
   }
   async handleDisconnect(client: Socket): Promise<void> {
     return super.handleDisconnect(client).then(() => {
-      console.log('game disconnect');
       if(client.user === undefined) {
         return;
       }
@@ -58,7 +56,6 @@ export class GameGateway extends WsGateway {
 
   @SubscribeMessage('join-queue')
   async handleJoinQueue(client: Socket) {
-    console.log('join-queue');
     this.matchMakerService.handleJoinQueue(client, this.gameMap, this.server);
   }
   @SubscribeMessage('join-ranked-queue')

@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import React, { use } from 'react';
 import { useSocket } from '@/contexts/socket-context';
 import { Button } from '@/components/ui/button';
 import { useStateContext } from '@/contexts/state-context';
@@ -47,13 +46,13 @@ const InvitationCard = ({ setInviteNotify, opp, setIsRanked, setGameStarted, set
     }
     );
   }
-    , []);
+    , [gameSocket, setGameStarted, setIsRanked, setOppData, setInviteNotify]);
 
   if (userQuery.isLoading) return <Loading />;
 
   if (userQuery.isError) void router.push("/404");
   return (
-    <Card className='flex items-center  justify-center h-screen  w-screen '>
+    <Card className='flex items-center  justify-center h-full  w-full '>
       <div className="flex items-center  justify-between p-10 sm:gap-20 gap-6 rounded-3xl border-4 flex-col sm:flex-row">
         <div className="flex items-center flex-col">
           <Image
