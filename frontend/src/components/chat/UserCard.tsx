@@ -64,7 +64,7 @@ export default function UserCard({
       channel.mutes = updatedMutes;
       updateChannels([...channels]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -79,7 +79,7 @@ export default function UserCard({
       channel.mutes = updatedMutes;
       updateChannels([...channels]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -98,7 +98,7 @@ export default function UserCard({
       channel.members = updatedMembers;
       updateChannels([...channels]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 
@@ -113,7 +113,7 @@ export default function UserCard({
       channel.members = updatedMembers;
       updateChannels([...channels]);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
   };
 

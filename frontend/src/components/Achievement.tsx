@@ -22,9 +22,6 @@ const Achievement = ({ user }: AchievementProps) => {
 	const achievementQuery = useQuery({
 		queryKey: ["achievements", user.id],
 		queryFn: async ({ queryKey: [, id] }) => await getAchievements(id!),
-		onError: (error) => {
-			console.log(error);
-		}
 	});
 
 	if (achievementQuery.isLoading) return <Loading />;
@@ -43,7 +40,7 @@ const Achievement = ({ user }: AchievementProps) => {
 			<Table>
 				<TableBody className="flex flex-col justify-center items-center mt-[20px]">
 					{achievementQuery.data?.map((ach) => (
-						<TableRow key={ach.id} className="bg-[#2B3954] border rounded-[15px] flex justify-center items-center mb-[20px] w-[90%]">
+						<TableRow key={ach.id} className="border rounded-[15px] flex justify-center items-center mb-[20px] w-[90%]">
 							<TableCell className="w-[127px] md:w-[194px] lg:w-[312px]"><Image alt="" src="/achievements/1.png" width={25} height={25}/></TableCell>
 							<TableCell className="w-[127px] md:w-[194px] lg:w-[312px]">{ach?.name}</TableCell>
 							<TableCell className="w-[127px] md:w-[194px] lg:w-[312px]">{ach?.description}</TableCell>

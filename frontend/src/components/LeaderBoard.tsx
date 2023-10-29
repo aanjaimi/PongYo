@@ -26,9 +26,6 @@ const LeaderBoard = () => {
   const leaderBoardQuery = useQuery({
     queryKey: ["users"],
     queryFn: async () => getUsers(),
-    onError: (error) => {
-      console.log('error: ', error);
-    },
   });
 
   if (leaderBoardQuery.isLoading) return <Loading />;
@@ -42,22 +39,22 @@ const LeaderBoard = () => {
       style={{ overflow: "auto", maxHeight: "359px" }}
       className="mx-[10px] mt-[10px] w-full"
     >
-      <Table className="rounded-t-[15px] border-black bg-[#00000066]">
+      <Table className="rounded-t-[15px] border-black">
         <TableHeader>
-          <TableRow className="mx-[10px] text-xs font-semibold text-white">
-            <TableHead className="mx-[10px] text-xs font-semibold text-white">
+          <TableRow className="mx-[10px] text-xs font-semibold text-black">
+            <TableHead className="mx-[10px] text-xs font-semibold text-black">
               rank
             </TableHead>
-            <TableHead className="mx-[10px] text-xs font-semibold text-white">
+            <TableHead className="mx-[10px] text-xs font-semibold text-black">
               player
             </TableHead>
-            <TableHead className="mx-[10px] text-xs font-semibold text-white">
+            <TableHead className="mx-[10px] text-xs font-semibold text-black">
               w/l
             </TableHead>
-            <TableHead className="mx-[10px] text-xs font-semibold text-white">
+            <TableHead className="mx-[10px] text-xs font-semibold text-black">
               rank
             </TableHead>
-            <TableHead className="mx-[10px] text-xs font-semibold text-white">
+            <TableHead className="mx-[10px] text-xs font-semibold text-black">
               points
             </TableHead>
           </TableRow>
@@ -72,9 +69,9 @@ const LeaderBoard = () => {
           return (
             <TableBody
               key={user.id}
-              className="mx-[10px] text-sm font-semibold text-white"
+              className="mx-[10px] text-sm font-semibold text-black"
             >
-              <TableRow className="bg-[#D9D9D94D]">
+              <TableRow>
                 <TableCell>{index + 1}</TableCell>
                 <TableCell>{user.displayname}</TableCell>
                 <TableCell>

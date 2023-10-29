@@ -94,7 +94,7 @@ export class FriendService {
       login: true,
       id: true,
       avatar: true,
-      userStatus: true,
+      status: true,
     } satisfies Prisma.UserSelect;
 
     const users = await this.prismaService.friend.findMany({
