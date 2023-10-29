@@ -81,12 +81,13 @@ export class UserService {
       });
       totp = Object.assign(totp, payload);
     }
-
-    const existantUser = await this.prismaService.user.findUnique({
-      where: { displayname: rest.displayname },
-    });
-    if (existantUser && existantUser.id !== user.id) {
-      throw new HttpException('Displayname already taken', 403);
+    if (rest.displayname) {
+      const existantUser = await this.prismaService.user.findUnique({
+        where: { displayname: rest.displayname },
+      });
+      if (existantUser && existantUser.id !== user.id) {
+        throw new HttpException('Displayname already taken', 403);
+      }
     }
 
     return await this.prismaService.user.update({
