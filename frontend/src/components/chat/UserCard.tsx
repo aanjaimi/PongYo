@@ -49,7 +49,8 @@ export default function UserCard({
         `${uri}/chat/channel/${channel.id}/mutes`,
         {
           userId: cardUser.id,
-          muteDuration: 3600000,
+          // mute duration 1 min
+          muteDuration: 60000,
         },
         { withCredentials: true },
       );
@@ -136,7 +137,13 @@ export default function UserCard({
       >
         <div className="ml-[1rem] flex items-center">
           <div className="mr-[0.5rem] w-[3rem] rounded-full">
-            <Image src="/avatar.png" alt="avatar" width={200} height={200} />
+            <Image
+              src={cardUser.avatar.path}
+              alt="avatar"
+              width={200}
+              height={200}
+              className="rounded-full"
+            />
           </div>
           <h2 className="ml-[0.5rem] truncate">
             {displayString(cardUser.displayname, nameLenght)}
