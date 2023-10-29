@@ -13,7 +13,7 @@ import Loading from '@/pages/Loading';
 import { useRouter } from 'next/router';
 
 const getGames = async (id: string) => {
-  return (await fetcher.get<Game[] | []>(`/games/${id}`)).data;
+  return (await fetcher.get<Game[]>(`/games/${id}`)).data;
 };
 
 type HistoryProps = {

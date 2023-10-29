@@ -71,12 +71,12 @@ const ProfileCompletion = ({ setIsEdited }: ProfileCompletionProps) => {
     await router.push('/profile/@me');
   };
   return (
-    <div className="grow flex h-full w-full items-center justify-center">
+    <div className="flex h-full w-full items-center justify-center">
       <Card>
         <CardHeader>
           <CardTitle>Edit profile</CardTitle>
           <CardDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
+            Make changes to your profile here. Click submit when you&apos;re done.
           </CardDescription>
         </CardHeader>
         <CardContent>

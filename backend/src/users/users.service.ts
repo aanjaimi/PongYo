@@ -38,9 +38,20 @@ export class UserService {
         where,
         skip: query.getSkip(),
         take: query.limit,
-        // TODO: add sorting by rank!
-        orderBy: {
-          updatedAt: 'desc',
+        orderBy: [
+          {
+            stat: {
+              rank: 'desc',
+            },
+          },
+          {
+            stat: {
+              points: 'desc',
+            },
+          },
+        ],
+        include: {
+          stat: true,
         },
       }),
     ]);
