@@ -6,7 +6,6 @@ import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { useState } from 'react';
 import { fetcher } from '@/utils/fetcher';
-import { env } from '@/env.mjs';
 import { displayString } from './ChannelsList';
 
 interface UserCardProps {
@@ -26,7 +25,6 @@ export default function ModeratorCard({
   cardUser,
   user,
 }: UserCardProps) {
-  const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [nameLenght, setNameLenght] = useState<number>(30);
 
@@ -44,7 +42,7 @@ export default function ModeratorCard({
   const mute = async () => {
     try {
       const { data } = await fetcher.patch<mute>(
-        `${uri}/chat/channel/${channel.id}/mutes`,
+        `/chat/channel/${channel.id}/mutes`,
         {
           userId: cardUser.id,
           muteDuration: 3600000,
@@ -68,7 +66,7 @@ export default function ModeratorCard({
   const unMute = async () => {
     try {
       await fetcher.delete(
-        `${uri}/chat/channel/${channel.id}/mutes?userId=${cardUser.id}`,
+        `/chat/channel/${channel.id}/mutes?userId=${cardUser.id}`,
       );
       const updatedMutes = channel.mutes.filter(
         (mute) => mute.userId !== cardUser.id,
@@ -83,7 +81,7 @@ export default function ModeratorCard({
   const ban = async () => {
     try {
       await fetcher.patch(
-        `${uri}/chat/channel/${channel.id}/bans`,
+        `/chat/channel/${channel.id}/bans`,
         {
           userId: cardUser.id,
           banDuration: 3600000,
@@ -102,7 +100,7 @@ export default function ModeratorCard({
   const kick = async () => {
     try {
       await fetcher.delete(
-        `${uri}/chat/channel/${channel.id}/kicks?userId=${cardUser.id}`,
+        `/chat/channel/${channel.id}/kicks?userId=${cardUser.id}`,
         { withCredentials: true },
       );
       const updatedMembers = channel.members.filter(

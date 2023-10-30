@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Chat from '@/components/chat/Chat';
 import { useSocket } from '@/contexts/socket-context';
-import { env } from '@/env.mjs';
+
 import { fetcher } from '@/utils/fetcher';
 import type { FriendShip } from '@/types/friend';
+import { useRouter } from 'next/router';
 
 export default function Home() {
   const { chatSocket } = useSocket();
-  const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [blockedUsers, setBlockedUsers] = useState<FriendShip[] | null>(null);
 
@@ -23,8 +24,14 @@ export default function Home() {
           ? name[1]
           : name[0]) as unknown as string;
       });
-      setUser(data);
       return data;
+    },
+    onSuccess: (data) => {
+      setUser(data);
+    },
+    onError: (error) => {
+      console.log(error);
+      router.push('/').catch((err) => console.log(err));
     },
   });
 
@@ -35,11 +42,17 @@ export default function Home() {
         data: FriendShip[];
         limit: number;
         pages: number;
-      }>(uri + '/friends?state=BLOCKED', {
+      }>('/friends?state=BLOCKED', {
         withCredentials: true,
       });
-      setBlockedUsers(data.data);
       return data;
+    },
+    onSuccess: (data) => {
+      setBlockedUsers(data.data);
+    },
+    onError: (error) => {
+      console.log(error);
+      router.push('/').catch((err) => console.log(err));
     },
   });
 
@@ -78,26 +91,18 @@ export default function Home() {
   }
 
   if (!user || !blockedUsers) {
-    if (!user)
-      return <div className="h-screen w-screen">Redirecting...user</div>;
-    if (!blockedUsers)
-      return (
-        <div className="h-screen w-screen">Redirecting...blockedUsers</div>
-      );
+    return <div className="h-screen w-screen">Loading...</div>;
   }
 
   return (
     <div className="flex flex-col">
       {/* Header component */}
-      {/* <div className="h-[4rem] w-full bg-[#000000]"></div> */}
       <div className="flex grow flex-row">
         {/* Sidebar component */}
-        {/* <div className="w-[4rem] bg-[#252525]"></div> */}
         <div className="ml-[3rem] mt-[3rem] flex grow justify-center">
           <Chat user={user} blocks={blockedUsers} />
         </div>
       </div>
-      {/* <ToastContainer /> */}
     </div>
   );
 }

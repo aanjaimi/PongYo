@@ -25,7 +25,6 @@ export default function JoinChannel({
   updateSelectedChannel,
   blocks,
 }: JoinChannelProps) {
-  const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const { chatSocket } = useSocket();
   const [passwordRequired, setPasswordRequired] = useState<boolean>(false);
   const [displayname, setdisplayname] = useState<string>('');

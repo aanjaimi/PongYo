@@ -2,7 +2,6 @@ import { fetcher } from '@/utils/fetcher';
 import React from 'react';
 import { Button } from '../ui/button';
 import type { Channel } from '@/types/channel';
-import { env } from '@/env.mjs';
 
 interface LeaveChannelProps {
   channel: Channel;
@@ -13,8 +12,6 @@ export default function LeaveChannel({
   channel,
   setShowSettings,
 }: LeaveChannelProps) {
-  const url = env.NEXT_PUBLIC_BACKEND_ORIGIN;
-
   const leaveChannel = async () => {
     try {
       await fetcher.delete(`/chat/channel/${channel.id}/leave`);

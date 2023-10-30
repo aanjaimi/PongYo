@@ -1,10 +1,9 @@
 import type { Channel } from '@/types/channel';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import { Card } from '../ui/card';
 import type { FriendShip } from '@/types/friend';
 import type { User } from '@/types/user';
-import { set } from 'zod';
 
 const displayLastMessage = (channel: Channel, blocks: FriendShip[]) => {
   if (channel.messages.length > 0) {

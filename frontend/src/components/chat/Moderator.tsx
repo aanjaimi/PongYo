@@ -10,7 +10,6 @@ import {
 } from '../ui/dialog';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
-import { env } from '@/env.mjs';
 import type { Channel } from '@/types/channel';
 import { type ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -21,7 +20,6 @@ interface ModeratorProps {
 }
 
 export default function Moderator({ channel }: ModeratorProps) {
-  const url = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [userName, setUserName] = useState<string>('');
   const toastOptions: ToastOptions<object> = {
@@ -39,7 +37,7 @@ export default function Moderator({ channel }: ModeratorProps) {
       );
       if (!modCandidate) return toast.error('User not found', toastOptions);
       await fetcher.patch(
-        `${url}/chat/channel/${channel.id}/moderators`,
+        `/chat/channel/${channel.id}/moderators`,
         { userId: modCandidate?.id },
       );
       setUserName('');
@@ -57,7 +55,7 @@ export default function Moderator({ channel }: ModeratorProps) {
       );
       if (!mod) return toast.error('User not found', toastOptions);
       await fetcher.delete(
-        `${url}/chat/channel/${channel.id}/moderators?userId=${mod.id}`,
+        `/chat/channel/${channel.id}/moderators?userId=${mod.id}`,
       );
       setUserName('');
       setShowDialog(false);

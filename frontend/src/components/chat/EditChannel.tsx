@@ -13,7 +13,6 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import type { Channel } from '@/types/channel';
-import { env } from '@/env.mjs';
 import type { User } from '@/types/user';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
@@ -34,7 +33,6 @@ export default function EditChannel({
   updateChannels,
   updateSelectedChannel,
 }: EditChannelProps) {
-  const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [channelName, setChannelName] = useState<string>('');
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [channelPassword, setChannelPassword] = useState<string>('');
@@ -56,7 +54,7 @@ export default function EditChannel({
       if (channelName.length > 30)
         return toast.error('Channel name too long', toastOptions);
       const { data } = await fetcher.patch<Channel>(
-        `${uri}/chat/Channel/${channel.id}`,
+        `/chat/Channel/${channel.id}`,
         {
           name: channelName,
           password: channelPassword,

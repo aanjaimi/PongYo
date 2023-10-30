@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import ChannelInfo from './ChannelInfo';
 import CreateOrJoin from './CreateOrJoin';
 import Image from 'next/image';
-import { env } from '@/env.mjs';
 import ChannelSettings from './ChannelSettings';
 import { ScrollArea } from '../ui/scroll-area';
 import type { FriendShip } from '@/types/friend';
@@ -32,7 +31,6 @@ export default function ChannelContent({
   setShowSettings,
   blocks,
 }: ChannelContentProps) {
-  const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [message, setMessage] = useState<string>('');
   const bottomRef = useRef<HTMLDivElement>(null);
 

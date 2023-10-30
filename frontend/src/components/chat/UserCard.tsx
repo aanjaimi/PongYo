@@ -6,7 +6,6 @@ import { Button } from '../ui/button';
 import { Card } from '../ui/card';
 import { useState } from 'react';
 import { fetcher } from '@/utils/fetcher';
-import { env } from '@/env.mjs';
 import { displayString } from './ChannelsList';
 
 interface UserCardProps {
@@ -28,7 +27,6 @@ export default function UserCard({
   cardUser,
   user,
 }: UserCardProps) {
-  const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [nameLenght, setNameLenght] = useState<number>(30);
 

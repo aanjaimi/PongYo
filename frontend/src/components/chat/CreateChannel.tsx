@@ -5,7 +5,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import type { User } from '@/types/user';
 import type { Channel } from '@/types/channel';
-import { env } from '@/env.mjs';
 import { fetcher } from '@/utils/fetcher';
 import { useSocket } from '@/contexts/socket-context';
 import { Input } from '../ui/input';
@@ -23,7 +22,6 @@ export default function CreateChannel({
   updateChannels,
   updateSelectedChannel,
 }: CreateChannelProps) {
-  const uri = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const { chatSocket } = useSocket();
   const [channelName, setChannelName] = useState<string>('');
   const [channelPassword, setChannelPassword] = useState<string>('');
@@ -46,7 +44,7 @@ export default function CreateChannel({
     )
       return toast.error('Incomplete format', toastOptions);
     try {
-      const { data } = await fetcher.post<Channel>(`${uri}/chat/Channel`, {
+      const { data } = await fetcher.post<Channel>(`/chat/Channel`, {
         name: channelName,
         password: channelPassword,
         type: channelType,

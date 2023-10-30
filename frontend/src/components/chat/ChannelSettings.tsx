@@ -1,13 +1,9 @@
 import type { Channel } from '@/types/channel';
 import type { User } from '@/types/user';
-import React, { useState } from 'react';
+import React from 'react';
 import Image from 'next/image';
-// import { fetcher } from '@/utils/fetcher';
-// import { env } from '@/env.mjs';
 import ChannelSettingsContent from './ChannelSettingsContent';
 import EditChannel from './EditChannel';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
 import LeaveChannel from './LeaveChannel';
 import Moderator from './Moderator';
 import ChangeOwnership from './ChangeOwnership';
@@ -29,8 +25,6 @@ export default function ChannelSettings({
   updateChannels,
   setShowSettings,
 }: channelSettingsProps) {
-  // const url = env.NEXT_PUBLIC_BACKEND_ORIGIN;
-  const [userName, setUserName] = useState<string>('');
 
   return (
     <>

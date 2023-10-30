@@ -3,7 +3,6 @@ import type { Channel } from '@/types/channel';
 import type { User } from '@/types/user';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
-import Link from 'next/link';
 
 export default function Redirect({
   user,

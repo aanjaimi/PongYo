@@ -10,7 +10,6 @@ import {
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
-import { env } from '@/env.mjs';
 import { type ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import type { Channel } from '@/types/channel';
@@ -21,7 +20,6 @@ interface ModeratorProps {
 }
 
 export default function ChangeOwnership({ channel }: ModeratorProps) {
-  const url = env.NEXT_PUBLIC_BACKEND_ORIGIN;
   const [showDialog, setShowDialog] = useState<boolean>(false);
   const [userName, setUserName] = useState<string>('');
   const toastOptions: ToastOptions<object> = {
