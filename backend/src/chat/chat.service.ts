@@ -366,6 +366,8 @@ export class ChatService {
         mutes: {
           where: { id: user.id },
         },
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
@@ -424,11 +426,19 @@ export class ChatService {
       },
     });
 
+    //update channel
+    await this.prismaService.channel.update({
+      where: { id },
+      data: {
+        updatedAt: new Date(),
+      },
+    });
+
     // check if channel is a dm
     if (channel.isDM) {
       const otherUser = channel.members.find((member) => member.id !== user.id);
-      this.chatGateway.io().to(otherUser.displayname).emit('message', message);
-      this.chatGateway.io().to(user.displayname).emit('message', message);
+      this.chatGateway.io().to(otherUser.login).emit('message', message);
+      this.chatGateway.io().to(user.login).emit('message', message);
     } else {
       this.chatGateway.io().to(`channel-${id}`).emit('message', message);
     }

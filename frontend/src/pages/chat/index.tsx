@@ -21,10 +21,15 @@ export default function Home() {
       data.channels.forEach((channel) => {
         if (channel.isDM) {
           const name: string[] = channel.name.split('-');
-          channel.name = (name[0] === data.displayname
+          channel.name = (name[0] === data.login
             ? name[1]
             : name[0]) as unknown as string;
         }
+      });
+      data.channels.sort((a, b) => {
+        const aDate = new Date(a.updatedAt);
+        const bDate = new Date(b.updatedAt);
+        return bDate.getTime() - aDate.getTime();
       });
       return data;
     },

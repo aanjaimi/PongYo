@@ -30,7 +30,7 @@ export class ChatGateway
   async handleConnection(@ConnectedSocket() client: Socket) {
     await super.handleConnection(client);
     if (!client.user) return;
-    client.join(client.user.displayname);
+    client.join(client.user.login);
     return true;
   }
 
