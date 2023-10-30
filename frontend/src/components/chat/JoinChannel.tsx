@@ -39,9 +39,9 @@ export default function JoinChannel({
   const joinDirectMessage = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     let channel: Channel | undefined = channels.find(
-      (channel) => channel.name === displayname,
+      (channel) => (channel.name === displayname && channel.isDM),
     );
-    if (channel && channel.isDM) {
+    if (channel) {
       updateSelectedChannel(channel);
       return;
     } else if (channel) return;
