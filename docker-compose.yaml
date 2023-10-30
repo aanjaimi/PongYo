@@ -36,7 +36,9 @@ services:
     container_name: minio-storage
     ports:
       - "9001:9001"
-      - "9000:9000" # for the minio api 
+      - "9000:9000" # for the minio api
+    env_file:
+      - "./backend/.env"
     command: 'server /data --console-address ":9001"'
     restart: on-failure
     volumes:
