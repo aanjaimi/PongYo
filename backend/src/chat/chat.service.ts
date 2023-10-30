@@ -91,11 +91,16 @@ export class ChatService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
     // check if there is no block between the two users
-    const blocks = await this.friendService.getUserFriendShip(
-      currentUser.id,
-      otherUser.id,
-    );
-    if (blocks.state === 'BLOCKED')
+    let blocks;
+    try {
+      blocks = await this.friendService.getUserFriendShip(
+        currentUser.id,
+        otherUser.id,
+      );
+    } catch (err) {
+      blocks = undefined;
+    }
+    if (blocks && blocks.state === 'BLOCKED')
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
     // check if dm exists
