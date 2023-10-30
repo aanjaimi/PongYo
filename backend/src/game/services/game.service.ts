@@ -21,7 +21,7 @@ export class MatchMakerService {
     protected redisService: RedisService,
     private gameStarterService: GameStarterService,
     private userService: UserService,
-  ) {}
+  ) { }
   async handleJoinQueue(
     client: Socket,
     gameMap: Map<string, Socket>,
@@ -61,7 +61,6 @@ export class MatchMakerService {
       // await this.queueService.remove
       client.emit('queue-joined');
       setTimeout(() => {
-
         oppnentSocket.to(client.user.id).emit('game-start', {
           opp: oppnentSocket.user,
           isRanked: false,
@@ -200,18 +199,44 @@ export class MatchMakerService {
       return;
     }
     await this.redisService.lpop(opponentSocket.user.login);
+
+    let gameStartScheduled = true; // Start with game scheduled
+
+    // Function to cancel the game start
+    function cancelGame() {
+      gameStartScheduled = false;
+    }
+
+    // Schedule the game-start event
     setTimeout(() => {
-      opponentSocket.to(client.user.id).emit('game-start', {
-        opp: opponentSocket.user,
-        isRanked: false,
-      });
-      client.to(opponentSocket.user.id).emit('game-start', {
-        opp: client.user,
-        isRanked: false,
-      });
-      this.userService.updateUserStatus(opponentSocket.user.id, 'IN_GAME');
-      this.userService.updateUserStatus(client.user.id, 'IN_GAME');
-      this.gameStarterService.startGame(client, opponentSocket, false, server);
+      if (gameStartScheduled) {
+        opponentSocket.to(client.user.id).emit('game-start', {
+          opp: opponentSocket.user,
+          isRanked: false,
+        });
+        client.to(opponentSocket.user.id).emit('game-start', {
+          opp: client.user,
+          isRanked: false,
+        });
+        this.userService.updateUserStatus(opponentSocket.user.id, 'IN_GAME');
+        this.userService.updateUserStatus(client.user.id, 'IN_GAME');
+        this.gameStarterService.startGame(
+          client,
+          opponentSocket,
+          false,
+          server,
+        );
+      }
     }, 3000);
+
+    // Example of canceling the game start from the frontend
+    client.on('cancel-game', () => {
+      cancelGame();
+      // You can emit a confirmation message or perform other actions as needed.
+    });
+    opponentSocket.on('cancel-game', () => {
+      cancelGame();
+      // You can emit a confirmation message or perform other actions as needed.
+    });
   }
 }

@@ -273,44 +273,44 @@ export class GameStarterService {
               if (player1Score > player2Score) {
                 updateRankStats(
                   player2.user.id,
-                  player2Score,
+                  player1Score,
                   10,
                   true,
                   player1.user.id,
-                  player1Score,
+                  player2Score,
                   -5,
                   false,
                 );
                 updateRankStats(
                   player1.user.id,
-                  player1Score,
+                  player2Score,
                   -5,
                   false,
                   player2.user.id,
-                  player2Score,
+                  player1Score,
                   10,
                   true,
                 );
               } else {
                 updateRankStats(
-                  player2.user.id,
-                  player2Score,
-                  -5,
-                  false,
                   player1.user.id,
-                  player1Score,
+                  player2Score,
                   10,
                   true,
+                  player2.user.id,
+                  player1Score,
+                  -5,
+                  false,
                 );
                 updateRankStats(
-                  player1.user.id,
-                  player1Score,
-                  10,
-                  true,
                   player2.user.id,
-                  player2Score,
+                  player1Score,
                   -5,
                   false,
+                  player1.user.id,
+                  player2Score,
+                  -5,
+                  true,
                 );
               }
             }
