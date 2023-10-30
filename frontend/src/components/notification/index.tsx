@@ -70,7 +70,7 @@ export function Notifications() {
         <CardTitle>Notifications</CardTitle>
         <CardDescription>all notifications</CardDescription>
       </CardHeader>
-      <CardContent className="grid h-[200px] w-[200px] gap-1 overflow-scroll sm:w-[400px]">
+      <CardContent className="grid h-[200px] w-[200px] gap-1 overflow-y-scroll sm:w-[400px]">
         {!pages[0]?.data.length && (
           <EmptyView
             title="No notifications"

@@ -532,8 +532,6 @@ export class ChatService {
       },
     });
 
-    console.log(isMember);
-
     this.chatGateway
       .io()
       .to(`channel-${id}`)

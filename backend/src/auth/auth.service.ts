@@ -83,8 +83,7 @@ export class AuthService {
     user: User,
     { token }: OtpCallbackDTO,
   ) {
-    const secret = user.totp['base32'];
-    console.log('Waiting');
+    const secret = user.totp['base32']; 
     const isValidToken = speakeasy.totp.verify({
       secret,
       token,
