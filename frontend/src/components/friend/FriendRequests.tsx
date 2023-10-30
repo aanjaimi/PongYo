@@ -72,7 +72,7 @@ const FriendRequests = () => {
         {pages.map((page, idx) => (
           <React.Fragment key={idx}>
             {page.data.map((friend) => (
-              <Link key={friend.login} href={`/profile/${friend.id}`}>
+              <Link key={friend.login} href={`/profile/${friend.login}`}>
                 <div className="flex items-center justify-between space-x-4">
                   <div>
                     <div className="flex items-center space-x-4">

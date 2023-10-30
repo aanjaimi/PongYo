@@ -16,7 +16,7 @@ const ProfileContent = ({ user, isEdited, setIsEdited }: ProfileContentProps) =>
       <ProfileCover user={user} isEdited={isEdited} setIsEdited={setIsEdited}/>
       <UserData user={user} isEdited={isEdited}/>
       <UserInfo user={user} isEdited={isEdited}/>
-      <ProfileEdit isEdited={isEdited} setIsEdited={setIsEdited} />
+      <ProfileEdit user={user} isEdited={isEdited} setIsEdited={setIsEdited} />
     </div>
   );
 };

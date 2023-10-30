@@ -24,7 +24,7 @@ export const displayString = (str: string, len: number) => {
   if (str.length > len) {
     return str.slice(0, len) + '…';
   } else {
-    return str;
+  return str;
   }
 };
 
@@ -101,7 +101,7 @@ export default function ChannelsList({
                     className="rounded-full bg-white"
                   />
                 </div>
-                <div className="relative truncate flex h-[100%] grow py-[0.3rem] ">
+                <div className="relative flex h-[100%] grow truncate py-[0.3rem] ">
                   <h3 className="">{displayString(channel.name, 13)}</h3>
                   <p className="absolute top-6 max-w-[100%] truncate text-[10px]">
                     {displayLastMessage(channel, blocks)}

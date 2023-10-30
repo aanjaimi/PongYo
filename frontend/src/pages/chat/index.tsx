@@ -19,10 +19,12 @@ export default function Home() {
     queryFn: async () => {
       const { data } = await fetcher.get<User>('/chat/me');
       data.channels.forEach((channel) => {
-        const name: string[] = channel.name.split('-');
-        channel.name = (name[0] === data.displayname
-          ? name[1]
-          : name[0]) as unknown as string;
+        if (channel.isDM) {
+          const name: string[] = channel.name.split('-');
+          channel.name = (name[0] === data.displayname
+            ? name[1]
+            : name[0]) as unknown as string;
+        }
       });
       return data;
     },
