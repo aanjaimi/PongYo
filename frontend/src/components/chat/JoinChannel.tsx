@@ -2,7 +2,6 @@ import { ChatType, type Channel } from '@/types/channel';
 import type { User } from '@/types/user';
 import { fetcher } from '@/utils/fetcher';
 import React, { useState } from 'react';
-import { env } from '@/env.mjs';
 import { useSocket } from '@/contexts/socket-context';
 import { type ToastOptions, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -23,7 +22,6 @@ export default function JoinChannel({
   channels,
   updateChannels,
   updateSelectedChannel,
-  blocks,
 }: JoinChannelProps) {
   const { chatSocket } = useSocket();
   const [passwordRequired, setPasswordRequired] = useState<boolean>(false);
