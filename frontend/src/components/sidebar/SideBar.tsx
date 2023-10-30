@@ -4,15 +4,15 @@ import {
   Gamepad2,
   Contact2,
   Settings,
-} from "lucide-react";
-import Link from "next/link";
+} from 'lucide-react';
+import Link from 'next/link';
 
-import React from "react";
+import React from 'react';
 
 const SideBar = () => {
   return (
-    <div className="border hidden sm:block w-16 h-full">
-      <div className="w-16 h-full flex flex-col items-center justify-between gap-16 border border-r p-4">
+    <div className="hidden h-full w-16 border sm:block">
+      <div className="flex h-full w-16 flex-col items-center gap-16 border border-r p-4">
         <div className="flex flex-col gap-16 p-4">
           <Link href="/profile/@me">
             <User className="hidden sm:block" />
@@ -25,11 +25,6 @@ const SideBar = () => {
           </Link>
           <Link href="/chat">
             <MessageSquare className="hidden sm:block" />
-          </Link>
-        </div>
-        <div className="flex">
-          <Link href="/settings">
-            <Settings className="hidden sm:block" />
           </Link>
         </div>
       </div>
