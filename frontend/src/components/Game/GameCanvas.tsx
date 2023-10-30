@@ -163,6 +163,7 @@ const GameCanvas = ({ setIsGameOver, setMyScore, setOppScore, isRanked }: GameCa
       if (canvas !== undefined) {
         canvas.removeEventListener("mousemove", handleMousemove);
       }
+      gameSocket.emit("leave-game");
     };
   }, [gameSocket, dispatch, isRanked, setIsGameOver, setMyScore, setOppScore]);
   return (

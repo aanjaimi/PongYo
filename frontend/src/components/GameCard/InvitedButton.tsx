@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSocket } from "@/contexts/socket-context";
@@ -39,13 +39,13 @@ const InvitedButton = ({ setInviteNotify, setFriend }: InvitedButtonProps) => {
       setFriend(username);
       gameSocket.emit("invite", { opponent: username });
     };
-    if (query.username && !query.startGame) {
+    if (query.username && !query.startGame && !username) {
       setUsername(query.username as string);
-      handleInviteClick(query.username as string);
       router.replace({
         pathname: router.pathname,
         query: {},
       }).catch((err) => console.error(err));
+      handleInviteClick(query.username as string);
     }
     if(query.startGame && query.username){
       setFriend(query.username as string);

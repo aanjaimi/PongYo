@@ -16,11 +16,17 @@ export class GameStarterService {
     isRanked: boolean,
     server: Server,
   ) {
+    // handel disconnect
+    player1.on('leave-game', () => {
+      player1.disconnect();
+    });
+    player2.on('leave-game', () => {
+      player2.disconnect();
+    });
     await this.delay(5060);
     let player1Score = 0;
     let player2Score = 0;
     let isGameOver = false;
-
     const engine = Engine.create({ gravity: { x: 0, y: 0 } });
     const createWall = (
       x: number,
@@ -212,10 +218,26 @@ export class GameStarterService {
             if (player1.connected === false) {
               player1Score = 0;
               player2Score = 10;
+              player1.emit('update-score', {
+                myScore: player1Score,
+                oppScore: player2Score,
+              });
+              player2.emit('update-score', {
+                myScore: player2Score,
+                oppScore: player1Score,
+              });
             }
             if (player2.connected === false) {
               player1Score = 10;
               player2Score = 0;
+              player1.emit('update-score', {
+                myScore: player1Score,
+                oppScore: player2Score,
+              });
+              player2.emit('update-score', {
+                myScore: player2Score,
+                oppScore: player1Score,
+              });
             }
             isGameOver = true;
             Runner.stop(runner);

@@ -129,6 +129,7 @@ const InvitationCard = ({ setInviteNotify, opp, setIsRanked, setGameStarted, set
                     ;
                   gameSocket.emit("declineInvite");
                   gameSocket.emit("busy");
+                  gameSocket.emit("cancel-game");
                 }
                 }
               >
