@@ -5,12 +5,8 @@ services:
     container_name: transcendence-db
     image: postgres
     restart: on-failure
-<<<<<<< Updated upstream
     env_file:
       - "./backend/.env"
-=======
-    env_file: "backend/.env"
->>>>>>> Stashed changes
     volumes:
       - "db-data:/var/lib/postgresql/data"
 
