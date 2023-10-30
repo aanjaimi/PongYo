@@ -40,7 +40,7 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
   const avatarRef = useRef<HTMLInputElement | null>(null);
   const [isOwner, setIsOwner] = useState(false);
   const [qrCodeData, setQrCodeData] = useState(() => {
-    if (state.user?.totp.enabled) return state.user.totp.otpauth_url;
+    if (state.user?.totp?.enabled) return state.user?.totp?.otpauth_url;
     return '';
   });
   const toastOptions: ToastOptions<object> = {
@@ -57,7 +57,7 @@ const ProfileCover = ({ user, isEdited, setIsEdited }: ProfileCoverProps) => {
   }, [state, user.id]);
 
   const [otp, setOtp] = useState(() => {
-    if (state.user?.totp.enabled) return state.user.totp.enabled;
+    if (state.user?.totp?.enabled) return state.user?.totp?.enabled;
     return false;
   });
 

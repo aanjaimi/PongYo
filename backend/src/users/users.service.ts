@@ -103,6 +103,7 @@ export class UserService {
         id: true,
         avatar: true,
         status: true,
+        totp: true,
       },
       data: {
         ...rest,
