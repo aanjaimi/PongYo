@@ -216,27 +216,27 @@ export class GameStarterService {
             player2.connected === false
           ) {
             if (player1.connected === false) {
-              player1Score = 0;
-              player2Score = 10;
-              player1.emit('update-score', {
-                myScore: player1Score,
-                oppScore: player2Score,
-              });
-              player2.emit('update-score', {
-                myScore: player2Score,
-                oppScore: player1Score,
-              });
-            }
-            if (player2.connected === false) {
               player1Score = 10;
               player2Score = 0;
               player1.emit('update-score', {
+                myScore: player2Score,
+                oppScore: player1Score,
+              });
+              player2.emit('update-score', {
                 myScore: player1Score,
                 oppScore: player2Score,
               });
-              player2.emit('update-score', {
+            }
+            if (player2.connected === false) {
+              player1Score = 0;
+              player2Score = 10;
+              player1.emit('update-score', {
                 myScore: player2Score,
                 oppScore: player1Score,
+              });
+              player2.emit('update-score', {
+                myScore: player1Score,
+                oppScore: player2Score,
               });
             }
             isGameOver = true;
@@ -270,46 +270,46 @@ export class GameStarterService {
               );
             };
             if (isRanked) {
-              if (player1Score > player2Score) {
+              if (player1Score < player2Score) {
                 updateRankStats(
-                  player2.user.id,
-                  player1Score,
-                  10,
-                  true,
                   player1.user.id,
                   player2Score,
+                  10,
+                  true,
+                  player2.user.id,
+                  player1Score,
                   -5,
                   false,
                 );
                 updateRankStats(
-                  player1.user.id,
-                  player2Score,
-                  -5,
-                  false,
                   player2.user.id,
                   player1Score,
+                  -5,
+                  false,
+                  player1.user.id,
+                  player2Score,
                   10,
                   true,
                 );
               } else {
                 updateRankStats(
-                  player1.user.id,
-                  player2Score,
-                  10,
-                  true,
                   player2.user.id,
                   player1Score,
+                  10,
+                  true,
+                  player1.user.id,
+                  player2Score,
                   -5,
                   false,
                 );
                 updateRankStats(
-                  player2.user.id,
-                  player1Score,
-                  -5,
-                  false,
                   player1.user.id,
                   player2Score,
                   -5,
+                  false,
+                  player2.user.id,
+                  player1Score,
+                  10,
                   true,
                 );
               }

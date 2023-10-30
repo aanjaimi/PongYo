@@ -9,7 +9,7 @@ import { friendChecking } from '@/friends/friends.helpers';
 
 @Injectable()
 export class InviteService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async handleInvite(userId: string, friend: string) {
     // TODO: smazouz test this !
     const { friendShip, friendId } = await friendChecking(
@@ -26,7 +26,7 @@ export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private achievementService: AchievementService,
-  ) {}
+  ) { }
 
   async updateUserRankStats(player: any, opp: any, mode: Mode) {
     const user = await this.prisma.user.findUnique({
@@ -216,13 +216,14 @@ export class UserService {
 
 @Injectable()
 export class GameService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   async getGamesLog(user: User, id: string) {
     return await this.prismaService.game.findMany({
       where: {
         userId: id,
       },
+      orderBy: { createdAt: 'desc' },
       include: {
         user: true,
         opponent: true,
