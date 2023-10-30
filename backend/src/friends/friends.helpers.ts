@@ -62,6 +62,7 @@ export async function friendChecking(
       userGameHistory: true,
       friends: true,
       myFriends: true,
+      isCompleted: true,
     },
   });
   if (!friend) throw new NotFoundException();

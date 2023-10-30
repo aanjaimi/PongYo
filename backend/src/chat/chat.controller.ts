@@ -34,9 +34,9 @@ export class ChatController {
   @Get('directMessage')
   async getDirectMessage(
     @CurrentUser() user: User,
-    @Query('displayname') displayname: string,
+    @Query('login') login: string,
   ) {
-    const dm = await this.chatService.getDirectMessage(user, displayname);
+    const dm = await this.chatService.getDirectMessage(user, login);
     return dm;
   }
 

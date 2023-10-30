@@ -3,7 +3,6 @@ import {
   User,
   Gamepad2,
   Contact2,
-  Settings,
 } from 'lucide-react';
 import Link from 'next/link';
 

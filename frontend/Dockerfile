@@ -11,6 +11,6 @@ COPY . .
 
 
 # TODO: uncommnet this !
-# RUN yarn build
+RUN yarn build
 
-CMD [ "yarn", "dev"]
+CMD [ "yarn", "start"]
