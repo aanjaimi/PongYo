@@ -77,13 +77,13 @@ export class ChatService {
     });
   }
 
-  async getDirectMessage(currentUser: User, displayname: string) {
+  async getDirectMessage(currentUser: User, login: string) {
     // check the current user and other user
-    if (currentUser.displayname === displayname)
+    if (currentUser.login === login)
       throw new HttpException('Cannot DM yourself', HttpStatus.BAD_REQUEST);
 
     const otherUser = await this.prismaService.user.findUnique({
-      where: { displayname },
+      where: { login },
     });
 
     // check if other user exists
@@ -147,7 +147,7 @@ export class ChatService {
         updatedAt: true,
       },
       data: {
-        name: `${currentUser.displayname}-${otherUser.displayname}`,
+        name: `${currentUser.login}-${otherUser.login}`,
         type: RoomType.PRIVATE,
         isDM: true,
         members: {

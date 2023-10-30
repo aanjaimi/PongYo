@@ -25,7 +25,7 @@ export default function JoinChannel({
 }: JoinChannelProps) {
   const { chatSocket } = useSocket();
   const [passwordRequired, setPasswordRequired] = useState<boolean>(false);
-  const [displayname, setdisplayname] = useState<string>('');
+  const [login, setLogin] = useState<string>('');
   const [joinChannelName, setJoinChannelName] = useState<string>('');
   const [joinChannelPassword, setJoinChannelPassword] = useState<string>('');
   const toastOptions: ToastOptions<object> = {
@@ -39,7 +39,7 @@ export default function JoinChannel({
   const joinDirectMessage = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     let channel: Channel | undefined = channels.find(
-      (channel) => (channel.name === displayname && channel.isDM),
+      (channel) => (channel.name === login && channel.isDM),
     );
     if (channel) {
       updateSelectedChannel(channel);
@@ -48,13 +48,13 @@ export default function JoinChannel({
 
     try {
       const { data } = await fetcher.get<Channel>(
-        `/chat/directMessage?displayname=${displayname}`,
+        `/chat/directMessage?login=${login}`,
       );
       channel = data;
       if (!channel) return;
 
       const name: string[] = channel.name.split('-');
-      channel.name = (name[0] === user.displayname
+      channel.name = (name[0] === user.login
         ? name[1]
         : name[0]) as unknown as string;
 
@@ -133,8 +133,8 @@ export default function JoinChannel({
             type="text"
             placeholder="username..."
             className="mr-[1rem] border-[2px] border-black"
-            value={displayname}
-            onChange={(e) => setdisplayname(e.target.value)}
+            value={login}
+            onChange={(e) => setLogin(e.target.value)}
           />
           <Button>start</Button>
         </form>
