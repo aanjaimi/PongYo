@@ -26,7 +26,7 @@ export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private achievementService: AchievementService,
-  ) { }
+  ) {}
 
   async updateUserRankStats(player: any, opp: any, mode: Mode) {
     const user = await this.prisma.user.findUnique({
